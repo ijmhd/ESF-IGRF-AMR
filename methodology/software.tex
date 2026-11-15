@@ -1,0 +1,256 @@
+\section{Software architecture and reproducible execution}
+\subsection{Module responsibilities and ownership contracts}
+The command-line entry point validates input before constructing a model.
+Omitting \code{--amr-mode} selects the uniform reference solver; specifying
+\code{none}, \code{fixed}, \code{fine} or \code{dynamic} selects the AMR
+backend. There is no literal \code{static} enum. PETSc is required by AMR;
+the \code{--petsc-potential} selector separately controls the static backend.
+The build may omit MPI/PETSc for geometry utilities and the small reference
+solver. OpenMP is optional and requires the MPI/PETSc configuration.
+
+\begin{longtable}{p{.25\linewidth}p{.68\linewidth}}
+\toprule Module & Responsibilities and contracts \\ \midrule\endhead
+\path{igrf.c},\newline\path{geometry.c}&Field evaluation, target/apex conversion,
+ tracing, hexahedral metrics, prescribed conductivity responses.\\
+\path{pdm.c},\newline\path{integrator.c}&Physical-volume reconstruction moments and
+ limiter; stable exponential drag weights.\\
+\path{amr3.c}&Coupled driver, face-block topology, O$^+$ transport, complete
+ stage RHS, clocks, frame output and conservative static import.\\
+\path{amr3_mesh.c}&Backing/owned/ghost layout, immutable-cache reuse,
+ restrictions, lazy sampling, conservative transfer and invariant checks.\\
+\path{amr3_macro.c}&Third physical level, macro ownership, virtual internal
+ children, parent tags and nested field constraints.\\
+\path{amr3_structure.c},\newline\path{amr3_tags.c}&Structure detector, reason bits,
+ prospective-parent loss and marker protection; legacy detector dispatch.\\
+\path{amr3_potential.c}&Full integrated tensor, constrained Galerkin/COO
+ assembly, regional boundary terms and checked PETSc solves.\\
+\path{amr3_adapt.c},\newline\path{amr3_migration.c}&Ownership planning, old/new
+ intersections, conservative remap and post-remap potential.\\
+\path{amr3_night.c},\newline\path{amr3_molecular.c}&Prescribed neutral/rate loading,
+ reactions, common Ne, molecular fluxes/stages and complete rollback.\\
+\path{night.c},\newline\path{night_transport.c}&Pure local rate/solar/mobility/fitted
+ flux kernels with explicit units and vacuum branches.\\
+\path{amr3_restart.c},\newline\path{amr3_checkpoint2.c},\newline\path{amr3_cache.c}&Portable
+ state formats, physical/numerical signatures and native geometry cache.\\
+\path{transport.c},\newline\path{potential.c},\newline\path{petsc_potential.c},\newline
+\path{output.c},\newline\path{restart.c}&Uniform reference solver, its small or PETSc
+ potential backend, output and static restart.\\
+\path{neutral_grid.c},\newline\path{electric_driver.c}&Strict externally supplied
+ neutral/collision data and time-dependent imposed field.\\
+\bottomrule
+\end{longtable}
+
+The \code{A3} state holds configuration, mesh/partition, owner metrics,
+reconstruction caches, PETSc objects, detector history and rank-local
+counters. Its \code{current_n/current_m} are borrowed current-stage views.
+\code{slot[global_column]} is $-1$ outside the local halo;
+\code{global[local_slot]} reverses the valid map. Owned slots precede ghosts.
+Copying the struct requires \code{a3_rebase} to repair pointers into its
+embedded level-array storage. A shared-cache reference count keeps immutable
+geometry/PDM tables alive across rebuilds. Per-mesh tables and PETSc objects
+are separately destroyed. The molecular object distinguishes its global
+canonical count from owned workspace count.
+
+\subsection{Array layout and stage-validity map}
+Canonical cell/node storage has the field-coordinate index contiguous.
+Face-family dimensions include one extra entry only in the face-normal
+direction. The distinction between globally allocated backing and locally
+valid values is part of the algorithm, not a plotting convention.
+\begin{longtable}{>{\raggedright\arraybackslash}p{.28\linewidth}p{.64\linewidth}}
+\toprule Array group & Meaning and validity \\ \midrule\endhead
+\code{leaf}, \code{first}, \code{row}, \code{cover}&Backing-column labels, root-to-first-column,
+ row prefix and canonical-cover maps. Stable for one mesh epoch.\\
+\code{slot}, \code{global}, \code{partition}&Global/local translation and contiguous owned
+ root-row cuts. Rebuilt on changed ownership.\\
+\code{metric}&Actual owner volume, collision, gravity, reference density
+ and two parallel areas. Nonowner slots have zero volume after masking.\\
+\code{root_volume}, \code{root_bg}, \code{fine_bg}&Immutable reference geometry/background
+ shared across rebuilds; they are not current plasma density.\\
+\code{response[12]}&Per canonical cell: indices0--3 O$^+$ tensor per
+ normalized density,4--7 additional molecular tensor,8--9 O$^+$ gravity
+ current and10--11 additional molecular current. Molecular parts refresh
+ from current transported species when night mode is on.\\
+\code{base_n}, \code{base_m}, \code{base_velocity}&Prepared internal-root views from actual
+ owners; macro-coarse cells populate conservative virtual root children.\\
+\code{ready}, \code{child_n}, \code{child_m}, \code{child_velocity}&Lazy reconstruction caches.
+ Density and velocity validity are distinct; reset on each prepare.
+ Concurrent sampling is not automatically safe.\\
+\code{macro_mask}, \code{macro_state}&Actual L0 ownership and prepared macro
+ density/momentum/velocity/marker views. Read only after restriction.\\
+\code{ion}, \code{momentum}, \code{electron}&Full canonical molecular backing and common
+ electron array; only owned/refreshed dependencies are valid during RHS.\\
+\code{backup}, \code{old_n}, \code{old_m}, \code{dn}, \code{dm}&Owned molecular rollback, stage and RHS
+ workspaces. All species roll back together on a rejected attempt.\\
+\code{transport_log}, \code{etd_weight}&Current-RHS pressure logarithms and
+ same-attempt drag coefficients. Neither may silently survive an invalidating
+ density/dt/ownership change.\\
+\code{electron_average}, \code{electron_ready}&Owned-only, lazy
+volume-weighted Ne averages at private levels$-1,0,1$. Reset whenever
+\code{a3_night_electrons} rebuilds the current electron state. Accessed on
+the main thread, with the original direct calculation outside owned cells.\\
+\code{map}, \code{COO}, \code{matrix}, \code{ksp}, \code{phi}&Constrained independent-to-canonical potential
+ map, geometric assembly factors and current material solve.\\
+\bottomrule
+\end{longtable}
+The source atlas prints the precise types, formulas and indexing of each
+group. The strict input/output schema must be used instead of the in-memory
+member order. Real MPI status buffers and explicit C11 array qualification
+conversions eliminate vendor-header/pedantic diagnostics without suppressing
+compiler checks or changing numerical arithmetic.
+
+Every runtime function has an adjacent responsibility comment, with units
+and state/collective caveats at module and structure definitions. The
+function appendix provides all 299 runtime C definitions; the source atlas
+also includes headers and tests. Short inline ownership helpers in the
+internal header follow its explicit count/index contract.
+
+\subsection{Cache validity and optimizations in this release}
+The following changes preserve the physical inputs, limiter/CFL/residual
+policies and output cadence of the qualification:
+\begin{enumerate}
+\item Three-level construction no longer builds raw metrics twice.
+  \code{a3_macro_metrics} remains the sole reset/build path before applying
+  segmented masks, including restart remasking.
+\item Macro volume/background tables are copied from unchanged geometry
+  rather than repeating four-child reductions on every rebuild. Separate
+  table ownership is retained.
+\item The two conversion half-operators within one reaction call reuse
+  identical rate/duration exponential coefficients. Density-dependent
+  recombination coefficients are still reevaluated.
+\item Predictor/corrector reuse ETD weights only within one attempted dt.
+  Zero drag uses the exact analytic limit. Current-stage pressure logs
+  retain their earlier per-RHS validity policy.
+\item Repeated O$^+$ pressure/fitted-flux requests reuse the same owned
+  volume-weighted electron average within the current electron state. The
+  first request retains the original summation and division, including the
+  finest-level $n_eV/V$ expression. All readiness flags are cleared before
+  rebuilding Ne; no average survives a stage change. Off-owner requests use
+  the original calculation. These lazy cache writes remain on the main
+  thread and are not introduced into worker loops.
+\item Audited independent kernels use optional OpenMP; MPI/PETSc, lazy
+  reconstruction and AMR O$^+$ face traversal retain main-thread ownership.
+\item Call-reason counters expose initial CFL repeats separately from
+  predictor/corrector failure retries.
+\end{enumerate}
+The previous qualified release already replaced unconditional full
+molecular gathers during every regrid with owned-intersection migration,
+removed unused O$^+$ logarithms and reused molecular pressure logarithms.
+Those earlier gains are not counted a second time in the new paired result.
+No \code{fast-math}, density floor, conductivity floor, velocity cap,
+looser potential residual, reduced output or changed refinement threshold
+is used to obtain a speedup.
+
+Several arrays still have global backing and several loops still visit
+inactive or ghost slots. A prospective active-index optimization must
+retain virtual child data required by PDM and coarse/fine sampling.
+Further two-dimensional/block ownership and molecular AMR are substantial
+changes, not already implemented features of this frozen release.
+
+\subsection{Input files, defaults and effective cases}
+The complete 79-option reference in the appendix is generated from an
+explicit documented set checked against the parser's literal options.
+Executable defaults differ from teaching/qualification cases. For example,
+the executable retains CFL 0.35 and residual request $10^{-9}$, whereas the
+qualified case explicitly specifies 0.25 and $10^{-10}$. Scientific claims
+must use the effective case, not an assumed default or historical README.
+
+A height collision table contains height in metres and positive O/e
+collision rates in $\mathrm{s^{-1}}$. A height neutral table contains
+$h,n_O,n_{N2},n_{O2},T_n$ with SI neutral densities, positive values and
+full-domain coverage. Log interpolation is used. A spatial \code{ESFNEU01}
+input has dimensions, component count, exact canonical-position hash,
+temperature pair, data hash and six values per cell: $n_O,n_{N2},n_{O2},T_n,
+\nu_O,\nu_e$. It is frozen, not an internal MSIS evaluation. UTC is
+independent of IGRF decimal year and is neither HKT nor MLT.
+
+The example launcher reads checked-in JSON, resolves input paths, prints
+the full command and applies only explicit requested overrides. It refuses
+an output already containing run metadata. The 0.2 s smoke case verifies
+workflow, not bubble development; the 600 s teaching cases are deliberately
+small and not substitutes for resolved event simulations.
+
+\subsection{Outputs and frame-to-mesh binding}
+\code{frames.csv} binds each time to a saved state, potential, leaf layout
+and metrics epoch. \code{structure_frames.csv} additionally records actual
+activity, backing count, field DOFs, density mask and tag outputs.
+\code{state} is float64$[2,n_{\rm leaf},N_\parallel]$ with O$^+$ $N,M$;
+\code{display_density} is reconstructed canonical O$^+$, not electron
+density. Molecular density/momentum each have shape
+$[2,N_{y,f},N_{x,f},N_\parallel]$. Canonical Ne adds both species to reconstructed
+O$^+$. \code{amr_level} uses actual physical level0/1/2. Tag bits are
+gradient1, curvature2, velocity4, seed8, loss16, buffer32, hold64, field128
+and represented-background256. The six tag values are $G,C,V,L,G_{\rm raw},
+C_{\rm raw}$.
+
+Saved leaf metrics contain volume, background, collision rate, gravity and
+the two parallel areas in that explicit order, which differs from the C
+struct member order. Never reinterpret a visualization file as a C struct.
+Native visualization data require explicit format/endianness awareness;
+portable checkpoint encoding is a separate contract. Reconstructed coarse
+display detail is not independently evolved fine-scale plasma.
+
+\subsection{Portable checkpoints and strict identity}
+Absolute particle/mass ledgers integrate stored normalized density; multiply
+them by $n_*=10^{12}\,\mathrm{m^{-3}}$ for physical particle numbers. They
+are not kilograms. Momentum integrals additionally require the species mass
+when interpreted as physical mass momentum. Relative conservation errors do
+not depend on the normalization. Initial molecular total is calculated over
+replicated canonical geometry and is not reduced a second time over ranks.
+
+Native checkpoints use little-endian64-bit integers and IEEE doubles,
+ordered signatures and a final FNV checksum. Magic identifies legacy
+\code{ESFAMR01}, structure02, driver03, spatial-neutral04 and three-level05
+extensions. Structure formats retain density/field masks, quiet/birth
+clocks, optional tracer, state, potential, original mass/boundary history
+and input/source identities. Different MPI ranks are supported through
+reconstruction of the owned layout when the physical case is compatible.
+
+The molecular \code{ESFNIT02} file carries a numerical-source ID and the
+hash of the exact paired native file, followed by physical clocks,
+temperature/history and species arrays. Each file is atomically replaced,
+but the pair is not a two-file transaction: a checkpoint is complete only
+when both agree. A stop between writes can leave two individually complete
+but incompatible files. Archive only a verified pair.
+
+\code{ESFGEO01} is a different, native-ABI geometry cache with input,
+parameter, source, ABI-size and payload checks. Editing geometry comments
+changes its raw source fingerprint. Such strict rejection is intentional;
+do not turn it into a general bypass. The qualification alone converts
+isolated historical test copies after token-parity proof, updating only
+metadata/checksums while proving identical physical payloads. Runtime
+identity checks remain unchanged. SHA256 release/input manifests complement
+the noncryptographic FNV integrity checks.
+
+\subsection{Build, tests and publication boundary}
+CMake builds the geometry utilities, local kernels, uniform solver and
+optional PETSc/AMR backend. The qualification uses C11, GCC 12.3, Intel
+MPI 2021.3, PETSc 3.26.1 real-double, Release/O3 and LTO. Optional OpenMP
+requires compiler/runtime support. Site account, modules and absolute
+paths belong in external launch scripts, not physical defaults.
+
+The release contains code, official coefficients, explicit small examples,
+documentation, test sources, manifests and methods sources/PDFs. Large
+historical checkpoints, native caches, observed ISR data and cluster-specific
+credentials are not Git payloads. Publication of the teaching case therefore
+does not imply distribution of every production restart dataset. The
+provenance distinguishes exact run qualification from the separately
+specified student workflows.
+
+\section{Limitations and appropriate scientific use}
+A successful numerical gate demonstrates its defined invariant, not all
+physical conclusions. Source/field parity does not validate empirical
+collision multipliers, a prescribed neutral bath, idealized seed location,
+PRE/wind history or an ISR comparison. IGRF geometry does not automatically
+calibrate a Hong Kong evening. The UTC clock and whole-conjugate E-region
+illumination matter for any night interpretation. Long elapsed simulation
+time can exceed the regime of a prescribed background even when the solver
+continues stably.
+
+Zero-hold simultaneous coarsening is outside the qualified configuration;
+the released science cases retain 60 s quiet/residence time. General
+octree AMR, molecular adaptivity, energy/neutral coupling, full reaction
+momentum, molecular perpendicular pressure diffusion and broad topology
+changes are future work. Current one-dimensional rank ownership has a
+finite granularity limit, and replicated geometry/molecular backing makes
+memory scale less favorably than active O$^+$ count. The complete annotated
+source and explicit case evidence define the actual implementation boundary.

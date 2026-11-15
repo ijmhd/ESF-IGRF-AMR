@@ -1,0 +1,722 @@
+\section{Function-level implementation reference}
+All runtime C definitions are bound to reviewed responsibilities and actual source lines. Units and cache/ownership contracts accompany the source. The complete implementation, headers and tests are in the separate source atlas.
+\subsection{\texttt{src/amr3.c}}
+AMR driver and conservative O+ fluxes. n is normalized by 1e12 m\textasciicircum{}-3; m=n*u\_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{wrap}] Return the nonnegative periodic index i modulo n. Source line 18.\par
+{\small\nolinkurl{static int wrap(int i, int n)}}
+\item[\texttt{cover}] Map a canonical transverse cell to its backing leaf column; apply the configured periodic/clamped indexing. Source line 26.\par
+{\small\nolinkurl{static int cover(A3 *a, int i, int j)}}
+\item[\texttt{owned}] Test whether a backing column belongs to this rank, so shared faces update only local conserved states. Source line 39.\par
+{\small\nolinkurl{static int owned(A3 *a, int p)}}
+\item[\texttt{ph}] Read a transverse potential node using this solver's boundary/periodic indexing convention. Source line 45.\par
+{\small\nolinkurl{static double ph(A3 *a, int i, int j)}}
+\item[\texttt{derivative}] Compute the two transverse potential derivatives at a geometric face and retain both metric cross contributions. Source line 52.\par
+{\small\nolinkurl{static void derivative(A3 *a, int axis, int i, int j, double d[2])}}
+\item[\texttt{minmod}] Return the sign-consistent slope with smallest magnitude; return zero at an extremum. Source line 78.\par
+{\small\nolinkurl{static double minmod(double a, double b, double c)}}
+\item[\texttt{length\_at}] Read the physical along-field segment length at the requested private refinement level. Source line 84.\par
+{\small\nolinkurl{static double length_at(A3 *a, int level, int i, int j, int k)}}
+\item[\texttt{cell\_value}] Sample density or velocity with the caller's parallel boundary convention; used by the along-field reconstruction. Source line 103.\par
+{\small\nolinkurl{static double cell_value(A3 *a, int p, int k, int field)}}
+\item[\texttt{parallel\_state\_at}] Construct a bounded left/right parallel face state at an explicitly requested refinement level. Source line 112.\par
+{\small\nolinkurl{static double parallel_state_at(A3 *a, int level, int i, int j, int k, int field, int side)}}
+\item[\texttt{parallel\_state}] Resolve the actual local density level, then reconstruct its parallel face state. Source line 122.\par
+{\small\nolinkurl{static double parallel_state(A3 *a, int p, int k, int field, int side)}}
+\item[\texttt{length}] Resolve a backing cell's active density level before reading its physical parallel length. Source line 129.\par
+{\small\nolinkurl{static double length(A3 *a, int p, int k)}}
+\item[\texttt{log\_pressure}] Compute the nonuniform parallel logarithmic pressure gradient, using common Ne in the multi-ion closure and exact-vacuum secants. Source line 137.\par
+{\small\nolinkurl{static double log_pressure(A3 *a, int p, int k)}}
+\item[\texttt{bernoulli}] Evaluate the Bernoulli fitting function z/(exp(z)-1) with small-argument series and large-argument limits. Source line 167.\par
+{\small\nolinkurl{static double bernoulli(double z)}}
+\item[\texttt{parallel\_cache}] Prepare shared parallel flux/rate tables for a column-uniform density layout; segmented layouts use a different path. Source line 182.\par
+{\small\nolinkurl{static void parallel_cache(A3 *a, double cs)}}
+\item[\texttt{density\_cover}] Locate the actual density owner at a canonical cell and along-field index; owner can differ from electric-field backing. Source line 246.\par
+{\small\nolinkurl{static int density_cover(A3 *a, int i, int j, int k)}}
+\item[\texttt{append\_face}] Append or merge a canonical face interval whose two active density owners and levels are unchanged. Source line 260.\par
+{\small\nolinkurl{static void append_face(A3 *a, int axis, int i, int j, int first, int last)}}
+\item[\texttt{a3\_face\_topology}] Build conservative face blocks for the current segmented density mesh; identical interface fluxes are shared by both adjacent volumes. Source line 299.\par
+{\small\nolinkurl{void a3_face_topology(A3 *a)}}
+\item[\texttt{metric\_at}] Read or conservatively aggregate geometry for a requested physical density level, including the macro level. Source line 332.\par
+{\small\nolinkurl{static void metric_at(A3 *a, int level, int i, int j, int k, A3Metric *m)}}
+\item[\texttt{a3\_parallel\_geometry}] Cache static segment lengths and parallel relaxation factors for every supported level. Source line 348.\par
+{\small\nolinkurl{void a3_parallel_geometry(A3 *a)}}
+\item[\texttt{segmented\_parallel}] Evaluate parallel particle/momentum flux for one actual segmented interface; retain collisional relaxation and electron-pressure fitting. Source line 389.\par
+{\small\nolinkurl{static void segmented_parallel(A3 *a, int level, int i, int j, int k, double cs, double *N, double *M, double *rate)}}
+\item[\texttt{marker\_fraction}] Return a bounded material seed fraction from the advected marker and density; zero density gives zero fraction. Source line 453.\par
+{\small\nolinkurl{static double marker_fraction(A3 *a, int level, int axis, int i, int j, int k, int sign)}}
+\item[\texttt{a3\_transport}] Compute O+ finite-volume density/momentum RHS, shared face fluxes, gravity/pressure sources and global stability/travel rates. Collective; sampling may populate lazy caches, so AMR face loops remain on the main thread. Source line 464.\par
+{\small\nolinkurl{void a3_transport(A3 *a, double *dn, double *dm)}}
+\item[\texttt{rhs}] Execute the complete current-stage chain: prepare/halo, integrated potential solve, O+ transport, then molecular transport. The potential always belongs to this stage's density and chemistry state. Source line 640.\par
+{\small\nolinkurl{static void rhs(A3 *a, double *n, double *m, double *dn, double *dm, double time)}}
+\item[\texttt{node\_id}] Flatten node coordinates with the along-field coordinate contiguous. Source line 652.\par
+{\small\nolinkurl{static int node_id(TubeGrid *g, int i, int j, int k)}}
+\item[\texttt{make\_box}] Build Cartesian synthetic geometry for transport/potential verification rather than tracing a physical magnetic field. Source line 659.\par
+{\small\nolinkurl{static void make_box(TubeGrid *g, GridConfig c)}}
+\item[\texttt{gather\_geometry}] Collect disjoint computed geometry row ranges into replicated canonical geometry, in MPI-count-safe chunks. Source line 700.\par
+{\small\nolinkurl{static void gather_geometry(A3 *a, void *data, int rows, size_t rowbytes, const int *cuts)}}
+\item[\texttt{parallel\_geometry}] Distribute tube tracing and cell/face metric construction among ranks, then assemble the replicated geometry and diagnostics. Source line 717.\par
+{\small\nolinkurl{static void parallel_geometry(A3 *a, TubeGrid *g, Igrf *field, GridConfig fine)}}
+\item[\texttt{geometry}] Load and validate a geometry cache, or construct geometry and optionally write a new cache; initialize conductivity responses afterward. Source line 772.\par
+{\small\nolinkurl{static void geometry(A3 *status, TubeGrid *g, Config3 c)}}
+\item[\texttt{output}] Open a named output in the current run directory; failures are collective-fatal through a3\_fail. Source line 833.\par
+{\small\nolinkurl{static FILE *output(A3 *a, const char *name, const char *mode)}}
+\item[\texttt{metadata}] Write effective geometry, numerical controls, units and binary layout metadata for this AMR run. Source line 845.\par
+{\small\nolinkurl{static void metadata(A3 *a)}}
+\item[\texttt{snapshot}] Collect owned states, reconstruct canonical display density, and write time/mesh-bound outputs plus the native checkpoint. Display reconstruction is not an evolved finest-grid solution. Source line 920.\par
+{\small\nolinkurl{static void snapshot(A3 *a, double *n, double *m, int frame, double time, int step, double mass0, const int *quiet, double next_regrid, double travel, int retries)}}
+\item[\texttt{remap\_tests}] Exercise constant/background/smooth conservative transfers and validate particle/momentum invariants in the dedicated remap case. Source line 1105.\par
+{\small\nolinkurl{static void remap_tests(A3 *base, TubeGrid *g)}}
+\item[\texttt{import\_static}] Import a uniform-grid restart by preserving original coarse-cell particle and signed momentum integrals on the canonical AMR geometry. Source line 1198.\par
+{\small\nolinkurl{static void import_static(A3 *a, TubeGrid *g, double *n, double *m, double *time, int *step, double *mass0)}}
+\item[\texttt{workspace}] Replace scratch arrays after a mesh rebuild so their sizes match the new owned-plus-halo backing layout. Source line 1285.\par
+{\small\nolinkurl{static void workspace(A3 *a, double ***arrays, int count)}}
+\item[\texttt{amr3\_run}] Drive initialization/restart, regridding, half chemistry, two-stage O+/molecular transport, acceptance checks, diagnostics and checkpointing. All ranks follow the same clocks; no level subcycling is used. Source line 1296.\par
+{\small\nolinkurl{int amr3_run(Config3 c, int rank, int size)}}
+\end{description}
+\subsection{\texttt{src/amr3\_adapt.c}}
+Collective mesh rebuild, ownership migration and conservative transfer. Geometry remains fixed; density and electric-potential approximation spaces may change separately.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{migrate}] Transfer O+ density/momentum/optional marker intersections between old and new rank-owned slabs before conservative remapping. Source line 16.\par
+{\small\nolinkurl{static void migrate(A3 *old, A3 *moved, double *n, double *m, double *N, double *M)}}
+\item[\texttt{a3\_adapt}] Detect actual mask/field-space changes, repartition molecules and O+, build/remap the new mesh, verify global invariants and resolve potential. A no-change request returns without rebuilding. Source line 47.\par
+{\small\nolinkurl{int a3_adapt(A3 *a, double **n, double **m, const unsigned char *mask, double time, int step, int exact_initial)}}
+\end{description}
+\subsection{\texttt{src/amr3\_cache.c}}
+Native-ABI geometry cache. This is a performance cache, not a portable state checkpoint. Source/input identities, ABI sizes and payload checksum must all match.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{hash}] Update the FNV-1a checksum over an exact byte sequence. Source line 20.\par
+{\small\nolinkurl{static uint64_t hash(uint64_t h, const void *data, size_t n)}}
+\item[\texttt{file\_hash}] Hash an input file for cache identity; an empty optional path has identity zero. Source line 31.\par
+{\small\nolinkurl{static uint64_t file_hash(A3 *a, const char *path)}}
+\item[\texttt{a3\_geometry\_identity}] Accept the exact compiled geometry identity or one explicitly enumerated, version-guarded historical equivalence; reject unknown changes. Source line 51.\par
+{\small\nolinkurl{int a3_geometry_identity(A3 *a, const char code[128])}}
+\item[\texttt{a3\_geometry\_cache}] Read/write native canonical geometry with complete parameter/input/source/ABI checks, atomic rename and payload checksum. Source line 88.\par
+{\small\nolinkurl{int a3_geometry_cache(A3 *a, TubeGrid *g, Config3 c, int write)}}
+\end{description}
+\subsection{\texttt{src/amr3\_checkpoint2.c}}
+Structure-aware ESFAMR02/03/04/05 checkpoint formats. Preserve density/field masks, hysteresis clocks, optional seed tracer and conservation history.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{bytes}] Read or write exactly the requested bytes while updating the checkpoint checksum; short transfers are fatal. Source line 25.\par
+{\small\nolinkurl{static void bytes(Stream *s, void *p, size_t n)}}
+\item[\texttt{integer}] Encode/decode an unsigned 64-bit integer in little-endian order and update the stream checksum. Source line 38.\par
+{\small\nolinkurl{static uint64_t integer(Stream *s, uint64_t value)}}
+\item[\texttt{reals}] Transfer floating data in portable little-endian order, retaining the checksum over the actual encoded bytes. Source line 52.\par
+{\small\nolinkurl{static void reals(Stream *s, double *p, size_t n)}}
+\item[\texttt{finish}] Write or verify the final checksum, reject trailing data on reads, and close the checkpoint stream. Source line 68.\par
+{\small\nolinkurl{static void finish(Stream *s)}}
+\item[\texttt{parameters}] Choose the exact restart signature length required by this case's driver/neutral extensions. Source line 80.\par
+{\small\nolinkurl{static int parameters(Config3 c)}}
+\item[\texttt{signature}] Build the ordered physical/numerical restart signature; changing a signed parameter intentionally rejects incompatible restart. Source line 87.\par
+{\small\nolinkurl{static void signature(Config3 c, double value[72])}}
+\item[\texttt{a3\_checkpoint2\_write}] Atomically write structure-aware masks/history, optional tracer, actual conserved states, potential and checksummed physical/numerical signatures. Source line 127.\par
+{\small\nolinkurl{void a3_checkpoint2_write(A3 *a, const double *n, const double *m, const double *marker, double time, int step, double mass0, double next_regrid, double travel, int retries)}}
+\item[\texttt{a3\_checkpoint2\_read}] Validate and reconstruct a structure-aware checkpoint, distribute states under the current MPI decomposition, and restore mesh/clocks/history. Source line 206.\par
+{\small\nolinkurl{int a3_checkpoint2_read(A3 *a, TubeGrid *g, Config3 c, int rank, int size, double **n, double **m, double *time, int *step, double *mass0, int **quiet, double *next_regrid, double *travel, int *retries)}}
+\end{description}
+\subsection{\texttt{src/amr3\_macro.c}}
+Third physical level. A macro cell covers four internal roots. Only the primary backing slot evolves when its macro mask is coarse; volume-weighted virtual children serve reconstruction.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{a3\_nx}] Return the transverse x dimension for a private level; level -1 is the extra physical coarse level. Source line 18.\par
+{\small\nolinkurl{int a3_nx(const A3 *a, int level)}}
+\item[\texttt{a3\_ny}] Return the transverse y dimension for a private level; level -1 is the extra physical coarse level. Source line 25.\par
+{\small\nolinkurl{int a3_ny(const A3 *a, int level)}}
+\item[\texttt{a3\_scale}] Return the number of canonical finest cells across one requested-level cell: 4, 2 or 1. Source line 31.\par
+{\small\nolinkurl{int a3_scale(int level)}}
+\item[\texttt{a3\_macro\_index}] Map an internal root index to its containing two-by-two macro cell. Source line 37.\par
+{\small\nolinkurl{int a3_macro_index(const A3 *a, int b)}}
+\item[\texttt{a3\_macro\_primary}] Return the unique backing column used to evolve an unrefined macro cell. Source line 43.\par
+{\small\nolinkurl{int a3_macro_primary(const A3 *a, int b)}}
+\item[\texttt{a3\_rebase}] Repair interior pointers after copying an A3 struct; they must point into the destination's own embedded storage. Source line 50.\par
+{\small\nolinkurl{void a3_rebase(A3 *a)}}
+\item[\texttt{coord}] Wrap or clamp macro coordinates according to physical versus synthetic boundary policy. Source line 59.\par
+{\small\nolinkurl{static int coord(A3 *a, int x, int n, int axis)}}
+\item[\texttt{mm}] Apply the two-argument minmod slope limiter without changing a conserved cell average. Source line 69.\par
+{\small\nolinkurl{static double mm(double a, double b)}}
+\item[\texttt{present}] Test whether this rank holds the primary backing state for a macro cell. Source line 75.\par
+{\small\nolinkurl{static int present(A3 *a, int i, int j)}}
+\item[\texttt{around}] Read a neighboring macro representation, falling back to the central cell if the neighbor is outside the local halo. Source line 82.\par
+{\small\nolinkurl{static double around(A3 *a, int f, int i, int j, int k, int ci, int cj)}}
+\item[\texttt{a3\_macro\_init}] Allocate macro masks/history/state tables and copy their history from the old mesh; reuse immutable volume/background values on rebuild. Source line 95.\par
+{\small\nolinkurl{void a3_macro_init(A3 *a, A3 *reuse, int mode)}}
+\item[\texttt{a3\_macro\_metrics}] Reconstruct unsegmented raw metrics from fixed canonical cells before applying any density mask. Repeated invocation must not aggregate already aggregated volumes. Source line 159.\par
+{\small\nolinkurl{void a3_macro_metrics(A3 *a)}}
+\item[\texttt{a3\_macro\_prepare}] Restrict evolved owner states to macro averages, then construct bounded conservative virtual internal-root states for coarse macro cells. Source line 190.\par
+{\small\nolinkurl{void a3_macro_prepare(A3 *a)}}
+\item[\texttt{a3\_macro\_sample}] Read a prepared macro density/momentum/velocity/marker sample and verify local halo availability. Source line 336.\par
+{\small\nolinkurl{double a3_macro_sample(A3 *a, int field, int i, int j, int k)}}
+\item[\texttt{a3\_macro\_tags}] Choose coarse-level refinement from residual gradient/curvature and parent information loss; enforce nesting, buffering and physical-time quiet hysteresis. Source line 348.\par
+{\small\nolinkurl{void a3_macro_tags(A3 *a, const unsigned char *fine_mask)}}
+\item[\texttt{a3\_macro\_output}] Write physical L0/L1/L2 cell labels and actual activity counts for visualization and validation. Source line 454.\par
+{\small\nolinkurl{void a3_macro_output(A3 *a, int frame, double time)}}
+\item[\texttt{node}] Flatten a transverse potential node index on the canonical nodal grid. Source line 487.\par
+{\small\nolinkurl{static int node(A3 *a, int i, int j)}}
+\item[\texttt{edge}] Determine a macro-edge constraint in the transverse potential approximation space. Source line 495.\par
+{\small\nolinkurl{static int edge(A3 *a, int i, int j)}}
+\item[\texttt{add\_map}] Accumulate constrained basis weights for one potential map without losing contributions shared through a parent. Source line 502.\par
+{\small\nolinkurl{static void add_map(A3 *a, A3Map *m, int id, double w)}}
+\item[\texttt{resolve}] Resolve nested potential-node constraints to the final independent DOFs. Source line 518.\par
+{\small\nolinkurl{static void resolve(A3 *a, int id, int *origin, unsigned char *scale, unsigned char *done)}}
+\item[\texttt{a3\_macro\_maps}] Build nested bilinear potential constraints for the extra coarse level, keeping boundary and hanging-node consistency. Source line 549.\par
+{\small\nolinkurl{void a3_macro_maps(A3 *a)}}
+\end{description}
+\subsection{\texttt{src/amr3\_mesh.c}}
+Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{a3\_fail}] Report rank and invariant violation, abort the communicator, and never continue with an invalid model state. Source line 18.\par
+{\small\nolinkurl{_Noreturn void a3_fail(A3 *a, const char *message)}}
+\item[\texttt{a3\_alloc}] Allocate zero-initialized storage, including a nonnull minimum allocation for empty logical arrays; allocation failure is fatal. Source line 27.\par
+{\small\nolinkurl{void *a3_alloc(A3 *a, size_t n, size_t width)}}
+\item[\texttt{wrap}] Return the nonnegative periodic index i modulo n. Source line 36.\par
+{\small\nolinkurl{static int wrap(int i, int n)}}
+\item[\texttt{index\_axis}] Wrap synthetic/periodic indices and otherwise clamp physical boundary indices. Source line 43.\par
+{\small\nolinkurl{static int index_axis(A3 *a, int axis, int i, int n)}}
+\item[\texttt{minmod}] Return the sign-consistent slope with smallest magnitude; return zero at an extremum. Source line 51.\par
+{\small\nolinkurl{static double minmod(double a, double b)}}
+\item[\texttt{gid}] Flatten a density-level cell index; k is contiguous and nx depends on the private level. Source line 57.\par
+{\small\nolinkurl{static int gid(A3 *a, int level, int i, int j, int k)}}
+\item[\texttt{moment\_weights}] Integrate canonical physical-volume moments, restrict them to coarser levels, and build four-cell face weights for PDM4. Source line 65.\par
+{\small\nolinkurl{static void moment_weights(A3 *a)}}
+\item[\texttt{geometry\_cache}] Share reference-counted immutable geometry/response/PDM tables across regrids and allocate the new metric table. Three-level raw metrics are built once by a3\_macro\_metrics. Source line 168.\par
+{\small\nolinkurl{static void geometry_cache(A3 *a, A3 *reuse)}}
+\item[\texttt{a3\_partition\_plan}] Balance the existing density-work estimate plus canonical-field weight using whole transverse root rows. Three-level cuts align to pairs; this one-dimensional policy has a finite rank limit. Source line 278.\par
+{\small\nolinkurl{void a3_partition_plan(A3 *a, const unsigned char *work_mask, int *partition)}}
+\item[\texttt{a3\_mesh}] Construct a mesh from the requested fixed/uniform/dynamic mode without an explicit supplied mask. Source line 320.\par
+{\small\nolinkurl{void a3_mesh(A3 *a, TubeGrid *g, Config3 c, int rank, int size, int mode)}}
+\item[\texttt{a3\_mesh\_mask}] Construct a mesh with explicit density masks and optional old-mesh geometry reuse / ownership cuts. Source line 327.\par
+{\small\nolinkurl{void a3_mesh_mask(A3 *a, TubeGrid *g, Config3 c, int rank, int size, int mode, const unsigned char *mask, A3 *reuse, const int *cuts)}}
+\item[\texttt{a3\_mesh\_mask\_work}] Construct backing columns, rank ownership, halos, reconstruction workspaces, geometry metrics and face topology from explicit masks. Collective layout decisions must agree on all ranks. Source line 335.\par
+{\small\nolinkurl{void a3_mesh_mask_work(A3 *a, TubeGrid *g, Config3 c, int rank, int size, int mode, const unsigned char *mask, A3 *reuse, const int *cuts, const unsigned char *work_mask)}}
+\item[\texttt{a3\_segment\_metrics}] Reset and aggregate physical metrics for the actual segmented density owners; inactive backing slots receive zero volume. Source line 550.\par
+{\small\nolinkurl{void a3_segment_metrics(A3 *a)}}
+\item[\texttt{exchange}] Exchange owned O+ density/momentum and optional marker halos using nonblocking peer transfers, then unpack only after completion. Source line 616.\par
+{\small\nolinkurl{static void exchange(A3 *a, double *n, double *m)}}
+\item[\texttt{a3\_prepare}] Bind the current stage, exchange state, reset lazy caches, restrict actual conserved states, construct macro representations and refresh molecular/electron responses. Must finish before potential or flux sampling. Source line 655.\par
+{\small\nolinkurl{void a3_prepare(A3 *a, double *n, double *m)}}
+\item[\texttt{parent}] Read a parent density/momentum sample after applying boundary indices; reject a stencil outside the exchanged root-row halo. Source line 715.\par
+{\small\nolinkurl{static double parent(A3 *a, int field, int i, int j, int k)}}
+\item[\texttt{child\_proposal}] Evaluate a conservative background-shaped density child from cached parent amplitude and residual slopes. Source line 728.\par
+{\small\nolinkurl{static double child_proposal(A3 *a, int b, int child, int k)}}
+\item[\texttt{slopes}] Build bounded background-aware density reconstruction and lazy child-density caches for one parent and along-field index. Source line 742.\par
+{\small\nolinkurl{static void slopes(A3 *a, int b, int k)}}
+\item[\texttt{velocity\_slopes}] Prolong parallel velocity with particle-weighted centering so child momentum sums to the parent momentum. Source line 800.\par
+{\small\nolinkurl{static void velocity_slopes(A3 *a, int b, int k)}}
+\item[\texttt{a3\_proposed\_child}] Return a prospective child density/momentum for transfer/coarsening assessment while preserving the existing reconstruction semantics. Source line 846.\par
+{\small\nolinkurl{double a3_proposed_child(A3 *a, int b, int child, int k, int field)}}
+\item[\texttt{a3\_sample}] Sample actual or virtual states at a requested level. It may update lazy density/velocity child caches; concurrent calls require explicit cache ownership. Source line 863.\par
+{\small\nolinkurl{double a3_sample(A3 *a, int field, int level, int i, int j, int k)}}
+\item[\texttt{sample\_pair}] Collect a one-dimensional face stencil at a common requested level, including virtual samples across coarse/fine contacts. Source line 902.\par
+{\small\nolinkurl{static void sample_pair(A3 *a, int level, int i, int j, int k, double value[2])}}
+\item[\texttt{a3\_face\_pair}] Return particle-density and velocity face states using physical-volume PDM4 or the configured MUSCL fallback. Source line 938.\par
+{\small\nolinkurl{void a3_face_pair(A3 *a, int level, int axis, int i, int j, int k, int sign, double *n, double *second)}}
+\item[\texttt{initial\_fine}] Evaluate the idealized Chapman/seed fixture on canonical physical geometry; used for fresh initialization and verification. Source line 977.\par
+{\small\nolinkurl{static double initial_fine(A3 *a, int i, int j, int k, int test)}}
+\item[\texttt{a3\_initialize\_marker}] Initialize an advected seed-protection material quantity consistently with density; this tracer influences tagging, not conductivity. Source line 1027.\par
+{\small\nolinkurl{void a3_initialize_marker(A3 *a, const double *n)}}
+\item[\texttt{a3\_initialize}] Restrict the canonical idealized state to actual active volumes; leave nonowner backing states inactive. Source line 1067.\par
+{\small\nolinkurl{void a3_initialize(A3 *a, double *n, double *m, int test)}}
+\item[\texttt{a3\_mass}] Integrate a conserved field with actual owner volumes and sum across MPI ranks. Source line 1104.\par
+{\small\nolinkurl{double a3_mass(A3 *a, const double *field)}}
+\item[\texttt{a3\_valid}] Collectively reject nonfinite/negative density, invalid vacuum momentum and out-of-range marker states; never impose a density floor. Source line 1116.\par
+{\small\nolinkurl{int a3_valid(A3 *a, const double *n, const double *m)}}
+\item[\texttt{a3\_remap}] Conservatively restrict/prolong density, parallel momentum and optional marker between old/new active meshes, checking global transfer invariants. Source line 1132.\par
+{\small\nolinkurl{void a3_remap(A3 *old, A3 *next, double *n, double *m, double *new_n, double *new_m)}}
+\item[\texttt{a3\_free}] Release per-mesh arrays and PETSc objects; free immutable shared caches only when their reference count reaches zero. Source line 1182.\par
+{\small\nolinkurl{void a3_free(A3 *a)}}
+\end{description}
+\subsection{\texttt{src/amr3\_migration.c}}
+Molecular old/new slab ownership intersections. Separate receive buffers preserve every old owned value until O+ remapping and all sends finish.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{a3\_night\_repartition}] Move only molecular cells whose owner changes using old/new slab intersections and separate receive storage. Identical intervals are a byte-preserving no-op; old owned values survive until O+ remap completes. Source line 20.\par
+{\small\nolinkurl{void a3_night_repartition(A3 *a, const int *cuts)}}
+\end{description}
+\subsection{\texttt{src/amr3\_molecular.c}}
+NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{clamp}] Clamp a cell index to the nearest valid boundary cell. Source line 20.\par
+{\small\nolinkurl{static int clamp(int x, int n)}}
+\item[\texttt{id}] Flatten a canonical molecular cell with periodic-x or clamped physical indices. Source line 26.\par
+{\small\nolinkurl{static int id(A3 *a, int i, int j, int k)}}
+\item[\texttt{nid}] Flatten node coordinates with the along-field coordinate contiguous. Source line 37.\par
+{\small\nolinkurl{static int nid(A3 *a, int i, int j, int k)}}
+\item[\texttt{center}] Average the four geometric vertices of a canonical face in ECEF metres. Source line 43.\par
+{\small\nolinkurl{static V3 center(A3 *a, int axis, int p[3])}}
+\item[\texttt{a3\_molecular\_geometry}] Build owned canonical face mobility/gravity coefficients, and rebuild only when the owned slab changes. Source line 59.\par
+{\small\nolinkurl{void a3_molecular_geometry(A3 *a)}}
+\item[\texttt{a3\_molecular\_workspace}] Resize owned molecular stage, backup, rate, pressure-log and same-attempt ETD work arrays after an ownership change. Source line 137.\par
+{\small\nolinkurl{void a3_molecular_workspace(A3 *a)}}
+\item[\texttt{a3\_night\_electrons}] Reconstruct current canonical O+ plus molecules to form quasineutral Ne and invalidate every averaged-Ne cache; lazy O+ sampling keeps this on the main thread. Source line 175.\par
+{\small\nolinkurl{void a3_night_electrons(A3 *a)}}
+\item[\texttt{a3\_night\_electron}] Return the original volume-weighted current-stage Ne average, memoized only for owned cells and invalidated whenever electrons are rebuilt. Main-thread-only lazy cache; no density floor or altered summation. Source line 197.\par
+{\small\nolinkurl{double a3_night_electron(A3 *a, int level, int i, int j, int k)}}
+\item[\texttt{length}] Read the cached canonical physical parallel segment length. Source line 224.\par
+{\small\nolinkurl{static double length(A3 *a, int i, int j, int k)}}
+\item[\texttt{cached\_jump}] Use current-stage cached logarithms for positive states and the original bounded secant at exact vacuum. Source line 231.\par
+{\small\nolinkurl{static double cached_jump(double left, double right, double log_left, double log_right)}}
+\item[\texttt{slope}] Compute a nonuniform centered/one-sided parallel logarithmic gradient from the current-stage pressure cache. Source line 239.\par
+{\small\nolinkurl{static double slope(A3 *a, const double *values, const double *logs, int i, int j, int k)}}
+\item[\texttt{minmod}] Return the sign-consistent slope with smallest magnitude; return zero at an extremum. Source line 256.\par
+{\small\nolinkurl{static double minmod(double l, double m, double r)}}
+\item[\texttt{state}] Reconstruct a bounded parallel molecular density or velocity face state using the three-point slope limiter. Source line 263.\par
+{\small\nolinkurl{static double state(A3 *a, int s, int i, int j, int k, int velocity, int side)}}
+\item[\texttt{a3\_night\_transport}] Evaluate both species' conservative canonical fluxes, parallel pressure/gravity sources and stability rates. Threaded sweeps assign disjoint full grid lines; MPI reductions remain on the main thread. Source line 278.\par
+{\small\nolinkurl{void a3_night_transport(A3 *a)}}
+\item[\texttt{valid}] Collectively verify finite/nonnegative molecular densities and consistent exact-vacuum momenta. Source line 441.\par
+{\small\nolinkurl{static int valid(A3 *a)}}
+\item[\texttt{a3\_night\_transport\_begin}] Save the accepted pre-transport molecular state and first-stage boundary rate for the two-stage update. Source line 457.\par
+{\small\nolinkurl{void a3_night_transport_begin(A3 *a)}}
+\item[\texttt{a3\_night\_predict}] Apply the molecular first-stage density/ETD momentum predictor and cache its fixed-nu coefficients for this exact attempted dt. Source line 472.\par
+{\small\nolinkurl{int a3_night_predict(A3 *a, double dt)}}
+\item[\texttt{a3\_night\_correct}] Complete the two-stage density and ETD2 momentum update using same-attempt coefficients, then check positivity and stage boundary balance. Source line 497.\par
+{\small\nolinkurl{int a3_night_correct(A3 *a, double dt)}}
+\item[\texttt{a3\_night\_accept}] Commit the accepted molecular boundary-particle increment after the coupled step passes all checks. Source line 520.\par
+{\small\nolinkurl{void a3_night_accept(A3 *a)}}
+\end{description}
+\subsection{\texttt{src/amr3\_night.c}}
+Experimental isothermal, night-only multi-ion closure. Quasineutral Ne equals O+ + NO+ + O2+. Chemistry uses SI densities internally; stored ion densities are normalized by 1e12 m\textasciicircum{}-3.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{a3\_night\_loss}] Return cumulative O+ chemical conversion loss for the global O+ conservation budget. Source line 22.\par
+{\small\nolinkurl{double a3_night_loss(const A3 *a)}}
+\item[\texttt{gravity\_drift}] Solve perpendicular collisional gravity mobility with signed gyrofrequency and remove the parallel force component. Source line 29.\par
+{\small\nolinkurl{static V3 gravity_drift(V3 gravity, V3 b, double nu, double omega)}}
+\item[\texttt{halo}] Exchange molecular density/momentum ghost slabs; receives and sends remain valid and disjoint until MPI\_Waitall. Source line 38.\par
+{\small\nolinkurl{static void halo(A3 *a)}}
+\item[\texttt{a3\_night\_gather}] Collect the full canonical molecular state for saved outputs/checkpoints only; normal RHS/regrid paths use halos and owned migration. Source line 71.\par
+{\small\nolinkurl{void a3_night_gather(A3 *a)}}
+\item[\texttt{a3\_night\_refresh}] Refresh current molecular Pedersen/Hall and gravity-current responses in owned plus ghost cells after halo exchange. Source line 91.\par
+{\small\nolinkurl{void a3_night_refresh(A3 *a)}}
+\item[\texttt{bytes}] Read or write exactly the requested bytes while updating the checkpoint checksum; short transfers are fatal. Source line 137.\par
+{\small\nolinkurl{static void bytes(IO *s, void *p, size_t count)}}
+\item[\texttt{integer}] Encode/decode an unsigned 64-bit integer in little-endian order and update the stream checksum. Source line 149.\par
+{\small\nolinkurl{static uint64_t integer(IO *s, uint64_t x)}}
+\item[\texttt{reals}] Transfer floating data in portable little-endian order, retaining the checksum over the actual encoded bytes. Source line 163.\par
+{\small\nolinkurl{static void reals(IO *s, double *p, size_t count)}}
+\item[\texttt{finish}] Write or verify the final checksum, reject trailing data on reads, and close the checkpoint stream. Source line 179.\par
+{\small\nolinkurl{static void finish(IO *s)}}
+\item[\texttt{read\_restart}] Validate and read the molecular checkpoint, numerical-source identity and binding to the native checkpoint checksum. Source line 192.\par
+{\small\nolinkurl{static void read_restart(A3 *a, double time)}}
+\item[\texttt{a3\_night\_create}] Load frozen neutral/rate inputs, initialize NO+/O2+ reservoirs and transport coefficients, or restore a paired molecular checkpoint; enforce the night-only applicability guard. Source line 250.\par
+{\small\nolinkurl{void a3_night_create(A3 *a, double time)}}
+\item[\texttt{a3\_night\_begin}] Back up molecular state and reaction budgets before an attempted coupled step. Source line 378.\par
+{\small\nolinkurl{void a3_night_begin(A3 *a)}}
+\item[\texttt{a3\_night\_restore}] Restore the pre-attempt molecular state and reaction budgets when a CFL or positivity check requires another attempt. Source line 395.\par
+{\small\nolinkurl{void a3_night_restore(A3 *a)}}
+\item[\texttt{macro\_chemistry}] Apply local reactions to disjoint canonical children of actual O+ volumes, then volume-average O+ back to its owner. Thread-local budgets are reduced; fatal handling stays outside workers. Source line 410.\par
+{\small\nolinkurl{static void macro_chemistry(A3 *a, double *n, double *m, double dt, double budget[2], double *error)}}
+\item[\texttt{a3\_night\_step}] Execute one chemistry split operator, check its charge budget, reduce global conversion/recombination totals, and refresh conductivity responses. Source line 469.\par
+{\small\nolinkurl{void a3_night_step(A3 *a, double *n, double *m, double dt)}}
+\item[\texttt{a3\_night\_snapshot}] Write a molecular checkpoint bound to the just-written native checkpoint, molecular frames, metadata and total-ion reaction/boundary budgets. Source line 546.\par
+{\small\nolinkurl{void a3_night_snapshot(A3 *a, const double *n, double time, int frame, double mass0)}}
+\item[\texttt{a3\_night\_free}] Release all molecular full-grid and owned-work arrays, including stage-local ETD/log caches. Source line 644.\par
+{\small\nolinkurl{void a3_night_free(A3 *a)}}
+\end{description}
+\subsection{\texttt{src/amr3\_potential.c}}
+Field-line-integrated electrostatic operator on constrained bilinear transverse elements. Both Hall cross terms are retained; phi is constant along the traced field coordinate.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{a3\_driver\_active}] Report whether a prescribed constant or time-dependent external eastward field is active. Source line 32.\par
+{\small\nolinkurl{int a3_driver_active(const A3 *a)}}
+\item[\texttt{a3\_driver\_field}] Evaluate the external eastward field at the actual SSPRK stage time. Source line 38.\par
+{\small\nolinkurl{double a3_driver_field(const A3 *a)}}
+\item[\texttt{a3\_driver\_gradient}] Convert eastward field to the model's transverse potential-label gradient using the recorded reference length. Source line 48.\par
+{\small\nolinkurl{double a3_driver_gradient(const A3 *a)}}
+\item[\texttt{vertex}] Flatten a canonical transverse potential vertex. Source line 55.\par
+{\small\nolinkurl{static int vertex(A3 *a, int i, int j)}}
+\item[\texttt{boundary}] Classify a potential node or apply its prescribed boundary role; inspect the explicit regional/periodic branches below. Source line 64.\par
+{\small\nolinkurl{static int boundary(A3 *a, int i, int j)}}
+\item[\texttt{map\_add}] Accumulate one constrained-node basis contribution, merging duplicate independent DOFs. Source line 70.\par
+{\small\nolinkurl{static void map_add(A3Map *map, int id, double w)}}
+\item[\texttt{a3\_potential\_create}] Create constrained field maps, distributed sparse PETSc objects, FGMRES/GAMG configuration and optional precomputed COO basis tables. Source line 85.\par
+{\small\nolinkurl{void a3_potential_create(A3 *a)}}
+\item[\texttt{coo\_create}] Precompute constrained bilinear element bases and PETSc COO sparsity/index maps; material coefficients remain current-stage data. Source line 175.\par
+{\small\nolinkurl{static void coo_create(A3 *a)}}
+\item[\texttt{integrate\_tensor}] Integrate both Pedersen/Hall tensor cross terms and gravity-current forcing along the full field line using canonical physical volumes. Source line 289.\par
+{\small\nolinkurl{static void integrate_tensor(A3 *a, int i, int j, double K[4], double C[2])}}
+\item[\texttt{a3\_potential\_seed}] Seed independent potential DOFs from a prior canonical potential for a warm start after regridding. Source line 318.\par
+{\small\nolinkurl{void a3_potential_seed(A3 *a, const double *phi)}}
+\item[\texttt{element}] Assemble one bilinear element with the full nonsymmetric tensor and prescribed potential contributions using the reference element path. Source line 333.\par
+{\small\nolinkurl{static void element(A3 *a, int i, int j, const double K[4], const double C[2])}}
+\item[\texttt{regional\_sides}] Impose the regional polarization-potential normal-derivative relation, retaining Hall and nonorthogonal metric terms. Source line 391.\par
+{\small\nolinkurl{static void regional_sides(A3 *a)}}
+\item[\texttt{a3\_potential}] Assemble the current-stage integrated operator, solve with controlled preconditioner reuse, explicitly verify the true residual, and scatter canonical potential. Collective; no worker-thread PETSc calls. Source line 431.\par
+{\small\nolinkurl{void a3_potential(A3 *a)}}
+\item[\texttt{a3\_potential\_free}] Destroy constrained maps, COO workspaces and every PETSc object owned by this mesh. Source line 514.\par
+{\small\nolinkurl{void a3_potential_free(A3 *a)}}
+\end{description}
+\subsection{\texttt{src/amr3\_restart.c}}
+Legacy ESFAMR01 portable checkpoint and dispatch to structure-aware versions. Integer and floating data are encoded little-endian and bound to input signatures.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{bytes}] Read or write exactly the requested bytes while updating the checkpoint checksum; short transfers are fatal. Source line 28.\par
+{\small\nolinkurl{static void bytes(Stream *s, void *p, size_t n)}}
+\item[\texttt{integer}] Encode/decode an unsigned 64-bit integer in little-endian order and update the stream checksum. Source line 41.\par
+{\small\nolinkurl{static uint64_t integer(Stream *s, uint64_t value)}}
+\item[\texttt{reals}] Transfer floating data in portable little-endian order, retaining the checksum over the actual encoded bytes. Source line 55.\par
+{\small\nolinkurl{static void reals(Stream *s, double *p, size_t n)}}
+\item[\texttt{signature}] Build the ordered physical/numerical restart signature; changing a signed parameter intentionally rejects incompatible restart. Source line 71.\par
+{\small\nolinkurl{static void signature(Config3 c, double values[41])}}
+\item[\texttt{finish}] Write or verify the final checksum, reject trailing data on reads, and close the checkpoint stream. Source line 86.\par
+{\small\nolinkurl{static void finish(Stream *s)}}
+\item[\texttt{a3\_checkpoint\_write}] Write ESFAMR01 for legacy masks or dispatch to the structure-aware writer; retain little-endian encoding and atomic replacement. Source line 99.\par
+{\small\nolinkurl{void a3_checkpoint_write(A3 *a, const double *n, const double *m, const double *marker, double time, int step, double mass0, const int *quiet, double next_regrid, double travel, int retries)}}
+\item[\texttt{a3\_checkpoint\_read}] Recognize the checkpoint magic, validate legacy signatures or dispatch to the structure reader, then scatter conserved states to current rank ownership. Source line 167.\par
+{\small\nolinkurl{int a3_checkpoint_read(A3 *a, TubeGrid *g, Config3 c, int rank, int size, double **n, double **m, double *time, int *step, double *mass0, int **quiet, double *next_regrid, double *travel, int *retries)}}
+\end{description}
+\subsection{\texttt{src/amr3\_structure.c}}
+Solution-based refinement detector, including represented-background residuals, velocity curvature, seed protection and prospective-parent information loss. Detector thresholds never modify plasma density or conductivity.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{a3\_owner}] Return the unique evolved density backing owner for a column and k; account for both segmented L1/L2 and macro L0 ownership. Source line 31.\par
+{\small\nolinkurl{int a3_owner(const A3 *a, int p, int k)}}
+\item[\texttt{a3\_active}] Test whether this backing slot is the actual evolved density owner at k. Source line 40.\par
+{\small\nolinkurl{int a3_active(const A3 *a, int p, int k)}}
+\item[\texttt{a3\_density\_leaf}] Return the physical density cell's level and labels, which can differ from the electric-field/backing column level. Source line 47.\par
+{\small\nolinkurl{A3Leaf a3_density_leaf(const A3 *a, int p, int k)}}
+\item[\texttt{a3\_density\_mask}] Select the segmented density mask or legacy column mask as required by the active case. Source line 65.\par
+{\small\nolinkurl{const unsigned char *a3_density_mask(const A3 *a)}}
+\item[\texttt{index1}] Apply boundary indexing on the detector's root/fine transverse stencil. Source line 71.\par
+{\small\nolinkurl{static int index1(A3 *a, int axis, int q, int level)}}
+\item[\texttt{drift}] Evaluate or read a cached current E-cross-B drift averaged over canonical children at the requested detector level. Source line 83.\par
+{\small\nolinkurl{static V3 drift(A3 *a, int level, int i, int j, int k)}}
+\item[\texttt{spacing}] Estimate physical transverse cell spacing from contravariant metric magnitude, solely for detector wavelength/velocity normalization. Source line 114.\par
+{\small\nolinkurl{static double spacing(A3 *a, int level, int i, int j, int k, int axis)}}
+\item[\texttt{indicator}] Compute normalized 3x3 density gradient/Hessian and drift-curvature indicators; optionally remove the locally fitted represented-background component. Source line 124.\par
+{\small\nolinkurl{static void indicator(A3 *a, int level, int i, int j, int k, double *gradient, double *curve, double *speed, double *raw_gradient, double *raw_curve)}}
+\item[\texttt{integrated}] Compute/cache the root-cell field-line-integrated conductivity tensor used to detect elliptic-coefficient curvature. Source line 183.\par
+{\small\nolinkurl{static void integrated(A3 *a, int i, int j, double out[4])}}
+\item[\texttt{coefficient\_curve}] Measure normalized transverse second differences of the complete integrated tensor, including independent Hall cross terms. Source line 203.\par
+{\small\nolinkurl{static double coefficient_curve(A3 *a, int i, int j)}}
+\item[\texttt{mode\_needs\_fine}] Check declared seed/envelope sampling requirements and count locations that remain unresolved even on the finest available mesh. Source line 223.\par
+{\small\nolinkurl{static int mode_needs_fine(A3 *a, int i, int j, int k, double lambda, int envelope)}}
+\item[\texttt{a3\_structure\_tags}] Collectively form structure-based refinement requests, prospective-parent loss tests, seed guard, slab promotion, buffers and hysteresis. No unperturbed control solution is evolved by this detector. Source line 240.\par
+{\small\nolinkurl{void a3_structure_tags(A3 *a, double *n, double *m, unsigned char *mask, int *quiet)}}
+\item[\texttt{out}] Open one detector diagnostic output or abort on failure. Source line 426.\par
+{\small\nolinkurl{static FILE *out(A3 *a, const char *name, const char *mode)}}
+\item[\texttt{a3\_structure\_output}] Write actual density masks, tag reason bits/values, marker diagnostics and frame-to-mesh bindings for plotting. Source line 438.\par
+{\small\nolinkurl{void a3_structure_output(A3 *a, const double *n, const double *marker, int frame, double time)}}
+\end{description}
+\subsection{\texttt{src/amr3\_tags.c}}
+Legacy percentile detector and dispatch to the structure detector. The published teaching cases explicitly select structure; legacy behavior remains available for comparison.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{order}] Compare two finite density values for the legacy longitude-percentile detector. Source line 17.\par
+{\small\nolinkurl{static int order(const void *x, const void *y)}}
+\item[\texttt{wrap}] Return the nonnegative periodic index i modulo n. Source line 24.\par
+{\small\nolinkurl{static int wrap(int i, int n)}}
+\item[\texttt{a3\_tags}] Count a tag check and dispatch either the structure criterion or legacy percentile/depletion criterion; both only request mesh changes. Source line 32.\par
+{\small\nolinkurl{void a3_tags(A3 *a, double *n, double *m, unsigned char *mask, int *quiet)}}
+\end{description}
+\subsection{\texttt{src/electric\_driver.c}}
+Validated piecewise-linear imposed eastward electric field. Times are elapsed model seconds; field units in the CSV are V/m.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{electric\_driver\_load}] Read/hash a strict time\_s,east\_V\_m CSV, require finite increasing times from zero and coverage through the requested absolute end time. Source line 14.\par
+{\small\nolinkurl{int electric_driver_load(ElectricDriver *d, const char *path, double end)}}
+\item[\texttt{electric\_driver\_value}] Linearly interpolate the imposed field at a model stage time; return NaN outside declared coverage. Source line 55.\par
+{\small\nolinkurl{double electric_driver_value(const ElectricDriver *d, double time)}}
+\item[\texttt{electric\_driver\_next}] Return the next forcing knot after time, or infinity if absent, so accepted steps land on forcing changes. Source line 77.\par
+{\small\nolinkurl{double electric_driver_next(const ElectricDriver *d, double time)}}
+\end{description}
+\subsection{\texttt{src/field\_cli.c}}
+Small IGRF command-line diagnostic; angles are degrees, positions metres and magnetic output nT.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{main}] Parse this executable's interface, validate inputs, run its diagnostic/model entry point, and return a nonzero status on failure. Source line 13.\par
+{\small\nolinkurl{int main(int argc, char **argv)}}
+\end{description}
+\subsection{\texttt{src/geometry.c}}
+Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{tangent}] Return the unit magnetic-field tangent in ECEF for field-line integration. Source line 17.\par
+{\small\nolinkurl{static V3 tangent(const Igrf *m, V3 x)}}
+\item[\texttt{rk4}] Advance one signed physical-distance field-line step with classical RK4 using unit field tangents. Source line 24.\par
+{\small\nolinkurl{static V3 rk4(const Igrf *m, V3 x, double ds)}}
+\item[\texttt{radial}] Return B dot radial-unit-vector; its zero locates a spherical-altitude apex. Source line 32.\par
+{\small\nolinkurl{static double radial(const Igrf *m, V3 x)}}
+\item[\texttt{tube\_apex}] Trace from a given position toward increasing radius and bracket/bisect the radial-field zero; reject escaping or interior trajectories. Source line 39.\par
+{\small\nolinkurl{int tube_apex(const Igrf *m, V3 start, V3 *apex)}}
+\item[\texttt{half\_trace}] Trace one conjugate half tube from its apex to the spherical base boundary, accumulating the altitude-weighted along-field coordinate. Source line 71.\par
+{\small\nolinkurl{static int half_trace(const Igrf *m, V3 x, int sign, double base, double step, TracePoint *t)}}
+\item[\texttt{tube\_apex\_label}] Find the magnetic-apex latitude at specified geographic apex longitude and spherical altitude by a radial-field root solve. Source line 102.\par
+{\small\nolinkurl{int tube_apex_label(const Igrf *m, double lon, double height, V3 *apex)}}
+\item[\texttt{tube\_trace}] Trace both conjugate halves and resample ns+1 nodes uniformly in the weighted coordinate; output spans the two base-altitude endpoints. Source line 120.\par
+{\small\nolinkurl{int tube_trace(const Igrf *m, double lon, double height, double base, double step, int ns, V3 *out)}}
+\item[\texttt{nid}] Flatten node coordinates with the along-field coordinate contiguous. Source line 169.\par
+{\small\nolinkurl{static int nid(const TubeGrid *g, int i, int j, int k)}}
+\item[\texttt{tube\_cell\_id}] Flatten cell coordinates in [ny,nx,ns] storage with k contiguous. Source line 175.\par
+{\small\nolinkurl{int tube_cell_id(const TubeGrid *g, int i, int j, int k)}}
+\item[\texttt{tube\_face\_id}] Flatten an axis-specific staggered face index, accounting for the extra face in its normal direction. Source line 182.\par
+{\small\nolinkurl{int tube_face_id(const TubeGrid *g, int axis, int i, int j, int k)}}
+\item[\texttt{tube\_face\_count}] Return the number of faces in one staggered axis family. Source line 188.\par
+{\small\nolinkurl{int tube_face_count(const TubeGrid *g, int a)}}
+\item[\texttt{jacobian}] Differentiate the trilinear eight-node cell mapping to obtain its three covariant basis vectors. Source line 195.\par
+{\small\nolinkurl{static void jacobian(const V3 v[8], double x, double y, double z, V3 e[3])}}
+\item[\texttt{face\_center}] Average the four corners of a staggered face in physical ECEF coordinates. Source line 210.\par
+{\small\nolinkurl{static V3 face_center(const TubeGrid *g, int a, int p[3])}}
+\item[\texttt{tube\_geometry\_allocate}] Allocate nodes/cells/faces for a grid and initialize metric diagnostics; no field tracing is performed here. Source line 226.\par
+{\small\nolinkurl{int tube_geometry_allocate(TubeGrid *g, GridConfig c)}}
+\item[\texttt{tube\_geometry}] Trace every node line then construct cell/face metrics over the full grid. Source line 241.\par
+{\small\nolinkurl{int tube_geometry(TubeGrid *g, const Igrf *m, GridConfig c)}}
+\item[\texttt{tube\_geometry\_rows}] Build metrics for a disjoint cell-row range: Jacobian-volume quadrature, transverse covectors, field-aligned tangent, gravity and integrated face flux factors. Reject folded/degenerate geometry. Source line 257.\par
+{\small\nolinkurl{int tube_geometry_rows(TubeGrid *g, const Igrf *m, int first, int last)}}
+\item[\texttt{tube\_free}] Free every canonical geometric array and clear the grid object. Source line 363.\par
+{\small\nolinkurl{void tube_free(TubeGrid *g)}}
+\item[\texttt{chapman}] Evaluate the code's normalized Chapman-like layer exp(1-z-exp(-z)), with z=(height-peak)/scale. Source line 374.\par
+{\small\nolinkurl{double chapman(double height, double peak, double scale)}}
+\item[\texttt{gravity\_drift}] Solve the steady perpendicular collisional gravity drift for a species with signed gyrofrequency. Source line 382.\par
+{\small\nolinkurl{static V3 gravity_drift(V3 g, V3 b, double nu, double omega)}}
+\item[\texttt{conductivity\_cell}] Build O+/fixed-molecular Pedersen/Hall and gravity-current responses, including electrons under quasineutrality. Source line 390.\par
+{\small\nolinkurl{static void conductivity_cell(TubeCell *c, double e_peak, double nuF, double nue)}}
+\item[\texttt{tube\_conductivity}] Populate the explicitly idealized analytic height-dependent collision/conductivity background. Source line 419.\par
+{\small\nolinkurl{void tube_conductivity(TubeGrid *g, double e_peak)}}
+\item[\texttt{tube\_conductivity\_table}] Read a strictly increasing height/collision table, require full geometry coverage, log-interpolate collision rates and construct responses. Source line 433.\par
+{\small\nolinkurl{int tube_conductivity_table(TubeGrid *g, double e_peak, const char *path)}}
+\item[\texttt{tube\_conductivity\_values}] Construct the same conductivity response from externally supplied per-canonical-cell collision frequencies. Source line 484.\par
+{\small\nolinkurl{void tube_conductivity_values(TubeGrid *g, double e_peak, const double *values)}}
+\end{description}
+\subsection{\texttt{src/igrf.c}}
+Independent Schmidt semi-normalized IGRF evaluator. Position is ECEF metres, returned field is ECEF tesla. Geodetic WGS84 height differs from spherical radius minus 6371.2 km.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{vadd}] Return component-wise ECEF vector addition. Source line 18.\par
+{\small\nolinkurl{V3 vadd(V3 a, V3 b)}}
+\item[\texttt{vsub}] Return component-wise ECEF vector subtraction. Source line 24.\par
+{\small\nolinkurl{V3 vsub(V3 a, V3 b)}}
+\item[\texttt{vmul}] Multiply an ECEF vector by a scalar. Source line 30.\par
+{\small\nolinkurl{V3 vmul(V3 a, double s)}}
+\item[\texttt{vdot}] Return the Euclidean dot product. Source line 36.\par
+{\small\nolinkurl{double vdot(V3 a, V3 b)}}
+\item[\texttt{vcross}] Return the right-handed Euclidean cross product. Source line 42.\par
+{\small\nolinkurl{V3 vcross(V3 a, V3 b)}}
+\item[\texttt{vnorm}] Return the Euclidean vector magnitude. Source line 48.\par
+{\small\nolinkurl{double vnorm(V3 a)}}
+\item[\texttt{vunit}] Normalize a nonzero vector; return the zero vector for zero magnitude. Source line 54.\par
+{\small\nolinkurl{V3 vunit(V3 a)}}
+\item[\texttt{igrf\_load}] Read all 195 official IGRF-14 Gauss coefficients, interpolate five-year epochs or apply 2025-2030 secular variation, and retain the requested harmonic degree. Source line 62.\par
+{\small\nolinkurl{int igrf_load(Igrf *m, const char *file, double year, int degree)}}
+\item[\texttt{igrf\_field}] Evaluate Schmidt semi-normalized harmonics and their derivatives, convert spherical field to ECEF tesla, and use a continuous near-pole evaluation. Source line 118.\par
+{\small\nolinkurl{V3 igrf_field(const Igrf *m, V3 position)}}
+\item[\texttt{spherical\_position}] Convert geocentric latitude/longitude in degrees and radius in metres to ECEF metres. Source line 171.\par
+{\small\nolinkurl{V3 spherical_position(double lat, double lon, double r)}}
+\item[\texttt{geodetic\_position}] Convert WGS84 geodetic latitude/longitude/altitude to ECEF metres. Source line 179.\par
+{\small\nolinkurl{V3 geodetic_position(double lat, double lon, double h)}}
+\item[\texttt{geodetic\_coordinates}] Recover WGS84 geodetic latitude/longitude/altitude from ECEF coordinates by iterative latitude refinement. Source line 191.\par
+{\small\nolinkurl{void geodetic_coordinates(V3 p, double *lat, double *lon, double *h)}}
+\item[\texttt{field\_ned}] Project an ECEF field into local north/east/down components at specified geographic angles. Source line 205.\par
+{\small\nolinkurl{V3 field_ned(V3 b, double lat, double lon)}}
+\end{description}
+\subsection{\texttt{src/integrator.c}}
+Exponential time differencing for fixed nonnegative collision drag; density uses the matching two-stage explicit update.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{exponential\_weights}] Evaluate exp(-nu*dt), phi1 and phi2 using stable small-argument series and expm1. Reusing these weights is valid only for the same nu and attempted dt. Source line 12.\par
+{\small\nolinkurl{void exponential_weights(double nu, double dt, double *decay, double *p1, double *p2)}}
+\end{description}
+\subsection{\texttt{src/main.c}}
+Command-line parsing and dispatch. The executable defaults are deliberately distinguished from fully specified example cases; argument validation precedes model construction.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{number}] Parse one finite numeric argument with complete trailing-character/error checks. Source line 22.\par
+{\small\nolinkurl{static double number(Solver3 *s, const char *v)}}
+\item[\texttt{integer}] Parse a nonnegative integer-valued argument in the supported command-line range. Source line 33.\par
+{\small\nolinkurl{static int integer(Solver3 *s, const char *v)}}
+\item[\texttt{directory}] Create the output directory on rank zero and reject a directory that already contains run metadata; never overwrite an existing run. Source line 43.\par
+{\small\nolinkurl{static void directory(Solver3 *s, const char *out)}}
+\item[\texttt{main}] Initialize MPI/PETSc, verify the thread support needed by OpenMP, parse/validate all CLI controls, load external driver metadata and dispatch to static or AMR evolution. Source line 68.\par
+{\small\nolinkurl{int main(int argc, char **argv)}}
+\end{description}
+\subsection{\texttt{src/map\_cli.c}}
+Geometry inspection program; it traces tubes and reports the Hong Kong target mapping, independently of plasma evolution.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{main}] Parse this executable's interface, validate inputs, run its diagnostic/model entry point, and return a nonzero status on failure. Source line 18.\par
+{\small\nolinkurl{int main(int argc, char **argv)}}
+\end{description}
+\subsection{\texttt{src/neutral\_grid.c}}
+Strict reader for externally supplied frozen neutral/collision grids. Runtime does not evaluate MSIS or an energy equation.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{neutral\_grid\_hash}] Compute the frozen-neutral input file checksum used in physical restart/cache signatures. Source line 14.\par
+{\small\nolinkurl{uint64_t neutral_grid_hash(uint64_t h, const void *p, size_t n)}}
+\item[\texttt{neutral\_grid\_read}] Validate binary magic, dimensions, positions, temperatures, finite neutral/collision data and checksum against canonical geometry; return owned allocated input values. Source line 26.\par
+{\small\nolinkurl{int neutral_grid_read(const char *path, const TubeGrid *g, double Ti, double Te, double **values)}}
+\end{description}
+\subsection{\texttt{src/night.c}}
+Local reaction and solar-geometry kernels; no MPI or mutable global state. Reaction density units are m\textasciicircum{}-3, rates s\textasciicircum{}-1 or m\textasciicircum{}3 s\textasciicircum{}-1, and time seconds.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{night\_rates}] Calculate O+-to-NO+/O2+ conversion and dissociative recombination rates from prescribed temperatures and N2/O2; reject unsupported thermal ranges. Source line 13.\par
+{\small\nolinkurl{int night_rates(double Ti, double Te, double Tn, double N2, double O2, NightRates *r)}}
+\item[\texttt{convert}] Apply the cached exact linear conversion operator, splitting lost O+ between molecular products and accumulating converted particles. Source line 38.\par
+{\small\nolinkurl{static void convert(double *o, double *no, double *o2, double fraction, double decay, double branch_no, double branch_o2, NightBudget *b)}}
+\item[\texttt{recombine}] Apply the exact scalar solution of dn/dt=-alpha*n*(other+n) for fixed other species, with a stable zero-other limit. Source line 50.\par
+{\small\nolinkurl{static double recombine(double n, double other, double alpha, double dt)}}
+\item[\texttt{night\_react}] Compose symmetric conversion/NO+/O2+/NO+/conversion operators, retaining nonnegativity and an explicit recombined-electron budget; no photoionization is included. Source line 62.\par
+{\small\nolinkurl{int night_react(double *o, double *no, double *o2, NightRates r, double dt, NightBudget *b)}}
+\item[\texttt{night\_solar\_cosine}] Estimate the solar zenith cosine from elapsed UTC and geographic angles for the declared night-only guard, not precise sunrise or MLT. Source line 98.\par
+{\small\nolinkurl{double night_solar_cosine(double utc, double lat, double lon)}}
+\end{description}
+\subsection{\texttt{src/night\_probe.c}}
+Small local chemistry diagnostic used to inspect rate/charge behavior independently of spatial transport.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{main}] Parse this executable's interface, validate inputs, run its diagnostic/model entry point, and return a nonzero status on failure. Source line 14.\par
+{\small\nolinkurl{int main(int argc, char **argv)}}
+\end{description}
+\subsection{\texttt{src/night\_transport.c}}
+Local species mobility, pressure and collisional parallel-flux coefficients. Exact vacuum has a bounded secant continuation rather than a positive density floor.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{night\_mobility}] Evaluate bounded Hall/Pedersen mobility factors with hypot-based scaling. Source line 12.\par
+{\small\nolinkurl{void night_mobility(double nu, double omega, double *hall, double *pedersen)}}
+\item[\texttt{night\_log\_jump}] Return log(right)-log(left) for positive states and a bounded secant continuation only at exact vacuum. Source line 21.\par
+{\small\nolinkurl{double night_log_jump(double left, double right)}}
+\item[\texttt{B}] Evaluate the fitted-flux Bernoulli function robustly near zero and at large positive/negative arguments. Source line 32.\par
+{\small\nolinkurl{static double B(double u)}}
+\item[\texttt{night\_sg\_coeff}] Compute collisional relaxation and Scharfetter-Gummel-style parallel pressure/gravity coefficients from current electron density. Source line 47.\par
+{\small\nolinkurl{void night_sg_coeff(double Ti, double Te, double mass, double nu, double gravity, double ds, double ne_left, double ne_right, double *theta, double *left, double *right)}}
+\item[\texttt{night\_pressure\_force}] Return the parallel pressure acceleration kB/m*(Ti*grad(log ni)+Te*grad(log Ne)). Source line 63.\par
+{\small\nolinkurl{double night_pressure_force(double Ti, double Te, double mass, double grad_i, double grad_e)}}
+\end{description}
+\subsection{\texttt{src/output.c}}
+Uniform-grid metadata, field outputs and checkpoints. Always use saved metadata to decode shapes and units.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{open3}] Open a named uniform-grid output file in the run directory; abort on an I/O failure. Source line 14.\par
+{\small\nolinkurl{static FILE *open3(Solver3 *s, const char *name, const char *mode)}}
+\item[\texttt{doubles}] Write exactly n binary double values and reject short writes. Source line 25.\par
+{\small\nolinkurl{static void doubles(FILE *f, const double *x, size_t n)}}
+\item[\texttt{collision\_input}] Copy/hash the effective collision input so the saved run records its actual background policy. Source line 43.\par
+{\small\nolinkurl{static void collision_input(Solver3 *s)}}
+\item[\texttt{solver3\_output}] Gather uniform conserved states, write fields/metadata/diagnostics and an atomically replaced portable checkpoint. Source line 68.\par
+{\small\nolinkurl{void solver3_output(Solver3 *s, double time, int frame, int step)}}
+\end{description}
+\subsection{\texttt{src/pdm.c}}
+Physical-volume four-cell cubic reconstruction and partial-donor-cell limiting. PDM4 describes the spatial stencil; the coupled time update remains second order.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{node\_id}] Flatten node coordinates with the along-field coordinate contiguous. Source line 19.\par
+{\small\nolinkurl{static int node_id(const TubeGrid *g, int i, int j, int k)}}
+\item[\texttt{determinant}] Evaluate the signed Jacobian determinant of a trilinear hexahedron at one logical quadrature point. Source line 27.\par
+{\small\nolinkurl{static double determinant(const V3 v[8], const double q[3])}}
+\item[\texttt{tube\_cell\_moments}] Integrate normalized physical-volume moments up to cubic degree using tensor three-point Gaussian quadrature; reject folded cells and inconsistent volumes. Source line 45.\par
+{\small\nolinkurl{int tube_cell_moments(const TubeGrid *g, int i, int j, int k, double out[12])}}
+\item[\texttt{tube\_moment\_weights}] Solve the four-by-four moment matching system for a face value, using pivoted elimination and polynomial reproduction checks. Source line 87.\par
+{\small\nolinkurl{int tube_moment_weights(const double moments[4][4], double weights[4])}}
+\item[\texttt{tube\_pdm\_weights}] Prepare four-cell cubic face weights from physical moments for a uniform logical grid; unavailable boundary stencils remain NaN and use a lower-order branch. Source line 135.\par
+{\small\nolinkurl{int tube_pdm_weights(const TubeGrid *g, int periodic_x, double *weights[3])}}
+\item[\texttt{tube\_pdm\_limit}] Clamp the high-order state to donor/downstream bounds, suppress extrema and cap the correction by 2*beta times the upstream difference. Source line 189.\par
+{\small\nolinkurl{double tube_pdm_limit(double high, double upstream, double donor, double downstream, double beta)}}
+\end{description}
+\subsection{\texttt{src/petsc\_potential.c}}
+Distributed PETSc backend for the uniform-grid reference solver; the AMR solver has its own constrained-mesh assembly.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{default\_option}] Set a PETSc backend default only when that option has not already been explicitly set. Source line 27.\par
+{\small\nolinkurl{static PetscErrorCode default_option(const char *name, const char *value)}}
+\item[\texttt{solver3\_petsc\_create}] Allocate distributed uniform-grid PETSc matrices/vectors/scatter and configure the reference potential solve. Source line 38.\par
+{\small\nolinkurl{int solver3_petsc_create(Solver3 *s)}}
+\item[\texttt{solver3\_petsc\_solve}] Assemble current uniform-grid coefficients, apply boundary conditions, solve and verify the true residual before distributing potential. Source line 78.\par
+{\small\nolinkurl{int solver3_petsc_solve(Solver3 *s)}}
+\item[\texttt{solver3\_petsc\_seed}] Warm-start distributed uniform potential DOFs from the current canonical phi. Source line 152.\par
+{\small\nolinkurl{int solver3_petsc_seed(Solver3 *s)}}
+\item[\texttt{solver3\_petsc\_destroy}] Destroy all PETSc objects associated with the uniform-grid backend. Source line 167.\par
+{\small\nolinkurl{void solver3_petsc_destroy(Solver3 *s)}}
+\end{description}
+\subsection{\texttt{src/potential.c}}
+Small/reference sparse transverse potential solver with bilinear elements and BiCGSTAB/ILU. The production AMR path uses the separate distributed PETSc implementation.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{boundary}] Classify a potential node or apply its prescribed boundary role; inspect the explicit regional/periodic branches below. Source line 14.\par
+{\small\nolinkurl{static int boundary(const Potential *p, int i)}}
+\item[\texttt{canonical}] Map a periodic or physical transverse node to its canonical independent index. Source line 21.\par
+{\small\nolinkurl{static int canonical(const Potential *p, int i)}}
+\item[\texttt{create}] Allocate the reference sparse potential graph and solver work arrays for the requested periodic policy. Source line 28.\par
+{\small\nolinkurl{static int create(Potential *p, int nx, int ny, int periodic)}}
+\item[\texttt{potential\_create}] Create a reference transverse operator with nonperiodic longitude. Source line 88.\par
+{\small\nolinkurl{int potential_create(Potential *p, int nx, int ny)}}
+\item[\texttt{potential\_create\_periodic}] Create a reference transverse operator with explicit longitude periodicity. Source line 94.\par
+{\small\nolinkurl{int potential_create_periodic(Potential *p, int nx, int ny)}}
+\item[\texttt{potential\_free}] Release sparse graph, factorization and iteration arrays. Source line 100.\par
+{\small\nolinkurl{void potential_free(Potential *p)}}
+\item[\texttt{potential\_zero}] Clear current matrix/RHS values before assembling a new plasma state. Source line 114.\par
+{\small\nolinkurl{void potential_zero(Potential *p)}}
+\item[\texttt{entry}] Locate and accumulate an entry in the preallocated sparse graph. Source line 121.\par
+{\small\nolinkurl{static int entry(const Potential *p, int row, int col)}}
+\item[\texttt{potential\_element}] Assemble one bilinear transverse element with both tensor cross terms and gravity-current forcing. Source line 131.\par
+{\small\nolinkurl{void potential_element(Potential *p, int i, int j, const double K[4], const double C[2])}}
+\item[\texttt{potential\_boundary}] Apply the reference solver's explicit physical/periodic potential boundary constraints. Source line 159.\par
+{\small\nolinkurl{void potential_boundary(Potential *p)}}
+\item[\texttt{apply}] Multiply the current sparse potential matrix by an input vector. Source line 174.\par
+{\small\nolinkurl{static void apply(const Potential *p, const double *x, double *y)}}
+\item[\texttt{dot}] Evaluate a vector inner product for the reference iterative solver. Source line 184.\par
+{\small\nolinkurl{static double dot(const double *a, const double *b, int n)}}
+\item[\texttt{maxabs}] Return the infinity norm of a vector. Source line 193.\par
+{\small\nolinkurl{static double maxabs(const double *x, int n)}}
+\item[\texttt{ilu}] Build the reference incomplete-LU preconditioner and reject unusable pivots. Source line 202.\par
+{\small\nolinkurl{static int ilu(Potential *p)}}
+\item[\texttt{precondition}] Apply the stored incomplete-LU triangular factors. Source line 226.\par
+{\small\nolinkurl{static void precondition(const Potential *p, const double *r, double *x)}}
+\item[\texttt{potential\_solve}] Solve the assembled nonsymmetric system with preconditioned BiCGSTAB and a checked residual criterion. Source line 242.\par
+{\small\nolinkurl{int potential_solve(Potential *p, double rtol)}}
+\item[\texttt{potential\_coefficients}] Integrate local conductivity/current responses along field lines for the reference transverse equation. Source line 313.\par
+{\small\nolinkurl{void potential_coefficients(const TubeGrid *g, const double *rho, int first, int count, int hall, double *a)}}
+\item[\texttt{potential\_assemble}] Assemble every transverse element and boundary condition from the current integrated coefficients. Source line 338.\par
+{\small\nolinkurl{void potential_assemble(Potential *p, const double *coefficients)}}
+\end{description}
+\subsection{\texttt{src/restart.c}}
+Uniform-grid portable checkpoint reader and physical/numerical input signature. It is distinct from native structure-AMR restart.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{read64}] Read one little-endian 64-bit unsigned checkpoint word; short reads are fatal. Source line 17.\par
+{\small\nolinkurl{static uint64_t read64(Solver3 *s, FILE *f)}}
+\item[\texttt{real64}] Decode one checkpoint IEEE double from its little-endian bit pattern. Source line 29.\par
+{\small\nolinkurl{static double real64(Solver3 *s, FILE *f)}}
+\item[\texttt{solver3\_file\_hash}] Calculate an exact input-file FNV identity, with zero for an absent optional input. Source line 38.\par
+{\small\nolinkurl{uint64_t solver3_file_hash(Solver3 *s, const char *path)}}
+\item[\texttt{array64}] Read a portable array of doubles into caller storage. Source line 60.\par
+{\small\nolinkurl{static void array64(Solver3 *s, FILE *f, double *x, int n)}}
+\item[\texttt{solver3\_checkpoint\_parameters}] Construct the fixed-order uniform-grid physical/numerical signature for compatibility checks. Source line 75.\par
+{\small\nolinkurl{void solver3_checkpoint_parameters(const Config3 *c, double expected[32])}}
+\item[\texttt{solver3\_restart}] Restore and validate the uniform-grid checkpoint, including original conservation history and imposed-field compatibility. Source line 114.\par
+{\small\nolinkurl{void solver3_restart(Solver3 *s, const char *path, double *time, int *step)}}
+\end{description}
+\subsection{\texttt{src/transport.c}}
+Uniform-grid reference solver. Density is normalized by 1e12 m\textasciicircum{}-3 and momentum is n*u\_parallel. This path is retained for static-grid and backend comparisons.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{solver3\_load\_field}] Load IGRF, degree-one dipole or the explicit aligned-dipole fixture from the selected magnetic policy. Source line 17.\par
+{\small\nolinkurl{int solver3_load_field(const Config3 *c, Igrf *field)}}
+\item[\texttt{solver3\_initial\_density}] Evaluate the selected idealized single/double Chapman O+ altitude profile in normalized units. Source line 30.\par
+{\small\nolinkurl{double solver3_initial_density(const Config3 *c, double h)}}
+\item[\texttt{fail3}] Report a fatal rank-local model error and abort MPI when enabled. Source line 39.\par
+{\small\nolinkurl{_Noreturn void fail3(Solver3 *s, const char *message)}}
+\item[\texttt{alloc3}] Allocate zero-initialized reference-solver storage and fail on allocation errors. Source line 49.\par
+{\small\nolinkurl{void *alloc3(Solver3 *s, size_t count, size_t width)}}
+\item[\texttt{wall3}] Return a monotonic wall clock for timing; this is independent of model physical time. Source line 58.\par
+{\small\nolinkurl{double wall3(void)}}
+\item[\texttt{solver3\_gather}] Collect distributed uniform owned state slabs into replicated global arrays when needed. Source line 70.\par
+{\small\nolinkurl{void solver3_gather(Solver3 *s, double *x)}}
+\item[\texttt{exchange\_state}] Exchange uniform-grid density/momentum halos while retaining owned and ghost consistency. Source line 84.\par
+{\small\nolinkurl{static void exchange_state(Solver3 *s, double *n, double *m)}}
+\item[\texttt{broadcast}] Broadcast a potentially large raw array in MPI-count-safe chunks. Source line 123.\par
+{\small\nolinkurl{static void broadcast(Solver3 *s, void *x, size_t bytes)}}
+\item[\texttt{solver3\_create}] Construct uniform geometry, prescribed background, decomposition, reconstruction caches and potential backend. Source line 138.\par
+{\small\nolinkurl{void solver3_create(Solver3 *s, Config3 c, int rank, int size)}}
+\item[\texttt{solver3\_free}] Release uniform solver fields, geometry, halos, reconstruction weights and potential objects. Source line 315.\par
+{\small\nolinkurl{void solver3_free(Solver3 *s)}}
+\item[\texttt{solver3\_valid}] Collectively verify finite, nonnegative uniform density and consistent vacuum momentum. Source line 359.\par
+{\small\nolinkurl{int solver3_valid(Solver3 *s, const double *n, const double *m)}}
+\item[\texttt{solver3\_mass}] Volume-integrate uniform density and sum owned contributions across MPI ranks. Source line 374.\par
+{\small\nolinkurl{double solver3_mass(Solver3 *s, const double *n)}}
+\item[\texttt{ph}] Read a transverse potential node using this solver's boundary/periodic indexing convention. Source line 386.\par
+{\small\nolinkurl{static double ph(const Solver3 *s, int i, int j)}}
+\item[\texttt{derivatives}] Compute transverse potential differences at a uniform geometric face with its boundary convention. Source line 393.\par
+{\small\nolinkurl{static void derivatives(const Solver3 *s, int a, int i, int j, double d[2])}}
+\item[\texttt{minmod}] Return the sign-consistent slope with smallest magnitude; return zero at an extremum. Source line 419.\par
+{\small\nolinkurl{static double minmod(double a, double b, double c)}}
+\item[\texttt{bernoulli}] Evaluate the Bernoulli fitting function z/(exp(z)-1) with small-argument series and large-argument limits. Source line 426.\par
+{\small\nolinkurl{static double bernoulli(double z)}}
+\item[\texttt{value}] Read a clamped or periodic scalar state sample. Source line 440.\par
+{\small\nolinkurl{static double value(const Solver3 *s, const double *f, int i, int j, int k)}}
+\item[\texttt{state}] Reconstruct a uniform face state using the selected slope policy. Source line 463.\par
+{\small\nolinkurl{static double state(const Solver3 *s, const double *f, int a, int i, int j, int k, int side)}}
+\item[\texttt{exb\_state}] Reconstruct a bounded transverse density face value with physical-volume PDM4 or the configured lower-order stencil. Source line 475.\par
+{\small\nolinkurl{static double exb_state(const Solver3 *s, const double *f, int axis, int i, int j, int k, int fid, int side)}}
+\item[\texttt{velocity\_value}] Return parallel velocity with an exact-vacuum zero branch. Source line 498.\par
+{\small\nolinkurl{static double velocity_value(const Solver3 *s, const double *n, const double *m, int i, int j, int k)}}
+\item[\texttt{velocity\_state}] Construct the bounded parallel-velocity face state used for momentum transport. Source line 507.\par
+{\small\nolinkurl{static double velocity_state(const Solver3 *s, const double *n, const double *m, int a, int i, int j, int k, int side)}}
+\item[\texttt{line\_length}] Read the physical length of an along-field segment. Source line 519.\par
+{\small\nolinkurl{static double line_length(const Solver3 *s, int i, int j, int k)}}
+\item[\texttt{log\_difference}] Compute a positive-state logarithmic pressure jump or its exact-vacuum secant extension. Source line 527.\par
+{\small\nolinkurl{static double log_difference(double a, double b, double local, double la, double lb)}}
+\item[\texttt{pressure\_log\_gradient}] Construct a nonuniform parallel logarithmic density gradient for the uniform isothermal pressure force. Source line 534.\par
+{\small\nolinkurl{static double pressure_log_gradient(const Solver3 *s, const double *n, int i, int j, int k)}}
+\item[\texttt{solver3\_rhs}] Exchange current state, integrate conductivity, solve the potential, and evaluate the uniform transport/source RHS. Source line 555.\par
+{\small\nolinkurl{int solver3_rhs(Solver3 *s, double *n, double *m, double *dn, double *dm)}}
+\item[\texttt{solver3\_transport}] Evaluate conservative uniform particle/momentum face fluxes, gravity/pressure sources, boundary budgets and CFL rates. Source line 620.\par
+{\small\nolinkurl{int solver3_transport(Solver3 *s, const double *n, const double *m, double *dn, double *dm)}}
+\end{description}
+\subsection{Inline ownership helpers}
+\code{night_start} returns the global molecular first-owned offset, and \code{night_owned} its count excluding ghosts. Two canonical rows correspond to one internal row; k is contiguous. See the direct comments in \path{src/amr3_night_internal.h}.

@@ -1,0 +1,22 @@
+{
+  "time_s": 13500.0,
+  "field_index": 32,
+  "quantity": "electron",
+  "slice_coordinate": "fixed field label; apex-longitude/apex-altitude axes",
+  "AMR_outline": "boundaries between actual physical levels; no individual cell grid",
+  "display_limits_normalized": [
+    0,
+    1
+  ],
+  "density_floor_in_model_added": false,
+  "input_SHA256": {
+    "metadata.json": "b80a5c0dc7ca8f81d7a4bee827dd4f17afd12204d23424f37b08d89836ab4b6b",
+    "frames.csv": "be4269322af8643ed5ad5a2426ce1296d4a60ac05e709b0c5e252ae7434f7eec",
+    "display_density_0001.bin": "366228cc61f183c984bb6d4da8f575e51d49dd33c38f059b3f2467ddca44e098",
+    "molecular_0001.bin": "e950325def30fa8df6826a9d30228afe05ca3d2a96442e668fca806a8e7456bc",
+    "amr_level_0001.bin": "a35a658204d63a2dee70d921fd084213cb49cc91d265a20a0670b95a7a7cb152"
+  },
+  "plotter_SHA256": "7bc8863ea90c2cbfef245ca7f8002027b233ce4370d4f01138db871c69d1d62f",
+  "numpy_version": "1.24.3",
+  "matplotlib_version": "3.7.2"
+}

@@ -1,0 +1,44 @@
+{
+  "release": "v0.1.0",
+  "build_checked_UTC": "2026-11-15T17:14:25.254290+00:00",
+  "LaTeX_source_SHA256": {
+    "methodology/amr.tex": "4643a7200472cfa72630ffefa0897f73c5a67a9a725d33ac7b389f03408c8761",
+    "methodology/functions.tex": "47d6aa711706fade2e4e88cc6349ea451e56f9606ca7c7e5f1207864dcd34609",
+    "methodology/main.tex": "6da3e1c582681f4d9c0b8e7586e379ea110cf3c8e8e30290b16a1bdf241fbab3",
+    "methodology/numerics.tex": "ef1064a3dbb956bbfbc1d686a2f3e4852ed10cb0a061e7892e140c9c9981ce65",
+    "methodology/parameters.tex": "6797f87483e6fb64fc9b0e3f15a11361cc655b48b12d4e6eb52d44cdb3505b3e",
+    "methodology/performance.tex": "80f4c253b1beaaf770187f07c96fb24cc54e7c3ab77cb4afb9116a616d298ea6",
+    "methodology/physics.tex": "f2f9676c3e09972dfbf84582e2772c227e9692652e063776632ffb57d8834286",
+    "methodology/references.bib": "1cfd4947f907f2d4986b051f9c3359663761198da65c120efe0b777126306d90",
+    "methodology/software.tex": "c6d480d9368a12a62331f8a8991fd86d2b0ec9bf0fcfda7a9641777192d6d1a5",
+    "methodology/source-atlas.tex": "c8b8203f1e5a9223f85974dea5efe7c0f6ea3bee4732157f15fc983833560f3a",
+    "methodology/validation.tex": "8e89fa8f73e4703cde84f1533c0982fb2db938fb3d6791050c205c5761ac11a1"
+  },
+  "PDFs": {
+    "methodology/main.pdf": {
+      "SHA256": "b2f0011ff2c875768c4d97c84e0e68540513e3503dae3037059b86f6655425bf",
+      "pages": 53,
+      "all_pages_rendered": true,
+      "all_contact_sheets_visually_inspected": true,
+      "detailed_pages_inspected": [
+        9,
+        16,
+        21,
+        22
+      ],
+      "compiler": "latexmk/pdfTeX 1.40.24; independent desktop editor compile success",
+      "unresolved_citations_or_overfull_warnings": false,
+      "observed": "No overlap, clipping, missing glyphs or broken tables. Final module and performance tables checked after polish."
+    },
+    "methodology/source-atlas.pdf": {
+      "SHA256": "3467a996ef16db6197491cdf36593ce561a2ddab30ef3bcbcdbaef0080a97e0d",
+      "pages": 171,
+      "all_pages_rendered": true,
+      "all_contact_sheets_visually_inspected": true,
+      "detailed_page_inspected": 39,
+      "observed": "No clipping/overlap. Two long literal lines extend by less than1pt into the ample margin; full literal text remains visible."
+    }
+  },
+  "scientific_figure": "validation/figure_provenance.json",
+  "scope": "Document compilation and visual inspection; scientific arrays/plotting remained on allocated compute"
+}

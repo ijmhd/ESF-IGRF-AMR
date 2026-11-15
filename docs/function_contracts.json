@@ -1,0 +1,2394 @@
+[
+  {
+    "file": "src/amr3.c",
+    "name": "wrap",
+    "signature": "static int wrap(int i, int n)",
+    "purpose": "Return the nonnegative periodic index i modulo n.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 18
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "cover",
+    "signature": "static int cover(A3 *a, int i, int j)",
+    "purpose": "Map a canonical transverse cell to its backing leaf column; apply the configured periodic/clamped indexing.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 26
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "owned",
+    "signature": "static int owned(A3 *a, int p)",
+    "purpose": "Test whether a backing column belongs to this rank, so shared faces update only local conserved states.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 39
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "ph",
+    "signature": "static double ph(A3 *a, int i, int j)",
+    "purpose": "Read a transverse potential node using this solver's boundary/periodic indexing convention.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 45
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "derivative",
+    "signature": "static void derivative(A3 *a, int axis, int i, int j, double d[2])",
+    "purpose": "Compute the two transverse potential derivatives at a geometric face and retain both metric cross contributions.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 52
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "minmod",
+    "signature": "static double minmod(double a, double b, double c)",
+    "purpose": "Return the sign-consistent slope with smallest magnitude; return zero at an extremum.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 78
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "length_at",
+    "signature": "static double length_at(A3 *a, int level, int i, int j, int k)",
+    "purpose": "Read the physical along-field segment length at the requested private refinement level.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 84
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "cell_value",
+    "signature": "static double cell_value(A3 *a, int p, int k, int field)",
+    "purpose": "Sample density or velocity with the caller's parallel boundary convention; used by the along-field reconstruction.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 103
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "parallel_state_at",
+    "signature": "static double parallel_state_at(A3 *a, int level, int i, int j, int k, int field, int side)",
+    "purpose": "Construct a bounded left/right parallel face state at an explicitly requested refinement level.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 112
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "parallel_state",
+    "signature": "static double parallel_state(A3 *a, int p, int k, int field, int side)",
+    "purpose": "Resolve the actual local density level, then reconstruct its parallel face state.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 122
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "length",
+    "signature": "static double length(A3 *a, int p, int k)",
+    "purpose": "Resolve a backing cell's active density level before reading its physical parallel length.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 129
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "log_pressure",
+    "signature": "static double log_pressure(A3 *a, int p, int k)",
+    "purpose": "Compute the nonuniform parallel logarithmic pressure gradient, using common Ne in the multi-ion closure and exact-vacuum secants.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 137
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "bernoulli",
+    "signature": "static double bernoulli(double z)",
+    "purpose": "Evaluate the Bernoulli fitting function z/(exp(z)-1) with small-argument series and large-argument limits.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 167
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "parallel_cache",
+    "signature": "static void parallel_cache(A3 *a, double cs)",
+    "purpose": "Prepare shared parallel flux/rate tables for a column-uniform density layout; segmented layouts use a different path.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 182
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "density_cover",
+    "signature": "static int density_cover(A3 *a, int i, int j, int k)",
+    "purpose": "Locate the actual density owner at a canonical cell and along-field index; owner can differ from electric-field backing.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 246
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "append_face",
+    "signature": "static void append_face(A3 *a, int axis, int i, int j, int first, int last)",
+    "purpose": "Append or merge a canonical face interval whose two active density owners and levels are unchanged.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 260
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "a3_face_topology",
+    "signature": "void a3_face_topology(A3 *a)",
+    "purpose": "Build conservative face blocks for the current segmented density mesh; identical interface fluxes are shared by both adjacent volumes.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 299
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "metric_at",
+    "signature": "static void metric_at(A3 *a, int level, int i, int j, int k, A3Metric *m)",
+    "purpose": "Read or conservatively aggregate geometry for a requested physical density level, including the macro level.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 332
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "a3_parallel_geometry",
+    "signature": "void a3_parallel_geometry(A3 *a)",
+    "purpose": "Cache static segment lengths and parallel relaxation factors for every supported level.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 348
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "segmented_parallel",
+    "signature": "static void segmented_parallel(A3 *a, int level, int i, int j, int k, double cs, double *N, double *M, double *rate)",
+    "purpose": "Evaluate parallel particle/momentum flux for one actual segmented interface; retain collisional relaxation and electron-pressure fitting.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 389
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "marker_fraction",
+    "signature": "static double marker_fraction(A3 *a, int level, int axis, int i, int j, int k, int sign)",
+    "purpose": "Return a bounded material seed fraction from the advected marker and density; zero density gives zero fraction.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 453
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "a3_transport",
+    "signature": "void a3_transport(A3 *a, double *dn, double *dm)",
+    "purpose": "Compute O+ finite-volume density/momentum RHS, shared face fluxes, gravity/pressure sources and global stability/travel rates. Collective; sampling may populate lazy caches, so AMR face loops remain on the main thread.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 464
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "rhs",
+    "signature": "static void rhs(A3 *a, double *n, double *m, double *dn, double *dm, double time)",
+    "purpose": "Execute the complete current-stage chain: prepare/halo, integrated potential solve, O+ transport, then molecular transport. The potential always belongs to this stage's density and chemistry state.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 640
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "node_id",
+    "signature": "static int node_id(TubeGrid *g, int i, int j, int k)",
+    "purpose": "Flatten node coordinates with the along-field coordinate contiguous.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 652
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "make_box",
+    "signature": "static void make_box(TubeGrid *g, GridConfig c)",
+    "purpose": "Build Cartesian synthetic geometry for transport/potential verification rather than tracing a physical magnetic field.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 659
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "gather_geometry",
+    "signature": "static void gather_geometry(A3 *a, void *data, int rows, size_t rowbytes, const int *cuts)",
+    "purpose": "Collect disjoint computed geometry row ranges into replicated canonical geometry, in MPI-count-safe chunks.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 700
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "parallel_geometry",
+    "signature": "static void parallel_geometry(A3 *a, TubeGrid *g, Igrf *field, GridConfig fine)",
+    "purpose": "Distribute tube tracing and cell/face metric construction among ranks, then assemble the replicated geometry and diagnostics.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 717
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "geometry",
+    "signature": "static void geometry(A3 *status, TubeGrid *g, Config3 c)",
+    "purpose": "Load and validate a geometry cache, or construct geometry and optionally write a new cache; initialize conductivity responses afterward.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 772
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "output",
+    "signature": "static FILE *output(A3 *a, const char *name, const char *mode)",
+    "purpose": "Open a named output in the current run directory; failures are collective-fatal through a3_fail.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 833
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "metadata",
+    "signature": "static void metadata(A3 *a)",
+    "purpose": "Write effective geometry, numerical controls, units and binary layout metadata for this AMR run.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 845
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "snapshot",
+    "signature": "static void snapshot(A3 *a, double *n, double *m, int frame, double time, int step, double mass0, const int *quiet, double next_regrid, double travel, int retries)",
+    "purpose": "Collect owned states, reconstruct canonical display density, and write time/mesh-bound outputs plus the native checkpoint. Display reconstruction is not an evolved finest-grid solution.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 920
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "remap_tests",
+    "signature": "static void remap_tests(A3 *base, TubeGrid *g)",
+    "purpose": "Exercise constant/background/smooth conservative transfers and validate particle/momentum invariants in the dedicated remap case.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 1105
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "import_static",
+    "signature": "static void import_static(A3 *a, TubeGrid *g, double *n, double *m, double *time, int *step, double *mass0)",
+    "purpose": "Import a uniform-grid restart by preserving original coarse-cell particle and signed momentum integrals on the canonical AMR geometry.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 1198
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "workspace",
+    "signature": "static void workspace(A3 *a, double ***arrays, int count)",
+    "purpose": "Replace scratch arrays after a mesh rebuild so their sizes match the new owned-plus-halo backing layout.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 1285
+  },
+  {
+    "file": "src/amr3.c",
+    "name": "amr3_run",
+    "signature": "int amr3_run(Config3 c, int rank, int size)",
+    "purpose": "Drive initialization/restart, regridding, half chemistry, two-stage O+/molecular transport, acceptance checks, diagnostics and checkpointing. All ranks follow the same clocks; no level subcycling is used.",
+    "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
+    "line": 1296
+  },
+  {
+    "file": "src/amr3_adapt.c",
+    "name": "migrate",
+    "signature": "static void migrate(A3 *old, A3 *moved, double *n, double *m, double *N, double *M)",
+    "purpose": "Transfer O+ density/momentum/optional marker intersections between old and new rank-owned slabs before conservative remapping.",
+    "module_contract": "Collective mesh rebuild, ownership migration and conservative transfer. Geometry remains fixed; density and electric-potential approximation spaces may change separately.",
+    "line": 16
+  },
+  {
+    "file": "src/amr3_adapt.c",
+    "name": "a3_adapt",
+    "signature": "int a3_adapt(A3 *a, double **n, double **m, const unsigned char *mask, double time, int step, int exact_initial)",
+    "purpose": "Detect actual mask/field-space changes, repartition molecules and O+, build/remap the new mesh, verify global invariants and resolve potential. A no-change request returns without rebuilding.",
+    "module_contract": "Collective mesh rebuild, ownership migration and conservative transfer. Geometry remains fixed; density and electric-potential approximation spaces may change separately.",
+    "line": 47
+  },
+  {
+    "file": "src/amr3_cache.c",
+    "name": "hash",
+    "signature": "static uint64_t hash(uint64_t h, const void *data, size_t n)",
+    "purpose": "Update the FNV-1a checksum over an exact byte sequence.",
+    "module_contract": "Native-ABI geometry cache. This is a performance cache, not a portable state checkpoint. Source/input identities, ABI sizes and payload checksum must all match.",
+    "line": 20
+  },
+  {
+    "file": "src/amr3_cache.c",
+    "name": "file_hash",
+    "signature": "static uint64_t file_hash(A3 *a, const char *path)",
+    "purpose": "Hash an input file for cache identity; an empty optional path has identity zero.",
+    "module_contract": "Native-ABI geometry cache. This is a performance cache, not a portable state checkpoint. Source/input identities, ABI sizes and payload checksum must all match.",
+    "line": 31
+  },
+  {
+    "file": "src/amr3_cache.c",
+    "name": "a3_geometry_identity",
+    "signature": "int a3_geometry_identity(A3 *a, const char code[128])",
+    "purpose": "Accept the exact compiled geometry identity or one explicitly enumerated, version-guarded historical equivalence; reject unknown changes.",
+    "module_contract": "Native-ABI geometry cache. This is a performance cache, not a portable state checkpoint. Source/input identities, ABI sizes and payload checksum must all match.",
+    "line": 51
+  },
+  {
+    "file": "src/amr3_cache.c",
+    "name": "a3_geometry_cache",
+    "signature": "int a3_geometry_cache(A3 *a, TubeGrid *g, Config3 c, int write)",
+    "purpose": "Read/write native canonical geometry with complete parameter/input/source/ABI checks, atomic rename and payload checksum.",
+    "module_contract": "Native-ABI geometry cache. This is a performance cache, not a portable state checkpoint. Source/input identities, ABI sizes and payload checksum must all match.",
+    "line": 88
+  },
+  {
+    "file": "src/amr3_checkpoint2.c",
+    "name": "bytes",
+    "signature": "static void bytes(Stream *s, void *p, size_t n)",
+    "purpose": "Read or write exactly the requested bytes while updating the checkpoint checksum; short transfers are fatal.",
+    "module_contract": "Structure-aware ESFAMR02/03/04/05 checkpoint formats. Preserve density/field masks, hysteresis clocks, optional seed tracer and conservation history.",
+    "line": 25
+  },
+  {
+    "file": "src/amr3_checkpoint2.c",
+    "name": "integer",
+    "signature": "static uint64_t integer(Stream *s, uint64_t value)",
+    "purpose": "Encode/decode an unsigned 64-bit integer in little-endian order and update the stream checksum.",
+    "module_contract": "Structure-aware ESFAMR02/03/04/05 checkpoint formats. Preserve density/field masks, hysteresis clocks, optional seed tracer and conservation history.",
+    "line": 38
+  },
+  {
+    "file": "src/amr3_checkpoint2.c",
+    "name": "reals",
+    "signature": "static void reals(Stream *s, double *p, size_t n)",
+    "purpose": "Transfer floating data in portable little-endian order, retaining the checksum over the actual encoded bytes.",
+    "module_contract": "Structure-aware ESFAMR02/03/04/05 checkpoint formats. Preserve density/field masks, hysteresis clocks, optional seed tracer and conservation history.",
+    "line": 52
+  },
+  {
+    "file": "src/amr3_checkpoint2.c",
+    "name": "finish",
+    "signature": "static void finish(Stream *s)",
+    "purpose": "Write or verify the final checksum, reject trailing data on reads, and close the checkpoint stream.",
+    "module_contract": "Structure-aware ESFAMR02/03/04/05 checkpoint formats. Preserve density/field masks, hysteresis clocks, optional seed tracer and conservation history.",
+    "line": 68
+  },
+  {
+    "file": "src/amr3_checkpoint2.c",
+    "name": "parameters",
+    "signature": "static int parameters(Config3 c)",
+    "purpose": "Choose the exact restart signature length required by this case's driver/neutral extensions.",
+    "module_contract": "Structure-aware ESFAMR02/03/04/05 checkpoint formats. Preserve density/field masks, hysteresis clocks, optional seed tracer and conservation history.",
+    "line": 80
+  },
+  {
+    "file": "src/amr3_checkpoint2.c",
+    "name": "signature",
+    "signature": "static void signature(Config3 c, double value[72])",
+    "purpose": "Build the ordered physical/numerical restart signature; changing a signed parameter intentionally rejects incompatible restart.",
+    "module_contract": "Structure-aware ESFAMR02/03/04/05 checkpoint formats. Preserve density/field masks, hysteresis clocks, optional seed tracer and conservation history.",
+    "line": 87
+  },
+  {
+    "file": "src/amr3_checkpoint2.c",
+    "name": "a3_checkpoint2_write",
+    "signature": "void a3_checkpoint2_write(A3 *a, const double *n, const double *m, const double *marker, double time, int step, double mass0, double next_regrid, double travel, int retries)",
+    "purpose": "Atomically write structure-aware masks/history, optional tracer, actual conserved states, potential and checksummed physical/numerical signatures.",
+    "module_contract": "Structure-aware ESFAMR02/03/04/05 checkpoint formats. Preserve density/field masks, hysteresis clocks, optional seed tracer and conservation history.",
+    "line": 127
+  },
+  {
+    "file": "src/amr3_checkpoint2.c",
+    "name": "a3_checkpoint2_read",
+    "signature": "int a3_checkpoint2_read(A3 *a, TubeGrid *g, Config3 c, int rank, int size, double **n, double **m, double *time, int *step, double *mass0, int **quiet, double *next_regrid, double *travel, int *retries)",
+    "purpose": "Validate and reconstruct a structure-aware checkpoint, distribute states under the current MPI decomposition, and restore mesh/clocks/history.",
+    "module_contract": "Structure-aware ESFAMR02/03/04/05 checkpoint formats. Preserve density/field masks, hysteresis clocks, optional seed tracer and conservation history.",
+    "line": 206
+  },
+  {
+    "file": "src/amr3_macro.c",
+    "name": "a3_nx",
+    "signature": "int a3_nx(const A3 *a, int level)",
+    "purpose": "Return the transverse x dimension for a private level; level -1 is the extra physical coarse level.",
+    "module_contract": "Third physical level. A macro cell covers four internal roots. Only the primary backing slot evolves when its macro mask is coarse; volume-weighted virtual children serve reconstruction.",
+    "line": 18
+  },
+  {
+    "file": "src/amr3_macro.c",
+    "name": "a3_ny",
+    "signature": "int a3_ny(const A3 *a, int level)",
+    "purpose": "Return the transverse y dimension for a private level; level -1 is the extra physical coarse level.",
+    "module_contract": "Third physical level. A macro cell covers four internal roots. Only the primary backing slot evolves when its macro mask is coarse; volume-weighted virtual children serve reconstruction.",
+    "line": 25
+  },
+  {
+    "file": "src/amr3_macro.c",
+    "name": "a3_scale",
+    "signature": "int a3_scale(int level)",
+    "purpose": "Return the number of canonical finest cells across one requested-level cell: 4, 2 or 1.",
+    "module_contract": "Third physical level. A macro cell covers four internal roots. Only the primary backing slot evolves when its macro mask is coarse; volume-weighted virtual children serve reconstruction.",
+    "line": 31
+  },
+  {
+    "file": "src/amr3_macro.c",
+    "name": "a3_macro_index",
+    "signature": "int a3_macro_index(const A3 *a, int b)",
+    "purpose": "Map an internal root index to its containing two-by-two macro cell.",
+    "module_contract": "Third physical level. A macro cell covers four internal roots. Only the primary backing slot evolves when its macro mask is coarse; volume-weighted virtual children serve reconstruction.",
+    "line": 37
+  },
+  {
+    "file": "src/amr3_macro.c",
+    "name": "a3_macro_primary",
+    "signature": "int a3_macro_primary(const A3 *a, int b)",
+    "purpose": "Return the unique backing column used to evolve an unrefined macro cell.",
+    "module_contract": "Third physical level. A macro cell covers four internal roots. Only the primary backing slot evolves when its macro mask is coarse; volume-weighted virtual children serve reconstruction.",
+    "line": 43
+  },
+  {
+    "file": "src/amr3_macro.c",
+    "name": "a3_rebase",
+    "signature": "void a3_rebase(A3 *a)",
+    "purpose": "Repair interior pointers after copying an A3 struct; they must point into the destination's own embedded storage.",
+    "module_contract": "Third physical level. A macro cell covers four internal roots. Only the primary backing slot evolves when its macro mask is coarse; volume-weighted virtual children serve reconstruction.",
+    "line": 50
+  },
+  {
+    "file": "src/amr3_macro.c",
+    "name": "coord",
+    "signature": "static int coord(A3 *a, int x, int n, int axis)",
+    "purpose": "Wrap or clamp macro coordinates according to physical versus synthetic boundary policy.",
+    "module_contract": "Third physical level. A macro cell covers four internal roots. Only the primary backing slot evolves when its macro mask is coarse; volume-weighted virtual children serve reconstruction.",
+    "line": 59
+  },
+  {
+    "file": "src/amr3_macro.c",
+    "name": "mm",
+    "signature": "static double mm(double a, double b)",
+    "purpose": "Apply the two-argument minmod slope limiter without changing a conserved cell average.",
+    "module_contract": "Third physical level. A macro cell covers four internal roots. Only the primary backing slot evolves when its macro mask is coarse; volume-weighted virtual children serve reconstruction.",
+    "line": 69
+  },
+  {
+    "file": "src/amr3_macro.c",
+    "name": "present",
+    "signature": "static int present(A3 *a, int i, int j)",
+    "purpose": "Test whether this rank holds the primary backing state for a macro cell.",
+    "module_contract": "Third physical level. A macro cell covers four internal roots. Only the primary backing slot evolves when its macro mask is coarse; volume-weighted virtual children serve reconstruction.",
+    "line": 75
+  },
+  {
+    "file": "src/amr3_macro.c",
+    "name": "around",
+    "signature": "static double around(A3 *a, int f, int i, int j, int k, int ci, int cj)",
+    "purpose": "Read a neighboring macro representation, falling back to the central cell if the neighbor is outside the local halo.",
+    "module_contract": "Third physical level. A macro cell covers four internal roots. Only the primary backing slot evolves when its macro mask is coarse; volume-weighted virtual children serve reconstruction.",
+    "line": 82
+  },
+  {
+    "file": "src/amr3_macro.c",
+    "name": "a3_macro_init",
+    "signature": "void a3_macro_init(A3 *a, A3 *reuse, int mode)",
+    "purpose": "Allocate macro masks/history/state tables and copy their history from the old mesh; reuse immutable volume/background values on rebuild.",
+    "module_contract": "Third physical level. A macro cell covers four internal roots. Only the primary backing slot evolves when its macro mask is coarse; volume-weighted virtual children serve reconstruction.",
+    "line": 95
+  },
+  {
+    "file": "src/amr3_macro.c",
+    "name": "a3_macro_metrics",
+    "signature": "void a3_macro_metrics(A3 *a)",
+    "purpose": "Reconstruct unsegmented raw metrics from fixed canonical cells before applying any density mask. Repeated invocation must not aggregate already aggregated volumes.",
+    "module_contract": "Third physical level. A macro cell covers four internal roots. Only the primary backing slot evolves when its macro mask is coarse; volume-weighted virtual children serve reconstruction.",
+    "line": 159
+  },
+  {
+    "file": "src/amr3_macro.c",
+    "name": "a3_macro_prepare",
+    "signature": "void a3_macro_prepare(A3 *a)",
+    "purpose": "Restrict evolved owner states to macro averages, then construct bounded conservative virtual internal-root states for coarse macro cells.",
+    "module_contract": "Third physical level. A macro cell covers four internal roots. Only the primary backing slot evolves when its macro mask is coarse; volume-weighted virtual children serve reconstruction.",
+    "line": 190
+  },
+  {
+    "file": "src/amr3_macro.c",
+    "name": "a3_macro_sample",
+    "signature": "double a3_macro_sample(A3 *a, int field, int i, int j, int k)",
+    "purpose": "Read a prepared macro density/momentum/velocity/marker sample and verify local halo availability.",
+    "module_contract": "Third physical level. A macro cell covers four internal roots. Only the primary backing slot evolves when its macro mask is coarse; volume-weighted virtual children serve reconstruction.",
+    "line": 336
+  },
+  {
+    "file": "src/amr3_macro.c",
+    "name": "a3_macro_tags",
+    "signature": "void a3_macro_tags(A3 *a, const unsigned char *fine_mask)",
+    "purpose": "Choose coarse-level refinement from residual gradient/curvature and parent information loss; enforce nesting, buffering and physical-time quiet hysteresis.",
+    "module_contract": "Third physical level. A macro cell covers four internal roots. Only the primary backing slot evolves when its macro mask is coarse; volume-weighted virtual children serve reconstruction.",
+    "line": 348
+  },
+  {
+    "file": "src/amr3_macro.c",
+    "name": "a3_macro_output",
+    "signature": "void a3_macro_output(A3 *a, int frame, double time)",
+    "purpose": "Write physical L0/L1/L2 cell labels and actual activity counts for visualization and validation.",
+    "module_contract": "Third physical level. A macro cell covers four internal roots. Only the primary backing slot evolves when its macro mask is coarse; volume-weighted virtual children serve reconstruction.",
+    "line": 454
+  },
+  {
+    "file": "src/amr3_macro.c",
+    "name": "node",
+    "signature": "static int node(A3 *a, int i, int j)",
+    "purpose": "Flatten a transverse potential node index on the canonical nodal grid.",
+    "module_contract": "Third physical level. A macro cell covers four internal roots. Only the primary backing slot evolves when its macro mask is coarse; volume-weighted virtual children serve reconstruction.",
+    "line": 487
+  },
+  {
+    "file": "src/amr3_macro.c",
+    "name": "edge",
+    "signature": "static int edge(A3 *a, int i, int j)",
+    "purpose": "Determine a macro-edge constraint in the transverse potential approximation space.",
+    "module_contract": "Third physical level. A macro cell covers four internal roots. Only the primary backing slot evolves when its macro mask is coarse; volume-weighted virtual children serve reconstruction.",
+    "line": 495
+  },
+  {
+    "file": "src/amr3_macro.c",
+    "name": "add_map",
+    "signature": "static void add_map(A3 *a, A3Map *m, int id, double w)",
+    "purpose": "Accumulate constrained basis weights for one potential map without losing contributions shared through a parent.",
+    "module_contract": "Third physical level. A macro cell covers four internal roots. Only the primary backing slot evolves when its macro mask is coarse; volume-weighted virtual children serve reconstruction.",
+    "line": 502
+  },
+  {
+    "file": "src/amr3_macro.c",
+    "name": "resolve",
+    "signature": "static void resolve(A3 *a, int id, int *origin, unsigned char *scale, unsigned char *done)",
+    "purpose": "Resolve nested potential-node constraints to the final independent DOFs.",
+    "module_contract": "Third physical level. A macro cell covers four internal roots. Only the primary backing slot evolves when its macro mask is coarse; volume-weighted virtual children serve reconstruction.",
+    "line": 518
+  },
+  {
+    "file": "src/amr3_macro.c",
+    "name": "a3_macro_maps",
+    "signature": "void a3_macro_maps(A3 *a)",
+    "purpose": "Build nested bilinear potential constraints for the extra coarse level, keeping boundary and hanging-node consistency.",
+    "module_contract": "Third physical level. A macro cell covers four internal roots. Only the primary backing slot evolves when its macro mask is coarse; volume-weighted virtual children serve reconstruction.",
+    "line": 549
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "a3_fail",
+    "signature": "_Noreturn void a3_fail(A3 *a, const char *message)",
+    "purpose": "Report rank and invariant violation, abort the communicator, and never continue with an invalid model state.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 18
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "a3_alloc",
+    "signature": "void *a3_alloc(A3 *a, size_t n, size_t width)",
+    "purpose": "Allocate zero-initialized storage, including a nonnull minimum allocation for empty logical arrays; allocation failure is fatal.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 27
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "wrap",
+    "signature": "static int wrap(int i, int n)",
+    "purpose": "Return the nonnegative periodic index i modulo n.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 36
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "index_axis",
+    "signature": "static int index_axis(A3 *a, int axis, int i, int n)",
+    "purpose": "Wrap synthetic/periodic indices and otherwise clamp physical boundary indices.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 43
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "minmod",
+    "signature": "static double minmod(double a, double b)",
+    "purpose": "Return the sign-consistent slope with smallest magnitude; return zero at an extremum.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 51
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "gid",
+    "signature": "static int gid(A3 *a, int level, int i, int j, int k)",
+    "purpose": "Flatten a density-level cell index; k is contiguous and nx depends on the private level.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 57
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "moment_weights",
+    "signature": "static void moment_weights(A3 *a)",
+    "purpose": "Integrate canonical physical-volume moments, restrict them to coarser levels, and build four-cell face weights for PDM4.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 65
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "geometry_cache",
+    "signature": "static void geometry_cache(A3 *a, A3 *reuse)",
+    "purpose": "Share reference-counted immutable geometry/response/PDM tables across regrids and allocate the new metric table. Three-level raw metrics are built once by a3_macro_metrics.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 168
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "a3_partition_plan",
+    "signature": "void a3_partition_plan(A3 *a, const unsigned char *work_mask, int *partition)",
+    "purpose": "Balance the existing density-work estimate plus canonical-field weight using whole transverse root rows. Three-level cuts align to pairs; this one-dimensional policy has a finite rank limit.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 278
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "a3_mesh",
+    "signature": "void a3_mesh(A3 *a, TubeGrid *g, Config3 c, int rank, int size, int mode)",
+    "purpose": "Construct a mesh from the requested fixed/uniform/dynamic mode without an explicit supplied mask.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 320
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "a3_mesh_mask",
+    "signature": "void a3_mesh_mask(A3 *a, TubeGrid *g, Config3 c, int rank, int size, int mode, const unsigned char *mask, A3 *reuse, const int *cuts)",
+    "purpose": "Construct a mesh with explicit density masks and optional old-mesh geometry reuse / ownership cuts.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 327
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "a3_mesh_mask_work",
+    "signature": "void a3_mesh_mask_work(A3 *a, TubeGrid *g, Config3 c, int rank, int size, int mode, const unsigned char *mask, A3 *reuse, const int *cuts, const unsigned char *work_mask)",
+    "purpose": "Construct backing columns, rank ownership, halos, reconstruction workspaces, geometry metrics and face topology from explicit masks. Collective layout decisions must agree on all ranks.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 335
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "a3_segment_metrics",
+    "signature": "void a3_segment_metrics(A3 *a)",
+    "purpose": "Reset and aggregate physical metrics for the actual segmented density owners; inactive backing slots receive zero volume.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 550
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "exchange",
+    "signature": "static void exchange(A3 *a, double *n, double *m)",
+    "purpose": "Exchange owned O+ density/momentum and optional marker halos using nonblocking peer transfers, then unpack only after completion.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 616
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "a3_prepare",
+    "signature": "void a3_prepare(A3 *a, double *n, double *m)",
+    "purpose": "Bind the current stage, exchange state, reset lazy caches, restrict actual conserved states, construct macro representations and refresh molecular/electron responses. Must finish before potential or flux sampling.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 655
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "parent",
+    "signature": "static double parent(A3 *a, int field, int i, int j, int k)",
+    "purpose": "Read a parent density/momentum sample after applying boundary indices; reject a stencil outside the exchanged root-row halo.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 715
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "child_proposal",
+    "signature": "static double child_proposal(A3 *a, int b, int child, int k)",
+    "purpose": "Evaluate a conservative background-shaped density child from cached parent amplitude and residual slopes.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 728
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "slopes",
+    "signature": "static void slopes(A3 *a, int b, int k)",
+    "purpose": "Build bounded background-aware density reconstruction and lazy child-density caches for one parent and along-field index.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 742
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "velocity_slopes",
+    "signature": "static void velocity_slopes(A3 *a, int b, int k)",
+    "purpose": "Prolong parallel velocity with particle-weighted centering so child momentum sums to the parent momentum.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 800
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "a3_proposed_child",
+    "signature": "double a3_proposed_child(A3 *a, int b, int child, int k, int field)",
+    "purpose": "Return a prospective child density/momentum for transfer/coarsening assessment while preserving the existing reconstruction semantics.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 846
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "a3_sample",
+    "signature": "double a3_sample(A3 *a, int field, int level, int i, int j, int k)",
+    "purpose": "Sample actual or virtual states at a requested level. It may update lazy density/velocity child caches; concurrent calls require explicit cache ownership.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 863
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "sample_pair",
+    "signature": "static void sample_pair(A3 *a, int level, int i, int j, int k, double value[2])",
+    "purpose": "Collect a one-dimensional face stencil at a common requested level, including virtual samples across coarse/fine contacts.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 902
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "a3_face_pair",
+    "signature": "void a3_face_pair(A3 *a, int level, int axis, int i, int j, int k, int sign, double *n, double *second)",
+    "purpose": "Return particle-density and velocity face states using physical-volume PDM4 or the configured MUSCL fallback.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 938
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "initial_fine",
+    "signature": "static double initial_fine(A3 *a, int i, int j, int k, int test)",
+    "purpose": "Evaluate the idealized Chapman/seed fixture on canonical physical geometry; used for fresh initialization and verification.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 977
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "a3_initialize_marker",
+    "signature": "void a3_initialize_marker(A3 *a, const double *n)",
+    "purpose": "Initialize an advected seed-protection material quantity consistently with density; this tracer influences tagging, not conductivity.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 1027
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "a3_initialize",
+    "signature": "void a3_initialize(A3 *a, double *n, double *m, int test)",
+    "purpose": "Restrict the canonical idealized state to actual active volumes; leave nonowner backing states inactive.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 1067
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "a3_mass",
+    "signature": "double a3_mass(A3 *a, const double *field)",
+    "purpose": "Integrate a conserved field with actual owner volumes and sum across MPI ranks.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 1104
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "a3_valid",
+    "signature": "int a3_valid(A3 *a, const double *n, const double *m)",
+    "purpose": "Collectively reject nonfinite/negative density, invalid vacuum momentum and out-of-range marker states; never impose a density floor.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 1116
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "a3_remap",
+    "signature": "void a3_remap(A3 *old, A3 *next, double *n, double *m, double *new_n, double *new_m)",
+    "purpose": "Conservatively restrict/prolong density, parallel momentum and optional marker between old/new active meshes, checking global transfer invariants.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 1132
+  },
+  {
+    "file": "src/amr3_mesh.c",
+    "name": "a3_free",
+    "signature": "void a3_free(A3 *a)",
+    "purpose": "Release per-mesh arrays and PETSc objects; free immutable shared caches only when their reference count reaches zero.",
+    "module_contract": "Mesh, owned/ghost storage and conservative reconstruction. Backing columns are not all active density DOFs. Virtual samples may lazily populate caches; this module is not generally thread-safe.",
+    "line": 1182
+  },
+  {
+    "file": "src/amr3_migration.c",
+    "name": "a3_night_repartition",
+    "signature": "void a3_night_repartition(A3 *a, const int *cuts)",
+    "purpose": "Move only molecular cells whose owner changes using old/new slab intersections and separate receive storage. Identical intervals are a byte-preserving no-op; old owned values survive until O+ remap completes.",
+    "module_contract": "Molecular old/new slab ownership intersections. Separate receive buffers preserve every old owned value until O+ remapping and all sends finish.",
+    "line": 20
+  },
+  {
+    "file": "src/amr3_molecular.c",
+    "name": "clamp",
+    "signature": "static int clamp(int x, int n)",
+    "purpose": "Clamp a cell index to the nearest valid boundary cell.",
+    "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
+    "line": 20
+  },
+  {
+    "file": "src/amr3_molecular.c",
+    "name": "id",
+    "signature": "static int id(A3 *a, int i, int j, int k)",
+    "purpose": "Flatten a canonical molecular cell with periodic-x or clamped physical indices.",
+    "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
+    "line": 26
+  },
+  {
+    "file": "src/amr3_molecular.c",
+    "name": "nid",
+    "signature": "static int nid(A3 *a, int i, int j, int k)",
+    "purpose": "Flatten node coordinates with the along-field coordinate contiguous.",
+    "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
+    "line": 37
+  },
+  {
+    "file": "src/amr3_molecular.c",
+    "name": "center",
+    "signature": "static V3 center(A3 *a, int axis, int p[3])",
+    "purpose": "Average the four geometric vertices of a canonical face in ECEF metres.",
+    "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
+    "line": 43
+  },
+  {
+    "file": "src/amr3_molecular.c",
+    "name": "a3_molecular_geometry",
+    "signature": "void a3_molecular_geometry(A3 *a)",
+    "purpose": "Build owned canonical face mobility/gravity coefficients, and rebuild only when the owned slab changes.",
+    "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
+    "line": 59
+  },
+  {
+    "file": "src/amr3_molecular.c",
+    "name": "a3_molecular_workspace",
+    "signature": "void a3_molecular_workspace(A3 *a)",
+    "purpose": "Resize owned molecular stage, backup, rate, pressure-log and same-attempt ETD work arrays after an ownership change.",
+    "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
+    "line": 137
+  },
+  {
+    "file": "src/amr3_molecular.c",
+    "name": "a3_night_electrons",
+    "signature": "void a3_night_electrons(A3 *a)",
+    "purpose": "Reconstruct current canonical O+ plus molecules to form quasineutral Ne and invalidate every averaged-Ne cache; lazy O+ sampling keeps this on the main thread.",
+    "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
+    "line": 175
+  },
+  {
+    "file": "src/amr3_molecular.c",
+    "name": "a3_night_electron",
+    "signature": "double a3_night_electron(A3 *a, int level, int i, int j, int k)",
+    "purpose": "Return the original volume-weighted current-stage Ne average, memoized only for owned cells and invalidated whenever electrons are rebuilt. Main-thread-only lazy cache; no density floor or altered summation.",
+    "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
+    "line": 197
+  },
+  {
+    "file": "src/amr3_molecular.c",
+    "name": "length",
+    "signature": "static double length(A3 *a, int i, int j, int k)",
+    "purpose": "Read the cached canonical physical parallel segment length.",
+    "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
+    "line": 224
+  },
+  {
+    "file": "src/amr3_molecular.c",
+    "name": "cached_jump",
+    "signature": "static double cached_jump(double left, double right, double log_left, double log_right)",
+    "purpose": "Use current-stage cached logarithms for positive states and the original bounded secant at exact vacuum.",
+    "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
+    "line": 231
+  },
+  {
+    "file": "src/amr3_molecular.c",
+    "name": "slope",
+    "signature": "static double slope(A3 *a, const double *values, const double *logs, int i, int j, int k)",
+    "purpose": "Compute a nonuniform centered/one-sided parallel logarithmic gradient from the current-stage pressure cache.",
+    "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
+    "line": 239
+  },
+  {
+    "file": "src/amr3_molecular.c",
+    "name": "minmod",
+    "signature": "static double minmod(double l, double m, double r)",
+    "purpose": "Return the sign-consistent slope with smallest magnitude; return zero at an extremum.",
+    "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
+    "line": 256
+  },
+  {
+    "file": "src/amr3_molecular.c",
+    "name": "state",
+    "signature": "static double state(A3 *a, int s, int i, int j, int k, int velocity, int side)",
+    "purpose": "Reconstruct a bounded parallel molecular density or velocity face state using the three-point slope limiter.",
+    "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
+    "line": 263
+  },
+  {
+    "file": "src/amr3_molecular.c",
+    "name": "a3_night_transport",
+    "signature": "void a3_night_transport(A3 *a)",
+    "purpose": "Evaluate both species' conservative canonical fluxes, parallel pressure/gravity sources and stability rates. Threaded sweeps assign disjoint full grid lines; MPI reductions remain on the main thread.",
+    "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
+    "line": 278
+  },
+  {
+    "file": "src/amr3_molecular.c",
+    "name": "valid",
+    "signature": "static int valid(A3 *a)",
+    "purpose": "Collectively verify finite/nonnegative molecular densities and consistent exact-vacuum momenta.",
+    "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
+    "line": 441
+  },
+  {
+    "file": "src/amr3_molecular.c",
+    "name": "a3_night_transport_begin",
+    "signature": "void a3_night_transport_begin(A3 *a)",
+    "purpose": "Save the accepted pre-transport molecular state and first-stage boundary rate for the two-stage update.",
+    "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
+    "line": 457
+  },
+  {
+    "file": "src/amr3_molecular.c",
+    "name": "a3_night_predict",
+    "signature": "int a3_night_predict(A3 *a, double dt)",
+    "purpose": "Apply the molecular first-stage density/ETD momentum predictor and cache its fixed-nu coefficients for this exact attempted dt.",
+    "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
+    "line": 472
+  },
+  {
+    "file": "src/amr3_molecular.c",
+    "name": "a3_night_correct",
+    "signature": "int a3_night_correct(A3 *a, double dt)",
+    "purpose": "Complete the two-stage density and ETD2 momentum update using same-attempt coefficients, then check positivity and stage boundary balance.",
+    "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
+    "line": 497
+  },
+  {
+    "file": "src/amr3_molecular.c",
+    "name": "a3_night_accept",
+    "signature": "void a3_night_accept(A3 *a)",
+    "purpose": "Commit the accepted molecular boundary-particle increment after the coupled step passes all checks.",
+    "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
+    "line": 520
+  },
+  {
+    "file": "src/amr3_night.c",
+    "name": "a3_night_loss",
+    "signature": "double a3_night_loss(const A3 *a)",
+    "purpose": "Return cumulative O+ chemical conversion loss for the global O+ conservation budget.",
+    "module_contract": "Experimental isothermal, night-only multi-ion closure. Quasineutral Ne equals O+ + NO+ + O2+. Chemistry uses SI densities internally; stored ion densities are normalized by 1e12 m^-3.",
+    "line": 22
+  },
+  {
+    "file": "src/amr3_night.c",
+    "name": "gravity_drift",
+    "signature": "static V3 gravity_drift(V3 gravity, V3 b, double nu, double omega)",
+    "purpose": "Solve perpendicular collisional gravity mobility with signed gyrofrequency and remove the parallel force component.",
+    "module_contract": "Experimental isothermal, night-only multi-ion closure. Quasineutral Ne equals O+ + NO+ + O2+. Chemistry uses SI densities internally; stored ion densities are normalized by 1e12 m^-3.",
+    "line": 29
+  },
+  {
+    "file": "src/amr3_night.c",
+    "name": "halo",
+    "signature": "static void halo(A3 *a)",
+    "purpose": "Exchange molecular density/momentum ghost slabs; receives and sends remain valid and disjoint until MPI_Waitall.",
+    "module_contract": "Experimental isothermal, night-only multi-ion closure. Quasineutral Ne equals O+ + NO+ + O2+. Chemistry uses SI densities internally; stored ion densities are normalized by 1e12 m^-3.",
+    "line": 38
+  },
+  {
+    "file": "src/amr3_night.c",
+    "name": "a3_night_gather",
+    "signature": "void a3_night_gather(A3 *a)",
+    "purpose": "Collect the full canonical molecular state for saved outputs/checkpoints only; normal RHS/regrid paths use halos and owned migration.",
+    "module_contract": "Experimental isothermal, night-only multi-ion closure. Quasineutral Ne equals O+ + NO+ + O2+. Chemistry uses SI densities internally; stored ion densities are normalized by 1e12 m^-3.",
+    "line": 71
+  },
+  {
+    "file": "src/amr3_night.c",
+    "name": "a3_night_refresh",
+    "signature": "void a3_night_refresh(A3 *a)",
+    "purpose": "Refresh current molecular Pedersen/Hall and gravity-current responses in owned plus ghost cells after halo exchange.",
+    "module_contract": "Experimental isothermal, night-only multi-ion closure. Quasineutral Ne equals O+ + NO+ + O2+. Chemistry uses SI densities internally; stored ion densities are normalized by 1e12 m^-3.",
+    "line": 91
+  },
+  {
+    "file": "src/amr3_night.c",
+    "name": "bytes",
+    "signature": "static void bytes(IO *s, void *p, size_t count)",
+    "purpose": "Read or write exactly the requested bytes while updating the checkpoint checksum; short transfers are fatal.",
+    "module_contract": "Experimental isothermal, night-only multi-ion closure. Quasineutral Ne equals O+ + NO+ + O2+. Chemistry uses SI densities internally; stored ion densities are normalized by 1e12 m^-3.",
+    "line": 137
+  },
+  {
+    "file": "src/amr3_night.c",
+    "name": "integer",
+    "signature": "static uint64_t integer(IO *s, uint64_t x)",
+    "purpose": "Encode/decode an unsigned 64-bit integer in little-endian order and update the stream checksum.",
+    "module_contract": "Experimental isothermal, night-only multi-ion closure. Quasineutral Ne equals O+ + NO+ + O2+. Chemistry uses SI densities internally; stored ion densities are normalized by 1e12 m^-3.",
+    "line": 149
+  },
+  {
+    "file": "src/amr3_night.c",
+    "name": "reals",
+    "signature": "static void reals(IO *s, double *p, size_t count)",
+    "purpose": "Transfer floating data in portable little-endian order, retaining the checksum over the actual encoded bytes.",
+    "module_contract": "Experimental isothermal, night-only multi-ion closure. Quasineutral Ne equals O+ + NO+ + O2+. Chemistry uses SI densities internally; stored ion densities are normalized by 1e12 m^-3.",
+    "line": 163
+  },
+  {
+    "file": "src/amr3_night.c",
+    "name": "finish",
+    "signature": "static void finish(IO *s)",
+    "purpose": "Write or verify the final checksum, reject trailing data on reads, and close the checkpoint stream.",
+    "module_contract": "Experimental isothermal, night-only multi-ion closure. Quasineutral Ne equals O+ + NO+ + O2+. Chemistry uses SI densities internally; stored ion densities are normalized by 1e12 m^-3.",
+    "line": 179
+  },
+  {
+    "file": "src/amr3_night.c",
+    "name": "read_restart",
+    "signature": "static void read_restart(A3 *a, double time)",
+    "purpose": "Validate and read the molecular checkpoint, numerical-source identity and binding to the native checkpoint checksum.",
+    "module_contract": "Experimental isothermal, night-only multi-ion closure. Quasineutral Ne equals O+ + NO+ + O2+. Chemistry uses SI densities internally; stored ion densities are normalized by 1e12 m^-3.",
+    "line": 192
+  },
+  {
+    "file": "src/amr3_night.c",
+    "name": "a3_night_create",
+    "signature": "void a3_night_create(A3 *a, double time)",
+    "purpose": "Load frozen neutral/rate inputs, initialize NO+/O2+ reservoirs and transport coefficients, or restore a paired molecular checkpoint; enforce the night-only applicability guard.",
+    "module_contract": "Experimental isothermal, night-only multi-ion closure. Quasineutral Ne equals O+ + NO+ + O2+. Chemistry uses SI densities internally; stored ion densities are normalized by 1e12 m^-3.",
+    "line": 250
+  },
+  {
+    "file": "src/amr3_night.c",
+    "name": "a3_night_begin",
+    "signature": "void a3_night_begin(A3 *a)",
+    "purpose": "Back up molecular state and reaction budgets before an attempted coupled step.",
+    "module_contract": "Experimental isothermal, night-only multi-ion closure. Quasineutral Ne equals O+ + NO+ + O2+. Chemistry uses SI densities internally; stored ion densities are normalized by 1e12 m^-3.",
+    "line": 378
+  },
+  {
+    "file": "src/amr3_night.c",
+    "name": "a3_night_restore",
+    "signature": "void a3_night_restore(A3 *a)",
+    "purpose": "Restore the pre-attempt molecular state and reaction budgets when a CFL or positivity check requires another attempt.",
+    "module_contract": "Experimental isothermal, night-only multi-ion closure. Quasineutral Ne equals O+ + NO+ + O2+. Chemistry uses SI densities internally; stored ion densities are normalized by 1e12 m^-3.",
+    "line": 395
+  },
+  {
+    "file": "src/amr3_night.c",
+    "name": "macro_chemistry",
+    "signature": "static void macro_chemistry(A3 *a, double *n, double *m, double dt, double budget[2], double *error)",
+    "purpose": "Apply local reactions to disjoint canonical children of actual O+ volumes, then volume-average O+ back to its owner. Thread-local budgets are reduced; fatal handling stays outside workers.",
+    "module_contract": "Experimental isothermal, night-only multi-ion closure. Quasineutral Ne equals O+ + NO+ + O2+. Chemistry uses SI densities internally; stored ion densities are normalized by 1e12 m^-3.",
+    "line": 410
+  },
+  {
+    "file": "src/amr3_night.c",
+    "name": "a3_night_step",
+    "signature": "void a3_night_step(A3 *a, double *n, double *m, double dt)",
+    "purpose": "Execute one chemistry split operator, check its charge budget, reduce global conversion/recombination totals, and refresh conductivity responses.",
+    "module_contract": "Experimental isothermal, night-only multi-ion closure. Quasineutral Ne equals O+ + NO+ + O2+. Chemistry uses SI densities internally; stored ion densities are normalized by 1e12 m^-3.",
+    "line": 469
+  },
+  {
+    "file": "src/amr3_night.c",
+    "name": "a3_night_snapshot",
+    "signature": "void a3_night_snapshot(A3 *a, const double *n, double time, int frame, double mass0)",
+    "purpose": "Write a molecular checkpoint bound to the just-written native checkpoint, molecular frames, metadata and total-ion reaction/boundary budgets.",
+    "module_contract": "Experimental isothermal, night-only multi-ion closure. Quasineutral Ne equals O+ + NO+ + O2+. Chemistry uses SI densities internally; stored ion densities are normalized by 1e12 m^-3.",
+    "line": 546
+  },
+  {
+    "file": "src/amr3_night.c",
+    "name": "a3_night_free",
+    "signature": "void a3_night_free(A3 *a)",
+    "purpose": "Release all molecular full-grid and owned-work arrays, including stage-local ETD/log caches.",
+    "module_contract": "Experimental isothermal, night-only multi-ion closure. Quasineutral Ne equals O+ + NO+ + O2+. Chemistry uses SI densities internally; stored ion densities are normalized by 1e12 m^-3.",
+    "line": 644
+  },
+  {
+    "file": "src/amr3_potential.c",
+    "name": "a3_driver_active",
+    "signature": "int a3_driver_active(const A3 *a)",
+    "purpose": "Report whether a prescribed constant or time-dependent external eastward field is active.",
+    "module_contract": "Field-line-integrated electrostatic operator on constrained bilinear transverse elements. Both Hall cross terms are retained; phi is constant along the traced field coordinate.",
+    "line": 32
+  },
+  {
+    "file": "src/amr3_potential.c",
+    "name": "a3_driver_field",
+    "signature": "double a3_driver_field(const A3 *a)",
+    "purpose": "Evaluate the external eastward field at the actual SSPRK stage time.",
+    "module_contract": "Field-line-integrated electrostatic operator on constrained bilinear transverse elements. Both Hall cross terms are retained; phi is constant along the traced field coordinate.",
+    "line": 38
+  },
+  {
+    "file": "src/amr3_potential.c",
+    "name": "a3_driver_gradient",
+    "signature": "double a3_driver_gradient(const A3 *a)",
+    "purpose": "Convert eastward field to the model's transverse potential-label gradient using the recorded reference length.",
+    "module_contract": "Field-line-integrated electrostatic operator on constrained bilinear transverse elements. Both Hall cross terms are retained; phi is constant along the traced field coordinate.",
+    "line": 48
+  },
+  {
+    "file": "src/amr3_potential.c",
+    "name": "vertex",
+    "signature": "static int vertex(A3 *a, int i, int j)",
+    "purpose": "Flatten a canonical transverse potential vertex.",
+    "module_contract": "Field-line-integrated electrostatic operator on constrained bilinear transverse elements. Both Hall cross terms are retained; phi is constant along the traced field coordinate.",
+    "line": 55
+  },
+  {
+    "file": "src/amr3_potential.c",
+    "name": "boundary",
+    "signature": "static int boundary(A3 *a, int i, int j)",
+    "purpose": "Classify a potential node or apply its prescribed boundary role; inspect the explicit regional/periodic branches below.",
+    "module_contract": "Field-line-integrated electrostatic operator on constrained bilinear transverse elements. Both Hall cross terms are retained; phi is constant along the traced field coordinate.",
+    "line": 64
+  },
+  {
+    "file": "src/amr3_potential.c",
+    "name": "map_add",
+    "signature": "static void map_add(A3Map *map, int id, double w)",
+    "purpose": "Accumulate one constrained-node basis contribution, merging duplicate independent DOFs.",
+    "module_contract": "Field-line-integrated electrostatic operator on constrained bilinear transverse elements. Both Hall cross terms are retained; phi is constant along the traced field coordinate.",
+    "line": 70
+  },
+  {
+    "file": "src/amr3_potential.c",
+    "name": "a3_potential_create",
+    "signature": "void a3_potential_create(A3 *a)",
+    "purpose": "Create constrained field maps, distributed sparse PETSc objects, FGMRES/GAMG configuration and optional precomputed COO basis tables.",
+    "module_contract": "Field-line-integrated electrostatic operator on constrained bilinear transverse elements. Both Hall cross terms are retained; phi is constant along the traced field coordinate.",
+    "line": 85
+  },
+  {
+    "file": "src/amr3_potential.c",
+    "name": "coo_create",
+    "signature": "static void coo_create(A3 *a)",
+    "purpose": "Precompute constrained bilinear element bases and PETSc COO sparsity/index maps; material coefficients remain current-stage data.",
+    "module_contract": "Field-line-integrated electrostatic operator on constrained bilinear transverse elements. Both Hall cross terms are retained; phi is constant along the traced field coordinate.",
+    "line": 175
+  },
+  {
+    "file": "src/amr3_potential.c",
+    "name": "integrate_tensor",
+    "signature": "static void integrate_tensor(A3 *a, int i, int j, double K[4], double C[2])",
+    "purpose": "Integrate both Pedersen/Hall tensor cross terms and gravity-current forcing along the full field line using canonical physical volumes.",
+    "module_contract": "Field-line-integrated electrostatic operator on constrained bilinear transverse elements. Both Hall cross terms are retained; phi is constant along the traced field coordinate.",
+    "line": 289
+  },
+  {
+    "file": "src/amr3_potential.c",
+    "name": "a3_potential_seed",
+    "signature": "void a3_potential_seed(A3 *a, const double *phi)",
+    "purpose": "Seed independent potential DOFs from a prior canonical potential for a warm start after regridding.",
+    "module_contract": "Field-line-integrated electrostatic operator on constrained bilinear transverse elements. Both Hall cross terms are retained; phi is constant along the traced field coordinate.",
+    "line": 318
+  },
+  {
+    "file": "src/amr3_potential.c",
+    "name": "element",
+    "signature": "static void element(A3 *a, int i, int j, const double K[4], const double C[2])",
+    "purpose": "Assemble one bilinear element with the full nonsymmetric tensor and prescribed potential contributions using the reference element path.",
+    "module_contract": "Field-line-integrated electrostatic operator on constrained bilinear transverse elements. Both Hall cross terms are retained; phi is constant along the traced field coordinate.",
+    "line": 333
+  },
+  {
+    "file": "src/amr3_potential.c",
+    "name": "regional_sides",
+    "signature": "static void regional_sides(A3 *a)",
+    "purpose": "Impose the regional polarization-potential normal-derivative relation, retaining Hall and nonorthogonal metric terms.",
+    "module_contract": "Field-line-integrated electrostatic operator on constrained bilinear transverse elements. Both Hall cross terms are retained; phi is constant along the traced field coordinate.",
+    "line": 391
+  },
+  {
+    "file": "src/amr3_potential.c",
+    "name": "a3_potential",
+    "signature": "void a3_potential(A3 *a)",
+    "purpose": "Assemble the current-stage integrated operator, solve with controlled preconditioner reuse, explicitly verify the true residual, and scatter canonical potential. Collective; no worker-thread PETSc calls.",
+    "module_contract": "Field-line-integrated electrostatic operator on constrained bilinear transverse elements. Both Hall cross terms are retained; phi is constant along the traced field coordinate.",
+    "line": 431
+  },
+  {
+    "file": "src/amr3_potential.c",
+    "name": "a3_potential_free",
+    "signature": "void a3_potential_free(A3 *a)",
+    "purpose": "Destroy constrained maps, COO workspaces and every PETSc object owned by this mesh.",
+    "module_contract": "Field-line-integrated electrostatic operator on constrained bilinear transverse elements. Both Hall cross terms are retained; phi is constant along the traced field coordinate.",
+    "line": 514
+  },
+  {
+    "file": "src/amr3_restart.c",
+    "name": "bytes",
+    "signature": "static void bytes(Stream *s, void *p, size_t n)",
+    "purpose": "Read or write exactly the requested bytes while updating the checkpoint checksum; short transfers are fatal.",
+    "module_contract": "Legacy ESFAMR01 portable checkpoint and dispatch to structure-aware versions. Integer and floating data are encoded little-endian and bound to input signatures.",
+    "line": 28
+  },
+  {
+    "file": "src/amr3_restart.c",
+    "name": "integer",
+    "signature": "static uint64_t integer(Stream *s, uint64_t value)",
+    "purpose": "Encode/decode an unsigned 64-bit integer in little-endian order and update the stream checksum.",
+    "module_contract": "Legacy ESFAMR01 portable checkpoint and dispatch to structure-aware versions. Integer and floating data are encoded little-endian and bound to input signatures.",
+    "line": 41
+  },
+  {
+    "file": "src/amr3_restart.c",
+    "name": "reals",
+    "signature": "static void reals(Stream *s, double *p, size_t n)",
+    "purpose": "Transfer floating data in portable little-endian order, retaining the checksum over the actual encoded bytes.",
+    "module_contract": "Legacy ESFAMR01 portable checkpoint and dispatch to structure-aware versions. Integer and floating data are encoded little-endian and bound to input signatures.",
+    "line": 55
+  },
+  {
+    "file": "src/amr3_restart.c",
+    "name": "signature",
+    "signature": "static void signature(Config3 c, double values[41])",
+    "purpose": "Build the ordered physical/numerical restart signature; changing a signed parameter intentionally rejects incompatible restart.",
+    "module_contract": "Legacy ESFAMR01 portable checkpoint and dispatch to structure-aware versions. Integer and floating data are encoded little-endian and bound to input signatures.",
+    "line": 71
+  },
+  {
+    "file": "src/amr3_restart.c",
+    "name": "finish",
+    "signature": "static void finish(Stream *s)",
+    "purpose": "Write or verify the final checksum, reject trailing data on reads, and close the checkpoint stream.",
+    "module_contract": "Legacy ESFAMR01 portable checkpoint and dispatch to structure-aware versions. Integer and floating data are encoded little-endian and bound to input signatures.",
+    "line": 86
+  },
+  {
+    "file": "src/amr3_restart.c",
+    "name": "a3_checkpoint_write",
+    "signature": "void a3_checkpoint_write(A3 *a, const double *n, const double *m, const double *marker, double time, int step, double mass0, const int *quiet, double next_regrid, double travel, int retries)",
+    "purpose": "Write ESFAMR01 for legacy masks or dispatch to the structure-aware writer; retain little-endian encoding and atomic replacement.",
+    "module_contract": "Legacy ESFAMR01 portable checkpoint and dispatch to structure-aware versions. Integer and floating data are encoded little-endian and bound to input signatures.",
+    "line": 99
+  },
+  {
+    "file": "src/amr3_restart.c",
+    "name": "a3_checkpoint_read",
+    "signature": "int a3_checkpoint_read(A3 *a, TubeGrid *g, Config3 c, int rank, int size, double **n, double **m, double *time, int *step, double *mass0, int **quiet, double *next_regrid, double *travel, int *retries)",
+    "purpose": "Recognize the checkpoint magic, validate legacy signatures or dispatch to the structure reader, then scatter conserved states to current rank ownership.",
+    "module_contract": "Legacy ESFAMR01 portable checkpoint and dispatch to structure-aware versions. Integer and floating data are encoded little-endian and bound to input signatures.",
+    "line": 167
+  },
+  {
+    "file": "src/amr3_structure.c",
+    "name": "a3_owner",
+    "signature": "int a3_owner(const A3 *a, int p, int k)",
+    "purpose": "Return the unique evolved density backing owner for a column and k; account for both segmented L1/L2 and macro L0 ownership.",
+    "module_contract": "Solution-based refinement detector, including represented-background residuals, velocity curvature, seed protection and prospective-parent information loss. Detector thresholds never modify plasma density or conductivity.",
+    "line": 31
+  },
+  {
+    "file": "src/amr3_structure.c",
+    "name": "a3_active",
+    "signature": "int a3_active(const A3 *a, int p, int k)",
+    "purpose": "Test whether this backing slot is the actual evolved density owner at k.",
+    "module_contract": "Solution-based refinement detector, including represented-background residuals, velocity curvature, seed protection and prospective-parent information loss. Detector thresholds never modify plasma density or conductivity.",
+    "line": 40
+  },
+  {
+    "file": "src/amr3_structure.c",
+    "name": "a3_density_leaf",
+    "signature": "A3Leaf a3_density_leaf(const A3 *a, int p, int k)",
+    "purpose": "Return the physical density cell's level and labels, which can differ from the electric-field/backing column level.",
+    "module_contract": "Solution-based refinement detector, including represented-background residuals, velocity curvature, seed protection and prospective-parent information loss. Detector thresholds never modify plasma density or conductivity.",
+    "line": 47
+  },
+  {
+    "file": "src/amr3_structure.c",
+    "name": "a3_density_mask",
+    "signature": "const unsigned char *a3_density_mask(const A3 *a)",
+    "purpose": "Select the segmented density mask or legacy column mask as required by the active case.",
+    "module_contract": "Solution-based refinement detector, including represented-background residuals, velocity curvature, seed protection and prospective-parent information loss. Detector thresholds never modify plasma density or conductivity.",
+    "line": 65
+  },
+  {
+    "file": "src/amr3_structure.c",
+    "name": "index1",
+    "signature": "static int index1(A3 *a, int axis, int q, int level)",
+    "purpose": "Apply boundary indexing on the detector's root/fine transverse stencil.",
+    "module_contract": "Solution-based refinement detector, including represented-background residuals, velocity curvature, seed protection and prospective-parent information loss. Detector thresholds never modify plasma density or conductivity.",
+    "line": 71
+  },
+  {
+    "file": "src/amr3_structure.c",
+    "name": "drift",
+    "signature": "static V3 drift(A3 *a, int level, int i, int j, int k)",
+    "purpose": "Evaluate or read a cached current E-cross-B drift averaged over canonical children at the requested detector level.",
+    "module_contract": "Solution-based refinement detector, including represented-background residuals, velocity curvature, seed protection and prospective-parent information loss. Detector thresholds never modify plasma density or conductivity.",
+    "line": 83
+  },
+  {
+    "file": "src/amr3_structure.c",
+    "name": "spacing",
+    "signature": "static double spacing(A3 *a, int level, int i, int j, int k, int axis)",
+    "purpose": "Estimate physical transverse cell spacing from contravariant metric magnitude, solely for detector wavelength/velocity normalization.",
+    "module_contract": "Solution-based refinement detector, including represented-background residuals, velocity curvature, seed protection and prospective-parent information loss. Detector thresholds never modify plasma density or conductivity.",
+    "line": 114
+  },
+  {
+    "file": "src/amr3_structure.c",
+    "name": "indicator",
+    "signature": "static void indicator(A3 *a, int level, int i, int j, int k, double *gradient, double *curve, double *speed, double *raw_gradient, double *raw_curve)",
+    "purpose": "Compute normalized 3x3 density gradient/Hessian and drift-curvature indicators; optionally remove the locally fitted represented-background component.",
+    "module_contract": "Solution-based refinement detector, including represented-background residuals, velocity curvature, seed protection and prospective-parent information loss. Detector thresholds never modify plasma density or conductivity.",
+    "line": 124
+  },
+  {
+    "file": "src/amr3_structure.c",
+    "name": "integrated",
+    "signature": "static void integrated(A3 *a, int i, int j, double out[4])",
+    "purpose": "Compute/cache the root-cell field-line-integrated conductivity tensor used to detect elliptic-coefficient curvature.",
+    "module_contract": "Solution-based refinement detector, including represented-background residuals, velocity curvature, seed protection and prospective-parent information loss. Detector thresholds never modify plasma density or conductivity.",
+    "line": 183
+  },
+  {
+    "file": "src/amr3_structure.c",
+    "name": "coefficient_curve",
+    "signature": "static double coefficient_curve(A3 *a, int i, int j)",
+    "purpose": "Measure normalized transverse second differences of the complete integrated tensor, including independent Hall cross terms.",
+    "module_contract": "Solution-based refinement detector, including represented-background residuals, velocity curvature, seed protection and prospective-parent information loss. Detector thresholds never modify plasma density or conductivity.",
+    "line": 203
+  },
+  {
+    "file": "src/amr3_structure.c",
+    "name": "mode_needs_fine",
+    "signature": "static int mode_needs_fine(A3 *a, int i, int j, int k, double lambda, int envelope)",
+    "purpose": "Check declared seed/envelope sampling requirements and count locations that remain unresolved even on the finest available mesh.",
+    "module_contract": "Solution-based refinement detector, including represented-background residuals, velocity curvature, seed protection and prospective-parent information loss. Detector thresholds never modify plasma density or conductivity.",
+    "line": 223
+  },
+  {
+    "file": "src/amr3_structure.c",
+    "name": "a3_structure_tags",
+    "signature": "void a3_structure_tags(A3 *a, double *n, double *m, unsigned char *mask, int *quiet)",
+    "purpose": "Collectively form structure-based refinement requests, prospective-parent loss tests, seed guard, slab promotion, buffers and hysteresis. No unperturbed control solution is evolved by this detector.",
+    "module_contract": "Solution-based refinement detector, including represented-background residuals, velocity curvature, seed protection and prospective-parent information loss. Detector thresholds never modify plasma density or conductivity.",
+    "line": 240
+  },
+  {
+    "file": "src/amr3_structure.c",
+    "name": "out",
+    "signature": "static FILE *out(A3 *a, const char *name, const char *mode)",
+    "purpose": "Open one detector diagnostic output or abort on failure.",
+    "module_contract": "Solution-based refinement detector, including represented-background residuals, velocity curvature, seed protection and prospective-parent information loss. Detector thresholds never modify plasma density or conductivity.",
+    "line": 426
+  },
+  {
+    "file": "src/amr3_structure.c",
+    "name": "a3_structure_output",
+    "signature": "void a3_structure_output(A3 *a, const double *n, const double *marker, int frame, double time)",
+    "purpose": "Write actual density masks, tag reason bits/values, marker diagnostics and frame-to-mesh bindings for plotting.",
+    "module_contract": "Solution-based refinement detector, including represented-background residuals, velocity curvature, seed protection and prospective-parent information loss. Detector thresholds never modify plasma density or conductivity.",
+    "line": 438
+  },
+  {
+    "file": "src/amr3_tags.c",
+    "name": "order",
+    "signature": "static int order(const void *x, const void *y)",
+    "purpose": "Compare two finite density values for the legacy longitude-percentile detector.",
+    "module_contract": "Legacy percentile detector and dispatch to the structure detector. The published teaching cases explicitly select structure; legacy behavior remains available for comparison.",
+    "line": 17
+  },
+  {
+    "file": "src/amr3_tags.c",
+    "name": "wrap",
+    "signature": "static int wrap(int i, int n)",
+    "purpose": "Return the nonnegative periodic index i modulo n.",
+    "module_contract": "Legacy percentile detector and dispatch to the structure detector. The published teaching cases explicitly select structure; legacy behavior remains available for comparison.",
+    "line": 24
+  },
+  {
+    "file": "src/amr3_tags.c",
+    "name": "a3_tags",
+    "signature": "void a3_tags(A3 *a, double *n, double *m, unsigned char *mask, int *quiet)",
+    "purpose": "Count a tag check and dispatch either the structure criterion or legacy percentile/depletion criterion; both only request mesh changes.",
+    "module_contract": "Legacy percentile detector and dispatch to the structure detector. The published teaching cases explicitly select structure; legacy behavior remains available for comparison.",
+    "line": 32
+  },
+  {
+    "file": "src/electric_driver.c",
+    "name": "electric_driver_load",
+    "signature": "int electric_driver_load(ElectricDriver *d, const char *path, double end)",
+    "purpose": "Read/hash a strict time_s,east_V_m CSV, require finite increasing times from zero and coverage through the requested absolute end time.",
+    "module_contract": "Validated piecewise-linear imposed eastward electric field. Times are elapsed model seconds; field units in the CSV are V/m.",
+    "line": 14
+  },
+  {
+    "file": "src/electric_driver.c",
+    "name": "electric_driver_value",
+    "signature": "double electric_driver_value(const ElectricDriver *d, double time)",
+    "purpose": "Linearly interpolate the imposed field at a model stage time; return NaN outside declared coverage.",
+    "module_contract": "Validated piecewise-linear imposed eastward electric field. Times are elapsed model seconds; field units in the CSV are V/m.",
+    "line": 55
+  },
+  {
+    "file": "src/electric_driver.c",
+    "name": "electric_driver_next",
+    "signature": "double electric_driver_next(const ElectricDriver *d, double time)",
+    "purpose": "Return the next forcing knot after time, or infinity if absent, so accepted steps land on forcing changes.",
+    "module_contract": "Validated piecewise-linear imposed eastward electric field. Times are elapsed model seconds; field units in the CSV are V/m.",
+    "line": 77
+  },
+  {
+    "file": "src/field_cli.c",
+    "name": "main",
+    "signature": "int main(int argc, char **argv)",
+    "purpose": "Parse this executable's interface, validate inputs, run its diagnostic/model entry point, and return a nonzero status on failure.",
+    "module_contract": "Small IGRF command-line diagnostic; angles are degrees, positions metres and magnetic output nT.",
+    "line": 13
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "tangent",
+    "signature": "static V3 tangent(const Igrf *m, V3 x)",
+    "purpose": "Return the unit magnetic-field tangent in ECEF for field-line integration.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 17
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "rk4",
+    "signature": "static V3 rk4(const Igrf *m, V3 x, double ds)",
+    "purpose": "Advance one signed physical-distance field-line step with classical RK4 using unit field tangents.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 24
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "radial",
+    "signature": "static double radial(const Igrf *m, V3 x)",
+    "purpose": "Return B dot radial-unit-vector; its zero locates a spherical-altitude apex.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 32
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "tube_apex",
+    "signature": "int tube_apex(const Igrf *m, V3 start, V3 *apex)",
+    "purpose": "Trace from a given position toward increasing radius and bracket/bisect the radial-field zero; reject escaping or interior trajectories.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 39
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "half_trace",
+    "signature": "static int half_trace(const Igrf *m, V3 x, int sign, double base, double step, TracePoint *t)",
+    "purpose": "Trace one conjugate half tube from its apex to the spherical base boundary, accumulating the altitude-weighted along-field coordinate.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 71
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "tube_apex_label",
+    "signature": "int tube_apex_label(const Igrf *m, double lon, double height, V3 *apex)",
+    "purpose": "Find the magnetic-apex latitude at specified geographic apex longitude and spherical altitude by a radial-field root solve.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 102
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "tube_trace",
+    "signature": "int tube_trace(const Igrf *m, double lon, double height, double base, double step, int ns, V3 *out)",
+    "purpose": "Trace both conjugate halves and resample ns+1 nodes uniformly in the weighted coordinate; output spans the two base-altitude endpoints.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 120
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "nid",
+    "signature": "static int nid(const TubeGrid *g, int i, int j, int k)",
+    "purpose": "Flatten node coordinates with the along-field coordinate contiguous.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 169
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "tube_cell_id",
+    "signature": "int tube_cell_id(const TubeGrid *g, int i, int j, int k)",
+    "purpose": "Flatten cell coordinates in [ny,nx,ns] storage with k contiguous.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 175
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "tube_face_id",
+    "signature": "int tube_face_id(const TubeGrid *g, int axis, int i, int j, int k)",
+    "purpose": "Flatten an axis-specific staggered face index, accounting for the extra face in its normal direction.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 182
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "tube_face_count",
+    "signature": "int tube_face_count(const TubeGrid *g, int a)",
+    "purpose": "Return the number of faces in one staggered axis family.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 188
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "jacobian",
+    "signature": "static void jacobian(const V3 v[8], double x, double y, double z, V3 e[3])",
+    "purpose": "Differentiate the trilinear eight-node cell mapping to obtain its three covariant basis vectors.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 195
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "face_center",
+    "signature": "static V3 face_center(const TubeGrid *g, int a, int p[3])",
+    "purpose": "Average the four corners of a staggered face in physical ECEF coordinates.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 210
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "tube_geometry_allocate",
+    "signature": "int tube_geometry_allocate(TubeGrid *g, GridConfig c)",
+    "purpose": "Allocate nodes/cells/faces for a grid and initialize metric diagnostics; no field tracing is performed here.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 226
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "tube_geometry",
+    "signature": "int tube_geometry(TubeGrid *g, const Igrf *m, GridConfig c)",
+    "purpose": "Trace every node line then construct cell/face metrics over the full grid.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 241
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "tube_geometry_rows",
+    "signature": "int tube_geometry_rows(TubeGrid *g, const Igrf *m, int first, int last)",
+    "purpose": "Build metrics for a disjoint cell-row range: Jacobian-volume quadrature, transverse covectors, field-aligned tangent, gravity and integrated face flux factors. Reject folded/degenerate geometry.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 257
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "tube_free",
+    "signature": "void tube_free(TubeGrid *g)",
+    "purpose": "Free every canonical geometric array and clear the grid object.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 363
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "chapman",
+    "signature": "double chapman(double height, double peak, double scale)",
+    "purpose": "Evaluate the code's normalized Chapman-like layer exp(1-z-exp(-z)), with z=(height-peak)/scale.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 374
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "gravity_drift",
+    "signature": "static V3 gravity_drift(V3 g, V3 b, double nu, double omega)",
+    "purpose": "Solve the steady perpendicular collisional gravity drift for a species with signed gyrofrequency.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 382
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "conductivity_cell",
+    "signature": "static void conductivity_cell(TubeCell *c, double e_peak, double nuF, double nue)",
+    "purpose": "Build O+/fixed-molecular Pedersen/Hall and gravity-current responses, including electrons under quasineutrality.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 390
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "tube_conductivity",
+    "signature": "void tube_conductivity(TubeGrid *g, double e_peak)",
+    "purpose": "Populate the explicitly idealized analytic height-dependent collision/conductivity background.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 419
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "tube_conductivity_table",
+    "signature": "int tube_conductivity_table(TubeGrid *g, double e_peak, const char *path)",
+    "purpose": "Read a strictly increasing height/collision table, require full geometry coverage, log-interpolate collision rates and construct responses.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 433
+  },
+  {
+    "file": "src/geometry.c",
+    "name": "tube_conductivity_values",
+    "signature": "void tube_conductivity_values(TubeGrid *g, double e_peak, const double *values)",
+    "purpose": "Construct the same conductivity response from externally supplied per-canonical-cell collision frequencies.",
+    "module_contract": "Traced IGRF flux-tube hexahedra in ECEF metres. Apex longitude and apex spherical altitude label a tube; the along-field coordinate is a weighted tracing distance, not geographic latitude.",
+    "line": 484
+  },
+  {
+    "file": "src/igrf.c",
+    "name": "vadd",
+    "signature": "V3 vadd(V3 a, V3 b)",
+    "purpose": "Return component-wise ECEF vector addition.",
+    "module_contract": "Independent Schmidt semi-normalized IGRF evaluator. Position is ECEF metres, returned field is ECEF tesla. Geodetic WGS84 height differs from spherical radius minus 6371.2 km.",
+    "line": 18
+  },
+  {
+    "file": "src/igrf.c",
+    "name": "vsub",
+    "signature": "V3 vsub(V3 a, V3 b)",
+    "purpose": "Return component-wise ECEF vector subtraction.",
+    "module_contract": "Independent Schmidt semi-normalized IGRF evaluator. Position is ECEF metres, returned field is ECEF tesla. Geodetic WGS84 height differs from spherical radius minus 6371.2 km.",
+    "line": 24
+  },
+  {
+    "file": "src/igrf.c",
+    "name": "vmul",
+    "signature": "V3 vmul(V3 a, double s)",
+    "purpose": "Multiply an ECEF vector by a scalar.",
+    "module_contract": "Independent Schmidt semi-normalized IGRF evaluator. Position is ECEF metres, returned field is ECEF tesla. Geodetic WGS84 height differs from spherical radius minus 6371.2 km.",
+    "line": 30
+  },
+  {
+    "file": "src/igrf.c",
+    "name": "vdot",
+    "signature": "double vdot(V3 a, V3 b)",
+    "purpose": "Return the Euclidean dot product.",
+    "module_contract": "Independent Schmidt semi-normalized IGRF evaluator. Position is ECEF metres, returned field is ECEF tesla. Geodetic WGS84 height differs from spherical radius minus 6371.2 km.",
+    "line": 36
+  },
+  {
+    "file": "src/igrf.c",
+    "name": "vcross",
+    "signature": "V3 vcross(V3 a, V3 b)",
+    "purpose": "Return the right-handed Euclidean cross product.",
+    "module_contract": "Independent Schmidt semi-normalized IGRF evaluator. Position is ECEF metres, returned field is ECEF tesla. Geodetic WGS84 height differs from spherical radius minus 6371.2 km.",
+    "line": 42
+  },
+  {
+    "file": "src/igrf.c",
+    "name": "vnorm",
+    "signature": "double vnorm(V3 a)",
+    "purpose": "Return the Euclidean vector magnitude.",
+    "module_contract": "Independent Schmidt semi-normalized IGRF evaluator. Position is ECEF metres, returned field is ECEF tesla. Geodetic WGS84 height differs from spherical radius minus 6371.2 km.",
+    "line": 48
+  },
+  {
+    "file": "src/igrf.c",
+    "name": "vunit",
+    "signature": "V3 vunit(V3 a)",
+    "purpose": "Normalize a nonzero vector; return the zero vector for zero magnitude.",
+    "module_contract": "Independent Schmidt semi-normalized IGRF evaluator. Position is ECEF metres, returned field is ECEF tesla. Geodetic WGS84 height differs from spherical radius minus 6371.2 km.",
+    "line": 54
+  },
+  {
+    "file": "src/igrf.c",
+    "name": "igrf_load",
+    "signature": "int igrf_load(Igrf *m, const char *file, double year, int degree)",
+    "purpose": "Read all 195 official IGRF-14 Gauss coefficients, interpolate five-year epochs or apply 2025-2030 secular variation, and retain the requested harmonic degree.",
+    "module_contract": "Independent Schmidt semi-normalized IGRF evaluator. Position is ECEF metres, returned field is ECEF tesla. Geodetic WGS84 height differs from spherical radius minus 6371.2 km.",
+    "line": 62
+  },
+  {
+    "file": "src/igrf.c",
+    "name": "igrf_field",
+    "signature": "V3 igrf_field(const Igrf *m, V3 position)",
+    "purpose": "Evaluate Schmidt semi-normalized harmonics and their derivatives, convert spherical field to ECEF tesla, and use a continuous near-pole evaluation.",
+    "module_contract": "Independent Schmidt semi-normalized IGRF evaluator. Position is ECEF metres, returned field is ECEF tesla. Geodetic WGS84 height differs from spherical radius minus 6371.2 km.",
+    "line": 118
+  },
+  {
+    "file": "src/igrf.c",
+    "name": "spherical_position",
+    "signature": "V3 spherical_position(double lat, double lon, double r)",
+    "purpose": "Convert geocentric latitude/longitude in degrees and radius in metres to ECEF metres.",
+    "module_contract": "Independent Schmidt semi-normalized IGRF evaluator. Position is ECEF metres, returned field is ECEF tesla. Geodetic WGS84 height differs from spherical radius minus 6371.2 km.",
+    "line": 171
+  },
+  {
+    "file": "src/igrf.c",
+    "name": "geodetic_position",
+    "signature": "V3 geodetic_position(double lat, double lon, double h)",
+    "purpose": "Convert WGS84 geodetic latitude/longitude/altitude to ECEF metres.",
+    "module_contract": "Independent Schmidt semi-normalized IGRF evaluator. Position is ECEF metres, returned field is ECEF tesla. Geodetic WGS84 height differs from spherical radius minus 6371.2 km.",
+    "line": 179
+  },
+  {
+    "file": "src/igrf.c",
+    "name": "geodetic_coordinates",
+    "signature": "void geodetic_coordinates(V3 p, double *lat, double *lon, double *h)",
+    "purpose": "Recover WGS84 geodetic latitude/longitude/altitude from ECEF coordinates by iterative latitude refinement.",
+    "module_contract": "Independent Schmidt semi-normalized IGRF evaluator. Position is ECEF metres, returned field is ECEF tesla. Geodetic WGS84 height differs from spherical radius minus 6371.2 km.",
+    "line": 191
+  },
+  {
+    "file": "src/igrf.c",
+    "name": "field_ned",
+    "signature": "V3 field_ned(V3 b, double lat, double lon)",
+    "purpose": "Project an ECEF field into local north/east/down components at specified geographic angles.",
+    "module_contract": "Independent Schmidt semi-normalized IGRF evaluator. Position is ECEF metres, returned field is ECEF tesla. Geodetic WGS84 height differs from spherical radius minus 6371.2 km.",
+    "line": 205
+  },
+  {
+    "file": "src/integrator.c",
+    "name": "exponential_weights",
+    "signature": "void exponential_weights(double nu, double dt, double *decay, double *p1, double *p2)",
+    "purpose": "Evaluate exp(-nu*dt), phi1 and phi2 using stable small-argument series and expm1. Reusing these weights is valid only for the same nu and attempted dt.",
+    "module_contract": "Exponential time differencing for fixed nonnegative collision drag; density uses the matching two-stage explicit update.",
+    "line": 12
+  },
+  {
+    "file": "src/main.c",
+    "name": "number",
+    "signature": "static double number(Solver3 *s, const char *v)",
+    "purpose": "Parse one finite numeric argument with complete trailing-character/error checks.",
+    "module_contract": "Command-line parsing and dispatch. The executable defaults are deliberately distinguished from fully specified example cases; argument validation precedes model construction.",
+    "line": 22
+  },
+  {
+    "file": "src/main.c",
+    "name": "integer",
+    "signature": "static int integer(Solver3 *s, const char *v)",
+    "purpose": "Parse a nonnegative integer-valued argument in the supported command-line range.",
+    "module_contract": "Command-line parsing and dispatch. The executable defaults are deliberately distinguished from fully specified example cases; argument validation precedes model construction.",
+    "line": 33
+  },
+  {
+    "file": "src/main.c",
+    "name": "directory",
+    "signature": "static void directory(Solver3 *s, const char *out)",
+    "purpose": "Create the output directory on rank zero and reject a directory that already contains run metadata; never overwrite an existing run.",
+    "module_contract": "Command-line parsing and dispatch. The executable defaults are deliberately distinguished from fully specified example cases; argument validation precedes model construction.",
+    "line": 43
+  },
+  {
+    "file": "src/main.c",
+    "name": "main",
+    "signature": "int main(int argc, char **argv)",
+    "purpose": "Initialize MPI/PETSc, verify the thread support needed by OpenMP, parse/validate all CLI controls, load external driver metadata and dispatch to static or AMR evolution.",
+    "module_contract": "Command-line parsing and dispatch. The executable defaults are deliberately distinguished from fully specified example cases; argument validation precedes model construction.",
+    "line": 68
+  },
+  {
+    "file": "src/map_cli.c",
+    "name": "main",
+    "signature": "int main(int argc, char **argv)",
+    "purpose": "Parse this executable's interface, validate inputs, run its diagnostic/model entry point, and return a nonzero status on failure.",
+    "module_contract": "Geometry inspection program; it traces tubes and reports the Hong Kong target mapping, independently of plasma evolution.",
+    "line": 18
+  },
+  {
+    "file": "src/neutral_grid.c",
+    "name": "neutral_grid_hash",
+    "signature": "uint64_t neutral_grid_hash(uint64_t h, const void *p, size_t n)",
+    "purpose": "Compute the frozen-neutral input file checksum used in physical restart/cache signatures.",
+    "module_contract": "Strict reader for externally supplied frozen neutral/collision grids. Runtime does not evaluate MSIS or an energy equation.",
+    "line": 14
+  },
+  {
+    "file": "src/neutral_grid.c",
+    "name": "neutral_grid_read",
+    "signature": "int neutral_grid_read(const char *path, const TubeGrid *g, double Ti, double Te, double **values)",
+    "purpose": "Validate binary magic, dimensions, positions, temperatures, finite neutral/collision data and checksum against canonical geometry; return owned allocated input values.",
+    "module_contract": "Strict reader for externally supplied frozen neutral/collision grids. Runtime does not evaluate MSIS or an energy equation.",
+    "line": 26
+  },
+  {
+    "file": "src/night.c",
+    "name": "night_rates",
+    "signature": "int night_rates(double Ti, double Te, double Tn, double N2, double O2, NightRates *r)",
+    "purpose": "Calculate O+-to-NO+/O2+ conversion and dissociative recombination rates from prescribed temperatures and N2/O2; reject unsupported thermal ranges.",
+    "module_contract": "Local reaction and solar-geometry kernels; no MPI or mutable global state. Reaction density units are m^-3, rates s^-1 or m^3 s^-1, and time seconds.",
+    "line": 13
+  },
+  {
+    "file": "src/night.c",
+    "name": "convert",
+    "signature": "static void convert(double *o, double *no, double *o2, double fraction, double decay, double branch_no, double branch_o2, NightBudget *b)",
+    "purpose": "Apply the cached exact linear conversion operator, splitting lost O+ between molecular products and accumulating converted particles.",
+    "module_contract": "Local reaction and solar-geometry kernels; no MPI or mutable global state. Reaction density units are m^-3, rates s^-1 or m^3 s^-1, and time seconds.",
+    "line": 38
+  },
+  {
+    "file": "src/night.c",
+    "name": "recombine",
+    "signature": "static double recombine(double n, double other, double alpha, double dt)",
+    "purpose": "Apply the exact scalar solution of dn/dt=-alpha*n*(other+n) for fixed other species, with a stable zero-other limit.",
+    "module_contract": "Local reaction and solar-geometry kernels; no MPI or mutable global state. Reaction density units are m^-3, rates s^-1 or m^3 s^-1, and time seconds.",
+    "line": 50
+  },
+  {
+    "file": "src/night.c",
+    "name": "night_react",
+    "signature": "int night_react(double *o, double *no, double *o2, NightRates r, double dt, NightBudget *b)",
+    "purpose": "Compose symmetric conversion/NO+/O2+/NO+/conversion operators, retaining nonnegativity and an explicit recombined-electron budget; no photoionization is included.",
+    "module_contract": "Local reaction and solar-geometry kernels; no MPI or mutable global state. Reaction density units are m^-3, rates s^-1 or m^3 s^-1, and time seconds.",
+    "line": 62
+  },
+  {
+    "file": "src/night.c",
+    "name": "night_solar_cosine",
+    "signature": "double night_solar_cosine(double utc, double lat, double lon)",
+    "purpose": "Estimate the solar zenith cosine from elapsed UTC and geographic angles for the declared night-only guard, not precise sunrise or MLT.",
+    "module_contract": "Local reaction and solar-geometry kernels; no MPI or mutable global state. Reaction density units are m^-3, rates s^-1 or m^3 s^-1, and time seconds.",
+    "line": 98
+  },
+  {
+    "file": "src/night_probe.c",
+    "name": "main",
+    "signature": "int main(int argc, char **argv)",
+    "purpose": "Parse this executable's interface, validate inputs, run its diagnostic/model entry point, and return a nonzero status on failure.",
+    "module_contract": "Small local chemistry diagnostic used to inspect rate/charge behavior independently of spatial transport.",
+    "line": 14
+  },
+  {
+    "file": "src/night_transport.c",
+    "name": "night_mobility",
+    "signature": "void night_mobility(double nu, double omega, double *hall, double *pedersen)",
+    "purpose": "Evaluate bounded Hall/Pedersen mobility factors with hypot-based scaling.",
+    "module_contract": "Local species mobility, pressure and collisional parallel-flux coefficients. Exact vacuum has a bounded secant continuation rather than a positive density floor.",
+    "line": 12
+  },
+  {
+    "file": "src/night_transport.c",
+    "name": "night_log_jump",
+    "signature": "double night_log_jump(double left, double right)",
+    "purpose": "Return log(right)-log(left) for positive states and a bounded secant continuation only at exact vacuum.",
+    "module_contract": "Local species mobility, pressure and collisional parallel-flux coefficients. Exact vacuum has a bounded secant continuation rather than a positive density floor.",
+    "line": 21
+  },
+  {
+    "file": "src/night_transport.c",
+    "name": "B",
+    "signature": "static double B(double u)",
+    "purpose": "Evaluate the fitted-flux Bernoulli function robustly near zero and at large positive/negative arguments.",
+    "module_contract": "Local species mobility, pressure and collisional parallel-flux coefficients. Exact vacuum has a bounded secant continuation rather than a positive density floor.",
+    "line": 32
+  },
+  {
+    "file": "src/night_transport.c",
+    "name": "night_sg_coeff",
+    "signature": "void night_sg_coeff(double Ti, double Te, double mass, double nu, double gravity, double ds, double ne_left, double ne_right, double *theta, double *left, double *right)",
+    "purpose": "Compute collisional relaxation and Scharfetter-Gummel-style parallel pressure/gravity coefficients from current electron density.",
+    "module_contract": "Local species mobility, pressure and collisional parallel-flux coefficients. Exact vacuum has a bounded secant continuation rather than a positive density floor.",
+    "line": 47
+  },
+  {
+    "file": "src/night_transport.c",
+    "name": "night_pressure_force",
+    "signature": "double night_pressure_force(double Ti, double Te, double mass, double grad_i, double grad_e)",
+    "purpose": "Return the parallel pressure acceleration kB/m*(Ti*grad(log ni)+Te*grad(log Ne)).",
+    "module_contract": "Local species mobility, pressure and collisional parallel-flux coefficients. Exact vacuum has a bounded secant continuation rather than a positive density floor.",
+    "line": 63
+  },
+  {
+    "file": "src/output.c",
+    "name": "open3",
+    "signature": "static FILE *open3(Solver3 *s, const char *name, const char *mode)",
+    "purpose": "Open a named uniform-grid output file in the run directory; abort on an I/O failure.",
+    "module_contract": "Uniform-grid metadata, field outputs and checkpoints. Always use saved metadata to decode shapes and units.",
+    "line": 14
+  },
+  {
+    "file": "src/output.c",
+    "name": "doubles",
+    "signature": "static void doubles(FILE *f, const double *x, size_t n)",
+    "purpose": "Write exactly n binary double values and reject short writes.",
+    "module_contract": "Uniform-grid metadata, field outputs and checkpoints. Always use saved metadata to decode shapes and units.",
+    "line": 25
+  },
+  {
+    "file": "src/output.c",
+    "name": "collision_input",
+    "signature": "static void collision_input(Solver3 *s)",
+    "purpose": "Copy/hash the effective collision input so the saved run records its actual background policy.",
+    "module_contract": "Uniform-grid metadata, field outputs and checkpoints. Always use saved metadata to decode shapes and units.",
+    "line": 43
+  },
+  {
+    "file": "src/output.c",
+    "name": "solver3_output",
+    "signature": "void solver3_output(Solver3 *s, double time, int frame, int step)",
+    "purpose": "Gather uniform conserved states, write fields/metadata/diagnostics and an atomically replaced portable checkpoint.",
+    "module_contract": "Uniform-grid metadata, field outputs and checkpoints. Always use saved metadata to decode shapes and units.",
+    "line": 68
+  },
+  {
+    "file": "src/pdm.c",
+    "name": "node_id",
+    "signature": "static int node_id(const TubeGrid *g, int i, int j, int k)",
+    "purpose": "Flatten node coordinates with the along-field coordinate contiguous.",
+    "module_contract": "Physical-volume four-cell cubic reconstruction and partial-donor-cell limiting. PDM4 describes the spatial stencil; the coupled time update remains second order.",
+    "line": 19
+  },
+  {
+    "file": "src/pdm.c",
+    "name": "determinant",
+    "signature": "static double determinant(const V3 v[8], const double q[3])",
+    "purpose": "Evaluate the signed Jacobian determinant of a trilinear hexahedron at one logical quadrature point.",
+    "module_contract": "Physical-volume four-cell cubic reconstruction and partial-donor-cell limiting. PDM4 describes the spatial stencil; the coupled time update remains second order.",
+    "line": 27
+  },
+  {
+    "file": "src/pdm.c",
+    "name": "tube_cell_moments",
+    "signature": "int tube_cell_moments(const TubeGrid *g, int i, int j, int k, double out[12])",
+    "purpose": "Integrate normalized physical-volume moments up to cubic degree using tensor three-point Gaussian quadrature; reject folded cells and inconsistent volumes.",
+    "module_contract": "Physical-volume four-cell cubic reconstruction and partial-donor-cell limiting. PDM4 describes the spatial stencil; the coupled time update remains second order.",
+    "line": 45
+  },
+  {
+    "file": "src/pdm.c",
+    "name": "tube_moment_weights",
+    "signature": "int tube_moment_weights(const double moments[4][4], double weights[4])",
+    "purpose": "Solve the four-by-four moment matching system for a face value, using pivoted elimination and polynomial reproduction checks.",
+    "module_contract": "Physical-volume four-cell cubic reconstruction and partial-donor-cell limiting. PDM4 describes the spatial stencil; the coupled time update remains second order.",
+    "line": 87
+  },
+  {
+    "file": "src/pdm.c",
+    "name": "tube_pdm_weights",
+    "signature": "int tube_pdm_weights(const TubeGrid *g, int periodic_x, double *weights[3])",
+    "purpose": "Prepare four-cell cubic face weights from physical moments for a uniform logical grid; unavailable boundary stencils remain NaN and use a lower-order branch.",
+    "module_contract": "Physical-volume four-cell cubic reconstruction and partial-donor-cell limiting. PDM4 describes the spatial stencil; the coupled time update remains second order.",
+    "line": 135
+  },
+  {
+    "file": "src/pdm.c",
+    "name": "tube_pdm_limit",
+    "signature": "double tube_pdm_limit(double high, double upstream, double donor, double downstream, double beta)",
+    "purpose": "Clamp the high-order state to donor/downstream bounds, suppress extrema and cap the correction by 2*beta times the upstream difference.",
+    "module_contract": "Physical-volume four-cell cubic reconstruction and partial-donor-cell limiting. PDM4 describes the spatial stencil; the coupled time update remains second order.",
+    "line": 189
+  },
+  {
+    "file": "src/petsc_potential.c",
+    "name": "default_option",
+    "signature": "static PetscErrorCode default_option(const char *name, const char *value)",
+    "purpose": "Set a PETSc backend default only when that option has not already been explicitly set.",
+    "module_contract": "Distributed PETSc backend for the uniform-grid reference solver; the AMR solver has its own constrained-mesh assembly.",
+    "line": 27
+  },
+  {
+    "file": "src/petsc_potential.c",
+    "name": "solver3_petsc_create",
+    "signature": "int solver3_petsc_create(Solver3 *s)",
+    "purpose": "Allocate distributed uniform-grid PETSc matrices/vectors/scatter and configure the reference potential solve.",
+    "module_contract": "Distributed PETSc backend for the uniform-grid reference solver; the AMR solver has its own constrained-mesh assembly.",
+    "line": 38
+  },
+  {
+    "file": "src/petsc_potential.c",
+    "name": "solver3_petsc_solve",
+    "signature": "int solver3_petsc_solve(Solver3 *s)",
+    "purpose": "Assemble current uniform-grid coefficients, apply boundary conditions, solve and verify the true residual before distributing potential.",
+    "module_contract": "Distributed PETSc backend for the uniform-grid reference solver; the AMR solver has its own constrained-mesh assembly.",
+    "line": 78
+  },
+  {
+    "file": "src/petsc_potential.c",
+    "name": "solver3_petsc_seed",
+    "signature": "int solver3_petsc_seed(Solver3 *s)",
+    "purpose": "Warm-start distributed uniform potential DOFs from the current canonical phi.",
+    "module_contract": "Distributed PETSc backend for the uniform-grid reference solver; the AMR solver has its own constrained-mesh assembly.",
+    "line": 152
+  },
+  {
+    "file": "src/petsc_potential.c",
+    "name": "solver3_petsc_destroy",
+    "signature": "void solver3_petsc_destroy(Solver3 *s)",
+    "purpose": "Destroy all PETSc objects associated with the uniform-grid backend.",
+    "module_contract": "Distributed PETSc backend for the uniform-grid reference solver; the AMR solver has its own constrained-mesh assembly.",
+    "line": 167
+  },
+  {
+    "file": "src/potential.c",
+    "name": "boundary",
+    "signature": "static int boundary(const Potential *p, int i)",
+    "purpose": "Classify a potential node or apply its prescribed boundary role; inspect the explicit regional/periodic branches below.",
+    "module_contract": "Small/reference sparse transverse potential solver with bilinear elements and BiCGSTAB/ILU. The production AMR path uses the separate distributed PETSc implementation.",
+    "line": 14
+  },
+  {
+    "file": "src/potential.c",
+    "name": "canonical",
+    "signature": "static int canonical(const Potential *p, int i)",
+    "purpose": "Map a periodic or physical transverse node to its canonical independent index.",
+    "module_contract": "Small/reference sparse transverse potential solver with bilinear elements and BiCGSTAB/ILU. The production AMR path uses the separate distributed PETSc implementation.",
+    "line": 21
+  },
+  {
+    "file": "src/potential.c",
+    "name": "create",
+    "signature": "static int create(Potential *p, int nx, int ny, int periodic)",
+    "purpose": "Allocate the reference sparse potential graph and solver work arrays for the requested periodic policy.",
+    "module_contract": "Small/reference sparse transverse potential solver with bilinear elements and BiCGSTAB/ILU. The production AMR path uses the separate distributed PETSc implementation.",
+    "line": 28
+  },
+  {
+    "file": "src/potential.c",
+    "name": "potential_create",
+    "signature": "int potential_create(Potential *p, int nx, int ny)",
+    "purpose": "Create a reference transverse operator with nonperiodic longitude.",
+    "module_contract": "Small/reference sparse transverse potential solver with bilinear elements and BiCGSTAB/ILU. The production AMR path uses the separate distributed PETSc implementation.",
+    "line": 88
+  },
+  {
+    "file": "src/potential.c",
+    "name": "potential_create_periodic",
+    "signature": "int potential_create_periodic(Potential *p, int nx, int ny)",
+    "purpose": "Create a reference transverse operator with explicit longitude periodicity.",
+    "module_contract": "Small/reference sparse transverse potential solver with bilinear elements and BiCGSTAB/ILU. The production AMR path uses the separate distributed PETSc implementation.",
+    "line": 94
+  },
+  {
+    "file": "src/potential.c",
+    "name": "potential_free",
+    "signature": "void potential_free(Potential *p)",
+    "purpose": "Release sparse graph, factorization and iteration arrays.",
+    "module_contract": "Small/reference sparse transverse potential solver with bilinear elements and BiCGSTAB/ILU. The production AMR path uses the separate distributed PETSc implementation.",
+    "line": 100
+  },
+  {
+    "file": "src/potential.c",
+    "name": "potential_zero",
+    "signature": "void potential_zero(Potential *p)",
+    "purpose": "Clear current matrix/RHS values before assembling a new plasma state.",
+    "module_contract": "Small/reference sparse transverse potential solver with bilinear elements and BiCGSTAB/ILU. The production AMR path uses the separate distributed PETSc implementation.",
+    "line": 114
+  },
+  {
+    "file": "src/potential.c",
+    "name": "entry",
+    "signature": "static int entry(const Potential *p, int row, int col)",
+    "purpose": "Locate and accumulate an entry in the preallocated sparse graph.",
+    "module_contract": "Small/reference sparse transverse potential solver with bilinear elements and BiCGSTAB/ILU. The production AMR path uses the separate distributed PETSc implementation.",
+    "line": 121
+  },
+  {
+    "file": "src/potential.c",
+    "name": "potential_element",
+    "signature": "void potential_element(Potential *p, int i, int j, const double K[4], const double C[2])",
+    "purpose": "Assemble one bilinear transverse element with both tensor cross terms and gravity-current forcing.",
+    "module_contract": "Small/reference sparse transverse potential solver with bilinear elements and BiCGSTAB/ILU. The production AMR path uses the separate distributed PETSc implementation.",
+    "line": 131
+  },
+  {
+    "file": "src/potential.c",
+    "name": "potential_boundary",
+    "signature": "void potential_boundary(Potential *p)",
+    "purpose": "Apply the reference solver's explicit physical/periodic potential boundary constraints.",
+    "module_contract": "Small/reference sparse transverse potential solver with bilinear elements and BiCGSTAB/ILU. The production AMR path uses the separate distributed PETSc implementation.",
+    "line": 159
+  },
+  {
+    "file": "src/potential.c",
+    "name": "apply",
+    "signature": "static void apply(const Potential *p, const double *x, double *y)",
+    "purpose": "Multiply the current sparse potential matrix by an input vector.",
+    "module_contract": "Small/reference sparse transverse potential solver with bilinear elements and BiCGSTAB/ILU. The production AMR path uses the separate distributed PETSc implementation.",
+    "line": 174
+  },
+  {
+    "file": "src/potential.c",
+    "name": "dot",
+    "signature": "static double dot(const double *a, const double *b, int n)",
+    "purpose": "Evaluate a vector inner product for the reference iterative solver.",
+    "module_contract": "Small/reference sparse transverse potential solver with bilinear elements and BiCGSTAB/ILU. The production AMR path uses the separate distributed PETSc implementation.",
+    "line": 184
+  },
+  {
+    "file": "src/potential.c",
+    "name": "maxabs",
+    "signature": "static double maxabs(const double *x, int n)",
+    "purpose": "Return the infinity norm of a vector.",
+    "module_contract": "Small/reference sparse transverse potential solver with bilinear elements and BiCGSTAB/ILU. The production AMR path uses the separate distributed PETSc implementation.",
+    "line": 193
+  },
+  {
+    "file": "src/potential.c",
+    "name": "ilu",
+    "signature": "static int ilu(Potential *p)",
+    "purpose": "Build the reference incomplete-LU preconditioner and reject unusable pivots.",
+    "module_contract": "Small/reference sparse transverse potential solver with bilinear elements and BiCGSTAB/ILU. The production AMR path uses the separate distributed PETSc implementation.",
+    "line": 202
+  },
+  {
+    "file": "src/potential.c",
+    "name": "precondition",
+    "signature": "static void precondition(const Potential *p, const double *r, double *x)",
+    "purpose": "Apply the stored incomplete-LU triangular factors.",
+    "module_contract": "Small/reference sparse transverse potential solver with bilinear elements and BiCGSTAB/ILU. The production AMR path uses the separate distributed PETSc implementation.",
+    "line": 226
+  },
+  {
+    "file": "src/potential.c",
+    "name": "potential_solve",
+    "signature": "int potential_solve(Potential *p, double rtol)",
+    "purpose": "Solve the assembled nonsymmetric system with preconditioned BiCGSTAB and a checked residual criterion.",
+    "module_contract": "Small/reference sparse transverse potential solver with bilinear elements and BiCGSTAB/ILU. The production AMR path uses the separate distributed PETSc implementation.",
+    "line": 242
+  },
+  {
+    "file": "src/potential.c",
+    "name": "potential_coefficients",
+    "signature": "void potential_coefficients(const TubeGrid *g, const double *rho, int first, int count, int hall, double *a)",
+    "purpose": "Integrate local conductivity/current responses along field lines for the reference transverse equation.",
+    "module_contract": "Small/reference sparse transverse potential solver with bilinear elements and BiCGSTAB/ILU. The production AMR path uses the separate distributed PETSc implementation.",
+    "line": 313
+  },
+  {
+    "file": "src/potential.c",
+    "name": "potential_assemble",
+    "signature": "void potential_assemble(Potential *p, const double *coefficients)",
+    "purpose": "Assemble every transverse element and boundary condition from the current integrated coefficients.",
+    "module_contract": "Small/reference sparse transverse potential solver with bilinear elements and BiCGSTAB/ILU. The production AMR path uses the separate distributed PETSc implementation.",
+    "line": 338
+  },
+  {
+    "file": "src/restart.c",
+    "name": "read64",
+    "signature": "static uint64_t read64(Solver3 *s, FILE *f)",
+    "purpose": "Read one little-endian 64-bit unsigned checkpoint word; short reads are fatal.",
+    "module_contract": "Uniform-grid portable checkpoint reader and physical/numerical input signature. It is distinct from native structure-AMR restart.",
+    "line": 17
+  },
+  {
+    "file": "src/restart.c",
+    "name": "real64",
+    "signature": "static double real64(Solver3 *s, FILE *f)",
+    "purpose": "Decode one checkpoint IEEE double from its little-endian bit pattern.",
+    "module_contract": "Uniform-grid portable checkpoint reader and physical/numerical input signature. It is distinct from native structure-AMR restart.",
+    "line": 29
+  },
+  {
+    "file": "src/restart.c",
+    "name": "solver3_file_hash",
+    "signature": "uint64_t solver3_file_hash(Solver3 *s, const char *path)",
+    "purpose": "Calculate an exact input-file FNV identity, with zero for an absent optional input.",
+    "module_contract": "Uniform-grid portable checkpoint reader and physical/numerical input signature. It is distinct from native structure-AMR restart.",
+    "line": 38
+  },
+  {
+    "file": "src/restart.c",
+    "name": "array64",
+    "signature": "static void array64(Solver3 *s, FILE *f, double *x, int n)",
+    "purpose": "Read a portable array of doubles into caller storage.",
+    "module_contract": "Uniform-grid portable checkpoint reader and physical/numerical input signature. It is distinct from native structure-AMR restart.",
+    "line": 60
+  },
+  {
+    "file": "src/restart.c",
+    "name": "solver3_checkpoint_parameters",
+    "signature": "void solver3_checkpoint_parameters(const Config3 *c, double expected[32])",
+    "purpose": "Construct the fixed-order uniform-grid physical/numerical signature for compatibility checks.",
+    "module_contract": "Uniform-grid portable checkpoint reader and physical/numerical input signature. It is distinct from native structure-AMR restart.",
+    "line": 75
+  },
+  {
+    "file": "src/restart.c",
+    "name": "solver3_restart",
+    "signature": "void solver3_restart(Solver3 *s, const char *path, double *time, int *step)",
+    "purpose": "Restore and validate the uniform-grid checkpoint, including original conservation history and imposed-field compatibility.",
+    "module_contract": "Uniform-grid portable checkpoint reader and physical/numerical input signature. It is distinct from native structure-AMR restart.",
+    "line": 114
+  },
+  {
+    "file": "src/transport.c",
+    "name": "solver3_load_field",
+    "signature": "int solver3_load_field(const Config3 *c, Igrf *field)",
+    "purpose": "Load IGRF, degree-one dipole or the explicit aligned-dipole fixture from the selected magnetic policy.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 17
+  },
+  {
+    "file": "src/transport.c",
+    "name": "solver3_initial_density",
+    "signature": "double solver3_initial_density(const Config3 *c, double h)",
+    "purpose": "Evaluate the selected idealized single/double Chapman O+ altitude profile in normalized units.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 30
+  },
+  {
+    "file": "src/transport.c",
+    "name": "fail3",
+    "signature": "_Noreturn void fail3(Solver3 *s, const char *message)",
+    "purpose": "Report a fatal rank-local model error and abort MPI when enabled.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 39
+  },
+  {
+    "file": "src/transport.c",
+    "name": "alloc3",
+    "signature": "void *alloc3(Solver3 *s, size_t count, size_t width)",
+    "purpose": "Allocate zero-initialized reference-solver storage and fail on allocation errors.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 49
+  },
+  {
+    "file": "src/transport.c",
+    "name": "wall3",
+    "signature": "double wall3(void)",
+    "purpose": "Return a monotonic wall clock for timing; this is independent of model physical time.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 58
+  },
+  {
+    "file": "src/transport.c",
+    "name": "solver3_gather",
+    "signature": "void solver3_gather(Solver3 *s, double *x)",
+    "purpose": "Collect distributed uniform owned state slabs into replicated global arrays when needed.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 70
+  },
+  {
+    "file": "src/transport.c",
+    "name": "exchange_state",
+    "signature": "static void exchange_state(Solver3 *s, double *n, double *m)",
+    "purpose": "Exchange uniform-grid density/momentum halos while retaining owned and ghost consistency.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 84
+  },
+  {
+    "file": "src/transport.c",
+    "name": "broadcast",
+    "signature": "static void broadcast(Solver3 *s, void *x, size_t bytes)",
+    "purpose": "Broadcast a potentially large raw array in MPI-count-safe chunks.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 123
+  },
+  {
+    "file": "src/transport.c",
+    "name": "solver3_create",
+    "signature": "void solver3_create(Solver3 *s, Config3 c, int rank, int size)",
+    "purpose": "Construct uniform geometry, prescribed background, decomposition, reconstruction caches and potential backend.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 138
+  },
+  {
+    "file": "src/transport.c",
+    "name": "solver3_free",
+    "signature": "void solver3_free(Solver3 *s)",
+    "purpose": "Release uniform solver fields, geometry, halos, reconstruction weights and potential objects.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 315
+  },
+  {
+    "file": "src/transport.c",
+    "name": "solver3_valid",
+    "signature": "int solver3_valid(Solver3 *s, const double *n, const double *m)",
+    "purpose": "Collectively verify finite, nonnegative uniform density and consistent vacuum momentum.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 359
+  },
+  {
+    "file": "src/transport.c",
+    "name": "solver3_mass",
+    "signature": "double solver3_mass(Solver3 *s, const double *n)",
+    "purpose": "Volume-integrate uniform density and sum owned contributions across MPI ranks.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 374
+  },
+  {
+    "file": "src/transport.c",
+    "name": "ph",
+    "signature": "static double ph(const Solver3 *s, int i, int j)",
+    "purpose": "Read a transverse potential node using this solver's boundary/periodic indexing convention.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 386
+  },
+  {
+    "file": "src/transport.c",
+    "name": "derivatives",
+    "signature": "static void derivatives(const Solver3 *s, int a, int i, int j, double d[2])",
+    "purpose": "Compute transverse potential differences at a uniform geometric face with its boundary convention.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 393
+  },
+  {
+    "file": "src/transport.c",
+    "name": "minmod",
+    "signature": "static double minmod(double a, double b, double c)",
+    "purpose": "Return the sign-consistent slope with smallest magnitude; return zero at an extremum.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 419
+  },
+  {
+    "file": "src/transport.c",
+    "name": "bernoulli",
+    "signature": "static double bernoulli(double z)",
+    "purpose": "Evaluate the Bernoulli fitting function z/(exp(z)-1) with small-argument series and large-argument limits.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 426
+  },
+  {
+    "file": "src/transport.c",
+    "name": "value",
+    "signature": "static double value(const Solver3 *s, const double *f, int i, int j, int k)",
+    "purpose": "Read a clamped or periodic scalar state sample.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 440
+  },
+  {
+    "file": "src/transport.c",
+    "name": "state",
+    "signature": "static double state(const Solver3 *s, const double *f, int a, int i, int j, int k, int side)",
+    "purpose": "Reconstruct a uniform face state using the selected slope policy.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 463
+  },
+  {
+    "file": "src/transport.c",
+    "name": "exb_state",
+    "signature": "static double exb_state(const Solver3 *s, const double *f, int axis, int i, int j, int k, int fid, int side)",
+    "purpose": "Reconstruct a bounded transverse density face value with physical-volume PDM4 or the configured lower-order stencil.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 475
+  },
+  {
+    "file": "src/transport.c",
+    "name": "velocity_value",
+    "signature": "static double velocity_value(const Solver3 *s, const double *n, const double *m, int i, int j, int k)",
+    "purpose": "Return parallel velocity with an exact-vacuum zero branch.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 498
+  },
+  {
+    "file": "src/transport.c",
+    "name": "velocity_state",
+    "signature": "static double velocity_state(const Solver3 *s, const double *n, const double *m, int a, int i, int j, int k, int side)",
+    "purpose": "Construct the bounded parallel-velocity face state used for momentum transport.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 507
+  },
+  {
+    "file": "src/transport.c",
+    "name": "line_length",
+    "signature": "static double line_length(const Solver3 *s, int i, int j, int k)",
+    "purpose": "Read the physical length of an along-field segment.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 519
+  },
+  {
+    "file": "src/transport.c",
+    "name": "log_difference",
+    "signature": "static double log_difference(double a, double b, double local, double la, double lb)",
+    "purpose": "Compute a positive-state logarithmic pressure jump or its exact-vacuum secant extension.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 527
+  },
+  {
+    "file": "src/transport.c",
+    "name": "pressure_log_gradient",
+    "signature": "static double pressure_log_gradient(const Solver3 *s, const double *n, int i, int j, int k)",
+    "purpose": "Construct a nonuniform parallel logarithmic density gradient for the uniform isothermal pressure force.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 534
+  },
+  {
+    "file": "src/transport.c",
+    "name": "solver3_rhs",
+    "signature": "int solver3_rhs(Solver3 *s, double *n, double *m, double *dn, double *dm)",
+    "purpose": "Exchange current state, integrate conductivity, solve the potential, and evaluate the uniform transport/source RHS.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 555
+  },
+  {
+    "file": "src/transport.c",
+    "name": "solver3_transport",
+    "signature": "int solver3_transport(Solver3 *s, const double *n, const double *m, double *dn, double *dm)",
+    "purpose": "Evaluate conservative uniform particle/momentum face fluxes, gravity/pressure sources, boundary budgets and CFL rates.",
+    "module_contract": "Uniform-grid reference solver. Density is normalized by 1e12 m^-3 and momentum is n*u_parallel. This path is retained for static-grid and backend comparisons.",
+    "line": 620
+  }
+]

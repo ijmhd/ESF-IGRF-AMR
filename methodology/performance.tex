@@ -1,0 +1,40 @@
+\subsection{Measured release qualification}
+\noindent\textbf{Frozen numerical source ID.} \nolinkurl{b876245d6051ff517b9121fd6644ecafd762d5ff55ef5c3965895b8edd264c5d}\par
+The frozen candidate completed all listed gates with zero compiler warnings.
+Table~\ref{tab:perf} reports the complete matched launches on one two-node,
+256-reserved-CPU allocation.
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{lrrrrr}
+\toprule Variant & MPI & Workers & Active & Full wait(s) & Ratio \\ \midrule
+reference64 & 64 & 1 & 64 & 499.981 & 1.000 \\
+optimized64 & 64 & 1 & 64 & 481.027 & 1.039 \\
+hybrid32x2 & 32 & 2 & 64 & 537.712 & 0.930 \\
+hybrid64x4 & 64 & 4 & 256 & 374.899 & 1.334 \\
+\bottomrule
+\end{tabular}
+\caption{Complete 13350--13500 s launches, including initialization,
+outputs/checkpoints and actual process exit. Ratio is reference time divided
+by row time. Every row reserves 256 CPUs, but active thread totals differ.
+One launch per row; no statistical uncertainty estimate.}\label{tab:perf}
+\end{table}
+
+The same-active-thread64-by-1 implementation edit reduces full wait by
+3.8\%. The fastest measured variant is
+\code{hybrid64x4}, with 256 active threads; its
+1.334 ratio is not a same-active-core algorithmic speedup.
+The 32-by-2 configuration is slower than64-by-1 on this grid.
+All saved-field checks pass; the largest global-amplitude-normalized
+error is $6.765\times10^{-13}$, and actual AMR maps are byte-identical at both
+frames. Completed true-residual and O$^+$ conservation checks also pass.
+The new rank0 counters expose 400 accepted steps, 799 attempts, 399
+initial CFL adjustments, 1200 RHS calls, 1199 chemistry calls and 41 tag
+checks, with zero reported predictor/corrector failure retries. These
+counts begin after the initial snapshot and include terminal diagnostic
+RHS work. The release retains the stability/retry policy.
+
+The exact source/build/input hashes, effective parameters, per-field errors
+and completed diagnostics are recorded in \path{validation/qualification.json}.
+Earlier separately paired candidate measurements are retained as history,
+not mixed into the current speed ratio.

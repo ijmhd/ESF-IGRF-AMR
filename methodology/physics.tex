@@ -1,0 +1,309 @@
+\section{Purpose and relation to previous ESF models}
+The instability problem requires weak numerical diffusion, closure through
+the conjugate ionosphere, and a consistent coupling between plasma density
+and polarization potential. The two-dimensional study of
+\citet{Li2021} and the three-dimensional TELF study of \citet{Li2023} motivate
+the scientific problem and the need to retain parallel flow and realistic
+integrated conductivity. This code is an independent implementation with
+different geometry, potential backend, limiter stencil, parallel relaxation
+and adaptive layout. Agreement of qualitative morphology does not establish
+an exact reproduction of either paper.
+
+The primary design goal is an inspectable reduced model: the physical
+closure, mathematical discretization, implementation and measured validation
+are described separately. No TELF, Athena++ or SWMF source is incorporated.
+The latter frameworks inform the conservation, hierarchy and parallel-ownership
+audit, rather than providing a drop-in ESF solver.
+
+\section{State, units and physical approximations}
+Let $n_s$ be SI number density, $u_s$ the signed velocity along the discrete
+magnetic tangent $\bb$, and $m_s$ an ion mass. Species are O$^+$, and optionally
+NO$^+$ and O$_2^+$, with masses $16,30,32$ atomic mass units. Electron inertia
+is neglected. Stored fields are
+\begin{equation}
+ N_s=n_s/n_*,\qquad M_s=N_su_s,\qquad n_*=10^{12}\ {\rm m}^{-3}.
+\end{equation}
+Thus $M_s$ is number momentum in normalized density units, not mass density
+times velocity. All three ions are singly charged. In the transported night
+module,
+\begin{equation} n_e=n_{\rm O^+}+n_{\rm NO^+}+n_{\rm O_2^+}.\label{eq:ne}\end{equation}
+Without that module a separately prescribed molecular E-region population
+provides additional electrons and conductivity; it is not another transported
+O$^+$ Chapman component.
+
+The temperatures, neutral densities, geomagnetic field and geometry are
+prescribed. There is no energy equation, evolving neutral wind, ion-ion
+momentum transfer, full reactive momentum exchange, molecular perpendicular
+pressure diffusion or photoionization. Gravity is
+\begin{equation}
+ \bg=-9.8(a/r)^2\hat{\bm r},\qquad a=6371200\ {\rm m}.
+\end{equation}
+These omissions constrain physical interpretation even when numerical
+conservation and residual tests pass.
+
+\subsection{Continuity and field-aligned momentum}
+The transported continuity equation is
+\begin{equation}
+ \partial_t n_s+\nabla\cdot[n_s(\bu_{\perp s}+u_s\bb)]=S_s.
+ \label{eq:continuity}
+\end{equation}
+The parallel pressure/gravity/neutral-drag acceleration used by the relaxation
+branch is
+\begin{equation}
+ \partial_t M_s=\mathcal T_s+
+ N_s\left[g_\parallel-\frac{\kb}{m_s}
+ \left(T_i\partial_\parallel\ln n_s+T_e\partial_\parallel\ln n_e\right)\right]
+ -\nu_sM_s+\mathcal C_{M_s}.
+ \label{eq:momentum}
+\end{equation}
+$\mathcal T_s$ denotes the conservative advective momentum flux described
+below. The pressure term is not duplicated as an independent pressure flux
+in this branch. The optional nonrelaxation reference branch instead retains
+a Rusanov pressure flux and its variable-area geometric source. The release
+night cases explicitly choose relaxation and fixed $T_i+T_e=2500$ K.
+
+O$^+$ perpendicular mass transport uses
+\begin{equation}\bu_{\perp\rm O^+}=\bE\times\bb/B,\qquad \bE=-\nabla\Phi.\end{equation}
+The polarization forcing retains gravity currents. Consequently this is a
+reduced F-region transport approximation, not a full perpendicular O$^+$
+force-balance evolution. Molecular perpendicular transport uses the
+species-dependent collisional expression
+\begin{align}
+ \bu_{\perp s}&=h_s\frac{\bE\times\bb}{B}
+              +p_s\frac{\bE_\perp}{B}+\bu_{g,s},\\
+ h_s&=\frac{\Omega_s^2}{\nu_s^2+\Omega_s^2},\quad
+ p_s=\frac{\nu_s\Omega_s}{\nu_s^2+\Omega_s^2},\quad
+ \Omega_s=eB/m_s,\\
+ \bu_{g,s}&=\frac{\nu_s\bg_\perp-\Omega_s\bb\times\bg_\perp}
+                  {\nu_s^2+\Omega_s^2}.
+ \label{eq:mobility}
+\end{align}
+The weak-collision electric term tends to E-cross-B. This transport is
+evaluated through physical faces in all coordinate directions, including
+faces normal to the nonorthogonal field-coordinate label.
+
+\subsection{Conductivity and electrostatic closure}
+For $\kappa_s=|q_s|B/(m_s\nu_s)$, the quasineutral ion-electron pair responses
+used in the code are
+\begin{align}
+ \sigma_{P,s}&=\frac{en_s}{B}
+  \left[\frac{\kappa_s}{1+\kappa_s^2}
+       +\frac{\kappa_e}{1+\kappa_e^2}\right],\\
+ \sigma_{H,s}&=\frac{en_s}{B}
+  \left[\frac{1}{1+\kappa_s^2}-\frac{1}{1+\kappa_e^2}\right].
+\end{align}
+Summing over ion species counts the electron density once through
+Equation~\eqref{eq:ne}. The sign convention is
+$\bJ_H=\sigma_H\bb\times\bE$. With $\bJ_g$ the charge-weighted difference
+of ion and electron gravity drifts,
+\begin{equation}
+ \bJ_\perp=\sigma_P\bE_\perp+\sigma_H\bb\times\bE_\perp+\bJ_g.
+\end{equation}
+Equipotential field lines give $\Phi=\Phi(\xi,\eta,t)$ and the weak equation
+\begin{equation}
+ \int_V \nabla w\cdot[\sigma_P\nabla\Phi+
+ \sigma_H\bb\times\nabla\Phi]\,\dd V
+ =\int_V\nabla w\cdot\bJ_g\,\dd V+\mathcal B(w).
+ \label{eq:weak}
+\end{equation}
+The volume spans both conjugate ends. Let $\bg^1=\nabla\xi$ and
+$\bg^2=\nabla\eta$. Canonical cell contributions are
+\begin{align}
+ K_{11}&=V\sigma_P\bg^1\cdot\bg^1,&
+ K_{22}&=V\sigma_P\bg^2\cdot\bg^2,\\
+ K_{12}&=V[\sigma_P\bg^1\cdot\bg^2+
+            \sigma_H\bg^1\cdot(\bb\times\bg^2)],&
+ K_{21}&=V[\sigma_P\bg^1\cdot\bg^2-
+            \sigma_H\bg^1\cdot(\bb\times\bg^2)],\\
+ C_\alpha&=V\bJ_g\cdot\bg^\alpha.&&
+\end{align}
+The two cross terms must not be conflated. Summing the canonical contributions
+along the field provides the transverse element data. A depleted F-region
+cell alone does not eliminate the integrated E-region conductance. However,
+the night model allows its physical molecular population to react and move;
+it does not impose an indefinitely fixed minimum conductance.
+
+\subsection{Boundary and imposed-field policies}
+Polarization potential is fixed to zero on the two apex-height extremes.
+Regional longitude sides impose $\partial_\xi\Phi_{\rm pol}=0$ while retaining
+Hall/nonorthogonal current terms in $\mathcal B$. This differs from
+$\bJ\cdot\bn=0$. If regional sides are disabled, the corresponding
+nonperiodic sides have prescribed potential. Periodicity is a restricted
+aligned-dipole verification option.
+
+A prescribed eastward driver is mapped as
+\begin{equation}
+ \Phi_{\rm ext}=-L_E E_E(t)(\xi-1/2),
+\end{equation}
+where $L_E$ is the recorded reference east scale. This specifies a label-space
+forcing, not a spatially uniform geographic east field throughout an IGRF
+domain. A CSV driver is piecewise linear, must cover the full requested time,
+and steps land on its knots. Constant and CSV forcing are mutually exclusive.
+Particle-open boundaries use extrapolated exterior states; closed field ends
+reflect $u_\parallel$ and set particle flux to zero. Signed boundary flux is
+accumulated in the conservation ledger.
+
+\section{Geomagnetic field and traced finite-volume geometry}
+\subsection{IGRF evaluation and coordinates}
+The included official IGRF-14 coefficients define the Schmidt semi-normalized
+internal potential \citep{IGRF14,NOAAIGRF}
+\begin{equation}
+ V_B=a\sum_{\ell=1}^{L}\left(\frac a r\right)^{\ell+1}
+ \sum_{m=0}^\ell(g_\ell^m\cos m\lambda+h_\ell^m\sin m\lambda)
+ \overline P_\ell^m(\cos\theta),\quad \bm B=-\nabla V_B.
+\end{equation}
+The evaluator interpolates five-year epochs and uses the supplied secular
+variation for 2025--2030; returned ECEF field is in tesla. Degree13 is IGRF,
+degree1 retains the actual tilted dipole coefficients, and aligned-dipole
+explicitly substitutes an axis-aligned $g_1^0$ fixture. WGS84 geodetic target
+positions and the spherical model-altitude reference remain distinct.
+
+At each apex longitude/radius, a root solve finds radial $B=0$ within the
+declared low-latitude bracket. RK4 integrates the unit tangent to the two
+spherical base boundaries. The resampling coordinate has increment
+\begin{equation}
+ \dd\zeta=\frac{\dd\ell}{H_g(h)},\qquad
+ H_g(h)=\max[8000,\min(80000,8000+0.12(h-h_b))]\ {\rm m}.
+\end{equation}
+$N_\parallel+1$ points (\code{ns} segments) are uniform in the joined weighted coordinate, not in arc
+length. Grid generation rejects escaped traces, degenerate cells and changes
+of Jacobian sign; it is designed for the regional flux-tube domain, not all
+possible global magnetic topologies.
+
+\subsection{Mapped metrics and flux factors}
+Let a cell's trilinear map be $\bx(q_1,q_2,q_3)$ with covariant vectors
+$\bm e_a=\partial\bx/\partial q_a$. Its volume is the Gaussian integral
+of $|\det(\bm e_1,\bm e_2,\bm e_3)|$. Centre transverse covectors are scaled
+to the normalized global labels. The discrete $\bb$ follows the geometric
+field-edge tangent with sign aligned to IGRF; $B$ is the actual IGRF magnitude.
+This construction makes the discrete perpendicular electric field compatible
+with the traced geometry. Alignment and magnetic-flux-jump errors are saved
+as diagnostics, rather than assuming an exactly orthogonal dipole mesh.
+
+For an oriented physical face with area vector $\bm S_f$,
+\begin{equation}
+ Q_{E,f}=\int_f\bu_E\cdot\dd\bm S
+ =e_{f1}\partial_\xi\Phi+e_{f2}\partial_\eta\Phi,\quad
+ e_{f\alpha}=-\bm S_f\cdot(\bg^\alpha\times\bb)/B.
+\end{equation}
+$Q_E$ is a volume flux in $\mathrm{m^3\,s^{-1}}$; the parallel flux uses
+$A_{\parallel f}=\bm S_f\cdot\bb$. A coarse face sums canonical subface
+contributions and retains positive/negative drift parts separately before
+upwinding. All geometric caches are version/input/ABI checked.
+
+\section{Prescribed background and nighttime reactions}
+\subsection{Initial density and seed}
+Define $\mathcal C(h;h_p,H)=\exp(1-z-e^{-z})$, $z=(h-h_p)/H$.
+The default profile is $N_F=\mathcal C(h;438\,\mathrm{km},70\,\mathrm{km})$;
+the \code{telf} profile is
+\begin{equation}
+ N_F=\mathcal C(h;438\,\mathrm{km},80\,\mathrm{km})+
+ 0.01\mathcal C(h;600\,\mathrm{km},200\,\mathrm{km}).
+\end{equation}
+Both terms are transported O$^+$. The physical molecular background is
+\begin{equation}
+n_E=n_{E,p}\mathcal C(h;110\,\mathrm{km},12\,\mathrm{km}).
+\end{equation}
+It initially belongs to NO$^+$ when night mode is enabled.
+
+The seed multiplies $N_F$ by
+\begin{equation}
+ 1+A F_x(\xi)\exp[-(h_{\rm apex}-h_{\rm seed})^2/W_h^2].
+\end{equation}
+For a positive horizontal width $W_x$,
+$F_x=(2u^2-1)e^{-u^2}$ with
+$u=L_E(\xi-1/2-\Delta\lambda/\mathrm{span})/W_x$;
+otherwise $F_x=\cos[2\pi(\xi-\Delta\lambda/\mathrm{span})]$.
+The envelope is in apex height, not the local height of every field segment.
+This distinction is essential when interpreting a distant geographic target.
+
+\subsection{Collision policies and explicit empirical factors}
+The built-in idealized O$^+$ and electron rates are
+\begin{align}
+ \nu_O&=26.7e^{-h/81400}+400e^{-(h-110000)/10000},\\
+ \nu_e&=5\times10^4e^{-(h-110000)/20000}+0.01.
+\end{align}
+The fixed molecular surrogate uses
+$\nu_E=600e^{-(h-110000)/10000}+1.2(26.7)e^{-h/81400}$.
+These analytic fits are not an empirical-atmosphere evaluation. A positive
+height collision table replaces the O/e rates by log interpolation. A strict
+spatial neutral input supplies independently evaluated O/e collision rates
+at the exact canonical centres, with temperature/position hashes.
+
+For transported molecular ions let $O,N_2,O_2$ denote neutral densities in
+$\mathrm{cm^{-3}}$ and $T_r=(T_i+T_n)/2$. The implemented formulas, with
+provenance in the GLOW conductance source \citep{GLOW}, are
+\begin{align}
+ \nu_{NO}&=4.27\,10^{-10}O_2+2.44\,10^{-10}O+4.34\,10^{-10}N_2,\\
+ \nu_{O2}&=2.59\,10^{-11}O_2\sqrt{T_r}(1-0.073\log_{10}T_r)^2
+          +2.31\,10^{-10}O+4.13\,10^{-10}N_2,\\
+ \nu_e&=4\big[2.33\,10^{-11}N_2T_e(1-1.21\,10^{-4}T_e)\nonumber\\
+ &\hspace{15mm}+1.82\,10^{-10}O_2\sqrt{T_e}(1+0.036\sqrt{T_e})
+ +8.9\,10^{-11}O\sqrt{T_e}(1+5.7\,10^{-4}T_e)\big].
+\end{align}
+The multiplier4 is part of the inherited collision policy, not a newly
+determined measurement. External O$^+$ collision grids also retain their
+generator's declared empirical factors. Performance tests keep these choices
+unchanged. Quantitative event work must audit their physical suitability.
+Consistent electron conductivity also requires the externally supplied O/e
+collision policy to match the electron convention used with the molecular
+neutral formulas. A height-neutral teaching table does not automatically
+replace O$^+$ collision input. Geometry/temperature/hash checks do not prove
+that independently prepared physical rate policies are mutually consistent.
+
+\subsection{Reaction coefficients and charge accounting}
+The retained reactions are O$^+$+N$_2$ to NO$^+$+N, O$^+$+O$_2$ to O$_2^+$+O,
+and dissociative electron recombination of each molecular ion.
+The thermal zero-relative-drift low-temperature fits are explicitly traced
+to the pinned GEMINI3D source \citep{GEMINI}. Set
+$x_N=[(28/44)(T_i-T_n)+T_n]/300$ and
+$x_O=[(32/48)(T_i-T_n)+T_n]/300$. In $\mathrm{cm^3\,s^{-1}}$,
+\begin{align}
+ k_N&=1.71676\,10^{-12}-7.19934\,10^{-13}x_N
+ +1.33276\,10^{-13}x_N^2\nonumber\\
+ &\quad-9.28213\,10^{-15}x_N^3+6.39557\,10^{-16}x_N^4,\\
+ k_O&=2.78932\,10^{-11}-6.92612\,10^{-12}x_O
+ +8.67684\,10^{-13}x_O^2\nonumber\\
+ &\quad-3.47251\,10^{-14}x_O^3+5.07097\,10^{-16}x_O^4.
+\end{align}
+Conversion frequencies are $r_N=10^{-6}k_N n_{N2}$ and
+$r_O=10^{-6}k_O n_{O2}$ for SI neutral densities. The implementation rejects
+$300x_N>3725$ K or $300x_O>4800$ K, rather than silently extrapolating these
+branches. In SI,
+\begin{align}
+ \alpha_{NO}&=4.2\,10^{-13}(300/T_e)^{0.85},\\
+ \alpha_{O2}&=\begin{cases}
+ 1.95\,10^{-13}(300/T_e)^{0.70},&T_e\le1200,\\
+ 7.38\,10^{-14}(1200/T_e)^{0.56},&T_e>1200.
+ \end{cases}
+\end{align}
+The coupled local rate equations are
+\begin{align}
+ \dot n_O&=-(r_N+r_O)n_O,&
+ \dot n_{NO}&=r_Nn_O-\alpha_{NO}n_{NO}n_e,\\
+ \dot n_{O2}&=r_On_O-\alpha_{O2}n_{O2}n_e.&&
+\end{align}
+Their sum loses only recombined electrons. Each reaction call uses symmetric
+conversion/NO-recombination/O2-recombination/NO-recombination/conversion
+suboperators. Conversion is exact linear decay. For fixed other density $b$,
+the exact recombination map of $\dot n=-\alpha n(b+n)$ is
+\begin{equation}
+ n(t+\tau)=\frac{n(t)e^{-\alpha b\tau}}
+ {1+\alpha n(t)\tau\,\operatorname{exprel}(-\alpha b\tau)},\quad
+ \operatorname{exprel}(-x)=\frac{1-e^{-x}}x,
+\end{equation}
+with the continuous $b=0$ limit. Products and the recombination ledger are
+computed without imposing a positive floor. On a coarse O$^+$ volume,
+canonical molecular cells react separately and the resulting O$^+$ mass is
+volume-averaged back to its owner. Existing species retain velocity during
+reaction; a newly populated vacuum species gets zero momentum. This is a
+fixed-neutral-bath momentum approximation, not charged-species momentum
+conservation.
+
+\subsection{Night-only applicability}
+The module checks geometric Earth shadow of every modeled cell below 150 km
+at 1800 s sample intervals and the requested end. The approximate solar
+ephemeris uses UTC. An illuminated cell is fatal because no photoionization
+is present. This sampled guard is not precise terminator integration, an MLT
+conversion or an automatically evolving day-to-night background. The bundled
+synthetic-neutral demo and the dated spatial production input are distinct.

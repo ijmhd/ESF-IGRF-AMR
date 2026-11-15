@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "Cite the exact release tag, source identity and methodology document; record the effective case and input hashes."
+title: "ESF-IGRF-AMR: field-aligned electrostatic ESF with anisotropic AMR"
+authors:
+  - name: "ESF-IGRF-AMR contributors"
+version: 0.1.0
+date-released: 2026-11-16
+license: GPL-3.0-only
+repository-code: "https://github.com/ijmhd/ESF-IGRF-AMR"
+url: "https://github.com/ijmhd/ESF-IGRF-AMR"
+keywords:
+  - ionosphere
+  - equatorial spread F
+  - IGRF
+  - adaptive mesh refinement
+  - MPI
+  - OpenMP

@@ -1,0 +1,64 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=24mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,microtype,amsmath,amssymb,bm,booktabs,longtable,array,graphicx,xcolor,listings}
+\usepackage{enumitem,natbib,tikz,xurl,hyperref}
+\usetikzlibrary{arrows.meta,positioning}
+\hypersetup{colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!45!black,pdftitle={ESF-IGRF-AMR Methods and Implementation Reference},pdfauthor={ESF-IGRF-AMR contributors}}
+\setlength{\emergencystretch}{3em}
+\setlist{nosep,topsep=4pt}
+\lstset{basicstyle=\ttfamily\footnotesize,breaklines=true,columns=fullflexible,keepspaces=true,frame=single,showstringspaces=false}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\bn}{\bm n}
+\newcommand{\bb}{\bm b}
+\newcommand{\bE}{\bm E}
+\newcommand{\bJ}{\bm J}
+\newcommand{\bx}{\bm x}
+\newcommand{\bu}{\bm u}
+\newcommand{\bg}{\bm g}
+\newcommand{\kb}{k_{\rm B}}
+\newcommand{\dd}{\mathrm d}
+\title{An Inspectable Field-Aligned ESF Solver with IGRF Geometry,\newline Conservative Anisotropic AMR, and Hybrid Parallel Kernels\\[4pt]\large Physics, numerical algorithms, and a function-level implementation reference}
+\author{ESF-IGRF-AMR contributors}
+\date{Version 0.1.0 methods manuscript and teaching reference}
+\begin{document}
+\maketitle
+\begin{abstract}
+We describe an independently implemented C11 electrostatic model for nonlinear
+equatorial spread F on complete conjugate magnetic flux tubes. Traced IGRF-14
+or dipole geometry is combined with conservative O$^+$ density and parallel
+momentum evolution, field-line-integrated Pedersen/Hall current closure, and
+two- or three-level refinement transverse to the magnetic field. The adaptive
+density approximation is segmented along each tube without refining the
+field coordinate. An optional reduced night module transports NO$^+$ and
+O$_2^+$, evaluates a four-reaction network, and uses a common quasineutral
+electron pressure. We derive the actual discrete fluxes, exponential drag
+update, constrained potential assembly, background-preserving transfer and
+solution-based refinement/coarsening criteria. Explicit ownership and cache
+contracts explain which kernels can be threaded and why others remain
+serial within each MPI process. Validation distinguishes algebraic residual,
+conservation, saved-field parity, geometry, and physical interpretation.
+The implementation remains isothermal with prescribed neutrals and omits
+photoionization and several multi-fluid couplings. It is not an exact TELF
+port or an observation-calibrated forecast. A complete parameter reference,
+function catalog and separate annotated-source atlas make the frozen methods
+auditable and suitable for student use.
+\end{abstract}
+\noindent\textbf{Manuscript status.} This is a software methods manuscript,
+not a claim of peer review or publication. Scientific case calibration,
+long-time discretization sensitivity and observational validation remain
+separate research tasks. Reproduce a result using its exact release tag,
+source identity, effective case and input hashes.
+\tableofcontents
+\clearpage
+\input{physics}
+\input{numerics}
+\input{amr}
+\input{software}
+\input{validation}
+\bibliographystyle{plainnat}
+\bibliography{references}
+\appendix
+\input{parameters}
+\input{functions}
+\end{document}

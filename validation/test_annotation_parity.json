@@ -1,0 +1,42 @@
+{
+  "tests/test_amr3_migration.c": {
+    "comments_only_token_identical": true,
+    "functions": 5
+  },
+  "tests/test_collision.c": {
+    "comments_only_token_identical": true,
+    "functions": 1
+  },
+  "tests/test_core.c": {
+    "comments_only_token_identical": true,
+    "functions": 5
+  },
+  "tests/test_electric_driver.c": {
+    "comments_only_token_identical": true,
+    "functions": 1
+  },
+  "tests/test_neutral_grid.c": {
+    "comments_only_token_identical": true,
+    "functions": 2
+  },
+  "tests/test_night.c": {
+    "comments_only_token_identical": true,
+    "functions": 1
+  },
+  "tests/test_night_transport.c": {
+    "comments_only_token_identical": true,
+    "functions": 1
+  },
+  "tests/test_pdm.c": {
+    "comments_only_token_identical": true,
+    "functions": 6
+  },
+  "tests/test_petsc.c": {
+    "comments_only_token_identical": true,
+    "functions": 1
+  },
+  "tests/test_transport.c": {
+    "comments_only_token_identical": true,
+    "functions": 6
+  }
+}

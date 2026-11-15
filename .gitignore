@@ -1,0 +1,16 @@
+/build*/
+/runs/
+/tmp/
+__pycache__/
+*.pyc
+.DS_Store
+methodology/*.aux
+methodology/*.bbl
+methodology/*.blg
+methodology/*.fdb_latexmk
+methodology/*.fls
+methodology/*.log
+methodology/*.out
+methodology/*.toc
+methodology/*.synctex.gz
+methodology/*.xdv

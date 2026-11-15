@@ -1,0 +1,173 @@
+{
+  "scope": "Earlier separately paired allocations; each ratio uses its own reference. Absolute times across allocations do not isolate individual edits. Final current authority is qualification.json.",
+  "stages": [
+    {
+      "source_ID": "fb7e94b05a4cfae0db6764a97d4f837cf189059d639f7c036c53c2914f2adefe",
+      "job_ID": "29428446",
+      "status": "passed",
+      "performance": [
+        {
+          "variant": "reference64",
+          "MPI_ranks": 64,
+          "threads_per_rank": 1,
+          "active_threads": 64,
+          "reserved_CPUs": 256,
+          "full_wait_s": 500.94006503466517,
+          "speedup_vs_reference64": 1.0,
+          "physical_steps": 400,
+          "reported_failure_retries": 0,
+          "call_profile": null
+        },
+        {
+          "variant": "optimized64",
+          "MPI_ranks": 64,
+          "threads_per_rank": 1,
+          "active_threads": 64,
+          "reserved_CPUs": 256,
+          "full_wait_s": 494.6249095359817,
+          "speedup_vs_reference64": 1.0127675646271188,
+          "physical_steps": 400,
+          "reported_failure_retries": 0,
+          "call_profile": {
+            "scope": "After initial snapshot through terminal diagnostic RHS; rank0 call counts, no checkpoint history",
+            "rhs_calls": 1200,
+            "tag_checks": 41,
+            "chemistry_calls": 1199,
+            "timestep_attempts": 799,
+            "initial_CFL_adjustments": 399,
+            "reported_failure_retries": 0
+          }
+        },
+        {
+          "variant": "hybrid32x2",
+          "MPI_ranks": 32,
+          "threads_per_rank": 2,
+          "active_threads": 64,
+          "reserved_CPUs": 256,
+          "full_wait_s": 555.2055357722566,
+          "speedup_vs_reference64": 0.902260573353053,
+          "physical_steps": 400,
+          "reported_failure_retries": 0,
+          "call_profile": {
+            "scope": "After initial snapshot through terminal diagnostic RHS; rank0 call counts, no checkpoint history",
+            "rhs_calls": 1200,
+            "tag_checks": 41,
+            "chemistry_calls": 1199,
+            "timestep_attempts": 799,
+            "initial_CFL_adjustments": 399,
+            "reported_failure_retries": 0
+          }
+        },
+        {
+          "variant": "hybrid64x4",
+          "MPI_ranks": 64,
+          "threads_per_rank": 4,
+          "active_threads": 256,
+          "reserved_CPUs": 256,
+          "full_wait_s": 380.5262169521302,
+          "speedup_vs_reference64": 1.3164403468623107,
+          "physical_steps": 400,
+          "reported_failure_retries": 0,
+          "call_profile": {
+            "scope": "After initial snapshot through terminal diagnostic RHS; rank0 call counts, no checkpoint history",
+            "rhs_calls": 1200,
+            "tag_checks": 41,
+            "chemistry_calls": 1199,
+            "timestep_attempts": 799,
+            "initial_CFL_adjustments": 399,
+            "reported_failure_retries": 0
+          }
+        }
+      ],
+      "physical_interval_s": [
+        13350,
+        13500
+      ],
+      "timing_scope": "One synchronous complete launch per variant in same allocation; initialization/output/MPI exit included; no repeated-run uncertainty or20000s forecast; no PMPI observer in any variant"
+    },
+    {
+      "source_ID": "c63452d16f4b11bf820bc7a0e56d9d28d033b9b54a018d467b208139765e3bfd",
+      "job_ID": "29428666",
+      "status": "passed",
+      "performance": [
+        {
+          "variant": "reference64",
+          "MPI_ranks": 64,
+          "threads_per_rank": 1,
+          "active_threads": 64,
+          "reserved_CPUs": 256,
+          "full_wait_s": 503.3453080318868,
+          "speedup_vs_reference64": 1.0,
+          "physical_steps": 400,
+          "reported_failure_retries": 0,
+          "call_profile": null
+        },
+        {
+          "variant": "optimized64",
+          "MPI_ranks": 64,
+          "threads_per_rank": 1,
+          "active_threads": 64,
+          "reserved_CPUs": 256,
+          "full_wait_s": 484.57721536792815,
+          "speedup_vs_reference64": 1.0387308607766639,
+          "physical_steps": 400,
+          "reported_failure_retries": 0,
+          "call_profile": {
+            "scope": "After initial snapshot through terminal diagnostic RHS; rank0 call counts, no checkpoint history",
+            "rhs_calls": 1200,
+            "tag_checks": 41,
+            "chemistry_calls": 1199,
+            "timestep_attempts": 799,
+            "initial_CFL_adjustments": 399,
+            "reported_failure_retries": 0
+          }
+        },
+        {
+          "variant": "hybrid32x2",
+          "MPI_ranks": 32,
+          "threads_per_rank": 2,
+          "active_threads": 64,
+          "reserved_CPUs": 256,
+          "full_wait_s": 547.3299723919481,
+          "speedup_vs_reference64": 0.9196377567852917,
+          "physical_steps": 400,
+          "reported_failure_retries": 0,
+          "call_profile": {
+            "scope": "After initial snapshot through terminal diagnostic RHS; rank0 call counts, no checkpoint history",
+            "rhs_calls": 1200,
+            "tag_checks": 41,
+            "chemistry_calls": 1199,
+            "timestep_attempts": 799,
+            "initial_CFL_adjustments": 399,
+            "reported_failure_retries": 0
+          }
+        },
+        {
+          "variant": "hybrid64x4",
+          "MPI_ranks": 64,
+          "threads_per_rank": 4,
+          "active_threads": 256,
+          "reserved_CPUs": 256,
+          "full_wait_s": 380.6731265280396,
+          "speedup_vs_reference64": 1.3222507000236368,
+          "physical_steps": 400,
+          "reported_failure_retries": 0,
+          "call_profile": {
+            "scope": "After initial snapshot through terminal diagnostic RHS; rank0 call counts, no checkpoint history",
+            "rhs_calls": 1200,
+            "tag_checks": 41,
+            "chemistry_calls": 1199,
+            "timestep_attempts": 799,
+            "initial_CFL_adjustments": 399,
+            "reported_failure_retries": 0
+          }
+        }
+      ],
+      "physical_interval_s": [
+        13350,
+        13500
+      ],
+      "timing_scope": "One synchronous complete launch per variant in same allocation; initialization/output/MPI exit included; no repeated-run uncertainty or20000s forecast; no PMPI observer in any variant"
+    }
+  ]
+}

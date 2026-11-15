@@ -1,0 +1,212 @@
+{
+  "scope": "All C/H comments and clang-format only, compared with implemented optimization before annotation",
+  "functions_documented": 299,
+  "files": {
+    "src/amr3.c": {
+      "tokens_identical": true,
+      "token_SHA256": "d52d17d6d9fcf9d4548494a9af8f4262634594ba0307e4c9c24212d6872bd7b7"
+    },
+    "src/amr3_adapt.c": {
+      "tokens_identical": true,
+      "token_SHA256": "ac1d2c7fe16ad547ba2ac99d18f8f50f3e57b73a489fdf7c4eee0cedd40a0239"
+    },
+    "src/amr3_cache.c": {
+      "tokens_identical": true,
+      "token_SHA256": "e3b4c67781f829fc0f05dae403bf0370a5c44eb17e413f697151f7b565ddc86b"
+    },
+    "src/amr3_checkpoint2.c": {
+      "tokens_identical": true,
+      "token_SHA256": "1cda0c94dd4d0b16a4994d8efb2a7393b546d10af6d4709c23650d9832831278"
+    },
+    "src/amr3_macro.c": {
+      "tokens_identical": true,
+      "token_SHA256": "e4d067fcef68ccdc0e3b6bc9f748ab5018a5957cc11d012089fa395f255034ae"
+    },
+    "src/amr3_mesh.c": {
+      "tokens_identical": true,
+      "token_SHA256": "69b5eb6c8837923df1c5d54a75017777e5ee22eb7df7dba883674cd304df498d"
+    },
+    "src/amr3_migration.c": {
+      "tokens_identical": true,
+      "token_SHA256": "a1db431fb5476835686156dbf9552d67e7f892c85d1092007028d919c443ecd7"
+    },
+    "src/amr3_molecular.c": {
+      "tokens_identical": true,
+      "token_SHA256": "e690504ad9b5a9e745eadf7f3ef795bf2bc1efa64ba7c6d00e77bdc315806c35"
+    },
+    "src/amr3_night.c": {
+      "tokens_identical": true,
+      "token_SHA256": "81622373c53461d4f3c09d66fb5b914ff88f88765c78befcae863b991cbb361b"
+    },
+    "src/amr3_potential.c": {
+      "tokens_identical": true,
+      "token_SHA256": "334f97566e0863a7d1a204568f4c0c5a4c36b074b21beb3d8cc2fe7efc422f1c"
+    },
+    "src/amr3_restart.c": {
+      "tokens_identical": true,
+      "token_SHA256": "865e4feb3648d7930101325ea135529d28ee2563349c7fbe3a2cf2c0004f9791"
+    },
+    "src/amr3_structure.c": {
+      "tokens_identical": true,
+      "token_SHA256": "e194848aad99fd7732b50234d12b017240e52c269f0cbbb0344b8e5f69978a91"
+    },
+    "src/amr3_tags.c": {
+      "tokens_identical": true,
+      "token_SHA256": "d0e99e956c6983a1cd786ffe9ce6cc6b2e385d5b20d985385da91d296c174353"
+    },
+    "src/electric_driver.c": {
+      "tokens_identical": true,
+      "token_SHA256": "c5661b64c4adaf151a5834f99a72bb84478887d7912d126806502b6bd4c3ebd1"
+    },
+    "src/field_cli.c": {
+      "tokens_identical": true,
+      "token_SHA256": "62b36bdab504f6b20191bc7c4fd1f82a9b9b03fc6ec282f36658a14d39b201a6"
+    },
+    "src/geometry.c": {
+      "tokens_identical": true,
+      "token_SHA256": "5c1ce2d3f8d4100b6182c0c68f1f65bdebe1ef2e0aadcd454c7cdd408cc023bd"
+    },
+    "src/igrf.c": {
+      "tokens_identical": true,
+      "token_SHA256": "f04d60b5385313b62b18d74ff47dc3a6846e15f9eb2197c2021cd82c8cdd4e1c"
+    },
+    "src/integrator.c": {
+      "tokens_identical": true,
+      "token_SHA256": "cfd577945de74d0eb4e96017bef11538e6dc41dffc2718198ceebeaf92303f56"
+    },
+    "src/main.c": {
+      "tokens_identical": true,
+      "token_SHA256": "d752b8288ec6b279046da34cf98e2a3f37bb66028d8ac8d77f467706e149f0f2"
+    },
+    "src/map_cli.c": {
+      "tokens_identical": true,
+      "token_SHA256": "8e1693c0da7776b23e43aa83aaa6b753ff85470f04249594ee57b0c3d95431bd"
+    },
+    "src/neutral_grid.c": {
+      "tokens_identical": true,
+      "token_SHA256": "1bc0acdae59d657293e818eb41ae804a67ae14522abc4fbbd9a1fef80017b58e"
+    },
+    "src/night.c": {
+      "tokens_identical": true,
+      "token_SHA256": "28a08636e3c10cc38d5ebbd28f1f43a8d283d516f84137fdf7002066ab541851"
+    },
+    "src/night_probe.c": {
+      "tokens_identical": true,
+      "token_SHA256": "a7a91a956da524819376fc24c8918fd094b4a048bdbc7111d2542d2359b49f86"
+    },
+    "src/night_transport.c": {
+      "tokens_identical": true,
+      "token_SHA256": "7e062b07f149eef039c3bfb437ef8275ccadf2643774844363a5d951180ddb78"
+    },
+    "src/output.c": {
+      "tokens_identical": true,
+      "token_SHA256": "cab5623607370c239ab26ad327a4c3d9c975989a65aee2db115f703c70d687eb"
+    },
+    "src/pdm.c": {
+      "tokens_identical": true,
+      "token_SHA256": "45fe463a085dec315b377b4fb34cf83ddeb487836f902133a75cd54d0cc1af5e"
+    },
+    "src/petsc_potential.c": {
+      "tokens_identical": true,
+      "token_SHA256": "cbe5a38ac54ad7c6c62019d8d60f6334a4a14a6d545139c8fec5fcdf80467973"
+    },
+    "src/potential.c": {
+      "tokens_identical": true,
+      "token_SHA256": "528fc3f2e5dbcfc17b90f9cf22bf18d04cbb2157684ad704f69234d9db9949db"
+    },
+    "src/restart.c": {
+      "tokens_identical": true,
+      "token_SHA256": "addb51f26017ae71a45987b24aa541d25aa92c79db4922fa984d137ffb7a9a29"
+    },
+    "src/transport.c": {
+      "tokens_identical": true,
+      "token_SHA256": "598ad16eef78b09356a9a29248fd8d91f956dedac08dec5749f311203bf9b4fa"
+    },
+    "src/amr3.h": {
+      "tokens_identical": true,
+      "token_SHA256": "87fb9c87f6131bae16a3c1a3a85746c632584376be52200ba5fd3171ed04e024"
+    },
+    "src/amr3_night_internal.h": {
+      "tokens_identical": true,
+      "token_SHA256": "f85b7092a419491b1c4043bf13ffc1c4e85e59d9b7b8d3da719c134fa03995b0"
+    },
+    "include/electric_driver.h": {
+      "tokens_identical": true,
+      "token_SHA256": "72da6533020a3c8f6f77fa3196f0faab21ac98d5d93c5b74f5545e9198e80629"
+    },
+    "include/igrf.h": {
+      "tokens_identical": true,
+      "token_SHA256": "35462e6df3241a7e9309af5b38f4eaff33f89351757adeb610f8462745eaa0b6"
+    },
+    "include/integrator.h": {
+      "tokens_identical": true,
+      "token_SHA256": "24602e72579dd58ad85636506ea7fa4e36b843203446ef12f6cea63ef69ba309"
+    },
+    "include/neutral_grid.h": {
+      "tokens_identical": true,
+      "token_SHA256": "b34b43a7e5a75137059052baa668fcd63d071107e83bd9fd432c76650b2491c0"
+    },
+    "include/night.h": {
+      "tokens_identical": true,
+      "token_SHA256": "190d35f8563b2ecefa2848e88d89d5762a0438dfb619af67cec0eeb9b618d88f"
+    },
+    "include/night_transport.h": {
+      "tokens_identical": true,
+      "token_SHA256": "3b2c050456ef2654984297f6f742cc81c41663960082bfdd45200b83e5de2f8a"
+    },
+    "include/potential.h": {
+      "tokens_identical": true,
+      "token_SHA256": "a48a86515fc73171a35367e7c4f8be9d8261fd084a6954e29d2b79c10eea17e9"
+    },
+    "include/solver.h": {
+      "tokens_identical": true,
+      "token_SHA256": "20b6c5baaa1b7d1d785306eecfc5c4e6308f2ec01eb5a24f896d38669634666f"
+    },
+    "include/tube.h": {
+      "tokens_identical": true,
+      "token_SHA256": "ee57a5cadd9a698f19018543950032534ed92c6af1be546e050ad6f45cb98c5d"
+    },
+    "tests/test_amr3_migration.c": {
+      "tokens_identical": true,
+      "token_SHA256": "47653c4057f4793941273df5e71cfdb293d4d9912bb16d272724e376139ac571"
+    },
+    "tests/test_collision.c": {
+      "tokens_identical": true,
+      "token_SHA256": "9283c92d8586aedf422debc1f1372ae3fdb1675a4c1cab09c83c8989a613e719"
+    },
+    "tests/test_core.c": {
+      "tokens_identical": true,
+      "token_SHA256": "8b54bfc427a1c902ab50ef83986ae360f701545822625723b416c15412615ed1"
+    },
+    "tests/test_electric_driver.c": {
+      "tokens_identical": true,
+      "token_SHA256": "8af1c992bdb8f7a0ad43172af0ff193eca62ad2696be9a9986a72c74e5520369"
+    },
+    "tests/test_neutral_grid.c": {
+      "tokens_identical": true,
+      "token_SHA256": "bfe261121833e58948d927c24efe37599f3568cf01e79edae377b681f59c7b28"
+    },
+    "tests/test_night.c": {
+      "tokens_identical": true,
+      "token_SHA256": "7cd0707ec17b079c59b8a6911613421394f10369ecabc465de84846626ca553c"
+    },
+    "tests/test_night_transport.c": {
+      "tokens_identical": true,
+      "token_SHA256": "5b81f0a2b028cc96517f85067437e79e7b3226de7cf5f9a8da6d2c7b795a1300"
+    },
+    "tests/test_pdm.c": {
+      "tokens_identical": true,
+      "token_SHA256": "08e02c9d8c7ece0b734062175b4571e4e687989c381d783ee22f2d4aec285e3e"
+    },
+    "tests/test_petsc.c": {
+      "tokens_identical": true,
+      "token_SHA256": "e8ef6cf82db772948c1945bce3cd8482a51255ca3282a6ef659df41705235828"
+    },
+    "tests/test_transport.c": {
+      "tokens_identical": true,
+      "token_SHA256": "6d59714df25d79f3b08c21185c6c3c10637f231b0bb8301afec377e2d08727fc"
+    }
+  },
+  "applies_to_stage_source_ID": "fb7e94b05a4cfae0db6764a97d4f837cf189059d639f7c036c53c2914f2adefe",
+  "later_revision": "R1 separately changes traversal/status storage/C11 pointer conversion and documents inline helpers; R2 adds the owned stage-valid Ne average cache. This earlier annotation proof is not a claim that those intentional changes are absent. Final source identity and saved-state qualification bind the released revision."
+}

@@ -1,0 +1,229 @@
+\section{Conservative spatial discretization}
+\subsection{Actual control volumes and shared interfaces}
+For an actual active finite volume $c$,
+\begin{align}
+ \frac{\dd N_c}{\dd t}&=-\frac1{V_c}\sum_{f\in\partial c}s_{cf}F_{N,f}+S_c,\\
+ \frac{\dd M_c}{\dd t}&=-\frac1{V_c}\sum_f s_{cf}F_{M,f}
+ +N_c a_{\parallel c}-\nu_cM_c.
+\end{align}
+One face block represents an interval over which the two actual density
+owners and their levels do not change. Canonical subfaces are summed into a
+single physical integrated flux. The two neighboring owned volumes use
+opposite signs of the same value. At a rank boundary both ranks evaluate
+that interface from consistently exchanged current-stage states. This
+provides finite-volume conservation without independent coarse/fine fluxes
+that would later need reconciliation.
+
+\subsection{Physical-volume PDM4 reconstruction}
+Let four successive cell averages around a face be $\bar q_j$, and let
+$\mu_{jp}=V_j^{-1}\int_{V_j}x^p\dd V$, with the coordinate translated so the
+face is at zero. The unlimited cubic face value is
+\begin{equation}
+ q_H=\sum_{j=0}^3 w_j\bar q_j,\qquad
+ \sum_jw_j\mu_{jp}=\delta_{p0},\quad p=0,1,2,3.
+ \label{eq:moments}
+\end{equation}
+Three-point tensor Gaussian quadrature supplies the moments of each
+trilinear hexahedron; Jacobian times a cubic coordinate moment is integrated
+by this rule. Coarser moments are volume-weighted translated restrictions of
+canonical children. A pivoted four-by-four solve computes weights and checks
+polynomial reproduction. These are geometric, reusable weights, not current
+solution-dependent coefficients.
+
+For upstream, donor and downstream values $q_U,q_D,q_A$, define
+$a=q_D-q_U$, $b=q_A-q_D$ and
+$q_C=\operatorname{clip}(q_H,\min(q_D,q_A),\max(q_D,q_A))$.
+The actual limiter is
+\begin{equation}
+ q_f=\begin{cases}
+ q_D,&ab\le0,\\
+ q_D+\operatorname{sign}(b)
+ \min(|q_C-q_D|,2\beta|a|),&ab>0.
+ \end{cases}\label{eq:pdm}
+\end{equation}
+The release cases use $\beta=1$. The limiter follows the audited PDM
+implementation provenance listed with the software \citep{PDMSource};
+Equation~\eqref{eq:moments} is the mapped-volume extension. PDM4 refers to
+the four-cell spatial stencil. It is not PDM7 and does not assert fourth-order
+accuracy of the coupled time/AMR/chemistry solution. Near an unavailable
+boundary stencil an explicit bounded lower-order branch is used. Along-field
+reconstruction is a separate first/second-order selection. Molecular
+perpendicular density flux is donor-cell.
+
+\subsection{Perpendicular and parallel particle/momentum fluxes}
+For each face, positive and negative E-cross-B subface volume fluxes are
+separately upwinded with the reconstructed state. In the relaxation branch,
+transverse momentum flux is particle flux times reconstructed parallel
+velocity. This avoids treating a velocity average as an independently
+conserved density. A material seed tracer uses the particle flux times a
+bounded donor tracer fraction.
+
+At a parallel face, let $N_L,N_R,u_L,u_R$ be reconstructed states and
+$c_s=\sqrt{\kb(T_i+T_e)/m_s}$. The inertial Rusanov particle flux is
+\begin{equation}
+ F_R=\tfrac12(N_Lu_L+N_Ru_R)
+ -\tfrac12 a_f(N_R-N_L),\qquad a_f=\max(|u_L|,|u_R|)+c_s.
+\end{equation}
+Set $c_i^2=\kb T_i/m_s$, $\theta=[1+(\nu\Delta\ell/c_s)^2]^{-1}$ and
+\begin{equation}
+ U=\frac{T_e}{T_i}\Delta\ln n_e-\frac{g_\parallel\Delta\ell}{c_i^2},
+ \quad D_i=c_i^2/\nu,\quad \mathcal B(U)=\frac{U}{e^U-1}.
+\end{equation}
+The implemented fitted flux is
+\begin{equation}
+ F_\parallel=\theta F_R+
+ (1-\theta)\frac{D_i}{\Delta\ell}
+ [\mathcal B(U)N_L^{\rm raw}-\mathcal B(-U)N_R^{\rm raw}].
+ \label{eq:SG}
+\end{equation}
+Raw cell averages, not high-order extrapolations, enter the fitted term.
+The $\nu=0$ branch directly uses $\theta=1$. Stable series and
+large-argument expressions avoid the numerical singularities of
+$\mathcal B$. The mass flux is multiplied by physical parallel face area;
+the parallel advective momentum flux uses its upwind $u_s$. In the
+single-ion closure, the precomputed static pressure/gravity fit reduces to
+the corresponding $T_i+T_e$ response. The night module evaluates the common
+electron potential difference from its actual current stage.
+
+This is a relaxation/fitted-flux implementation, not an exact solution of
+the complete multi-fluid system. The pressure force remains explicit in
+the momentum source, and fixed neutral drag is integrated exponentially.
+The nonrelaxation reference branch uses the conventional pressure-bearing
+Rusanov momentum flux with a variable-area correction in the cell source.
+
+\subsection{Pressure gradients and exact vacuum}
+For adjacent physical distances $h_L,h_R$ and logarithmic jumps $d_L,d_R$,
+the interior gradient is
+\begin{equation}
+ \partial_\parallel\ln n\approx
+ \frac{(h_R/h_L)d_L+(h_L/h_R)d_R}{h_L+h_R}.
+\end{equation}
+Endpoints use one-sided gradients. A positive pair uses an actual log
+difference. At exact vacuum the code uses
+$(n_R-n_L)/\max(n_R,n_L)$ when the sum is positive and zero for double vacuum.
+No positive density is raised to a minimum value. Species and electron
+logarithms cached for performance belong to one RHS state only; all are
+refreshed after a predictor, chemistry update or ownership change.
+
+\section{Potential discretization and algebraic solution}
+\subsection{Constrained bilinear basis}
+Canonical transverse elements carry bilinear shape functions. A hanging
+node is an affine constrained combination of its coarse corner DOFs and
+prescribed boundary/driver contributions. Nested constraints for three
+physical levels are resolved to independent unknowns. If $P$ maps
+independent to canonical nodal values, the assembled system has the
+Galerkin form $P^TAP\phi=P^T(b-A\phi_{\rm prescribed})$, with regional-side
+terms included explicitly. Density resolution and electric approximation
+space need not coincide.
+
+Geometry/basis factors for the four independent tensor coefficients and
+two current components are precomputed for PETSc COO assembly. Current
+plasma coefficients are integrated each stage. The element-by-element path
+remains available as an algebra check. COO reuse is not permission to keep
+conductivity from an earlier density or chemistry state.
+
+\subsection{Krylov method and true residual}
+The AMR system uses right-preconditioned FGMRES, restart 40, with GAMG
+\citep{PETSc}. This accommodates the nonsymmetric Hall/metric operator.
+At most 400 Krylov iterations are requested in one solve attempt. The
+internal request is relative tolerance $10^{-14}$ and absolute tolerance
+$0.25\,\epsilon\|b\|_\infty$, where $\epsilon$ is the case's requested
+\code{rtol}. The acceptance test is explicitly
+\begin{equation}
+ r_{\rm true}=\|A\phi-b\|_\infty/\|b\|_\infty\le1.05\epsilon.
+\end{equation}
+The preconditioner is reused when the solve count is not a multiple of 32,
+the previous iteration count is below 20 and this is the first attempt.
+A failed true residual causes a second attempt with a refreshed
+preconditioner; remaining failure is fatal. Zero RHS selects zero solution.
+Canonical potential is scattered after successful solution. The static
+reference backend also contains a small CSR/BiCGSTAB/ILU implementation;
+its purpose is reference comparison, not the production AMR algorithm.
+
+\section{Time integration and complete call sequence}
+\subsection{Explicit density and exponential parallel drag}
+Let $R_N,R_M$ denote spatial/source RHS excluding linear drag. For
+$a=\nu\Delta t$, define
+\begin{equation}
+ E=e^{-a},\qquad\varphi_1=\frac{1-e^{-a}}a,\qquad
+ \varphi_2=\frac{1-\varphi_1}a.
+\end{equation}
+At $a=0$ these are $1,1,1/2$. The code uses fourth-degree small-$a$ series
+below $10^{-4}$ and \code{expm1} otherwise. This is the exponential time-differencing construction for constant linear
+relaxation \citep{CoxMatthews}. The predictor is
+\begin{align}
+ N^{(1)}&=N^0+\Delta t R_N^0,&
+ M^{(1)}&=E M^0+\Delta t\varphi_1R_M^0.
+\end{align}
+After a full coupled RHS at the predicted state,
+\begin{align}
+ N^{n+1}&=\tfrac12N^0+\tfrac12(N^{(1)}+\Delta t R_N^{(1)}),\\
+ M^{n+1}&=E M^0+\Delta t[(\varphi_1-\varphi_2)R_M^0+
+                                    \varphi_2R_M^{(1)}].
+\end{align}
+The density formula is the two-stage SSP/TVD Runge--Kutta update
+\citep{GottliebShu}; the momentum formula retains exact constant drag and
+its constant-forcing equilibrium. Same-attempt ETD weights are safely
+reused between predictor/corrector. They must be invalidated after any
+change of attempted dt, mesh or collision coefficient.
+
+\subsection{Chemistry split and stage consistency}
+Symmetric chemistry half operators surround the coupled transport step,
+following the operator-splitting principle of \citet{Strang}. At each RHS,
+the actual call chain is:
+\begin{enumerate}
+\item Exchange O$^+$ owned/ghost state; bind current arrays; reset lazy
+  reconstruction validity and restrict active states to parent/macro views.
+\item Exchange molecular halos; rebuild molecular conductivity responses;
+  reconstruct O$^+$ on canonical cells and form current $n_e$.
+\item Integrate conductivity/current coefficients, assemble and solve the
+  potential with true-residual verification.
+\item Form transverse potential derivatives at faces; evaluate O$^+$ fluxes,
+  parallel source terms, boundary fluxes and stability/travel rates.
+\item Evaluate both molecular species' fluxes/sources, then take the global
+  maximum combined stability rate.
+\end{enumerate}
+The second RHS uses both predicted O$^+$ and predicted molecular fields at
+$t+\Delta t$. Reusing a first-stage potential with a changed density or
+chemistry state would change this method. Accepted boundary/travel
+increments use the two-stage combination, then the last chemistry half
+operator is applied. No level or species subcycling is used.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[node distance=6mm,box/.style={draw,rounded corners,align=center,text width=115mm,minimum height=8mm,font=\small},>=Stealth]
+\node[box] (a) {Tag/migrate/remap if required; back up every species and budget};
+\node[box,below=of a] (b) {Chemistry half step};
+\node[box,below=of b] (c) {Prepare/halos $\to n_e,\Sigma \to\Phi\to$ O$^+$ and molecular fluxes};
+\node[box,below=of c] (d) {Initial CFL check; coupled density/ETD momentum predictor};
+\node[box,below=of d] (e) {Complete predicted-state RHS at $t+\Delta t$};
+\node[box,below=of e] (f) {Correct; validate every field and stage CFL; commit or roll back};
+\node[box,below=of f] (g) {Chemistry half step; advance time; frame/checkpoint on actual clocks};
+\foreach \x/\y in {a/b,b/c,c/d,d/e,e/f,f/g}\draw[->] (\x)--(\y);
+\end{tikzpicture}
+\caption{Actual coupled-step sequence. A smaller initial CFL proposal or failed
+predictor/corrector restores all backed-up species and ledgers.}
+\end{figure}
+
+\subsection{Stability, retries and clocks}
+The transport stability estimate is an owner-volume maximum of accumulated
+absolute perpendicular volume flux plus parallel characteristic/fitted
+rates divided by volume. Molecular rates are included in the same global
+maximum. Initial dt is bounded by $0.9\,\mathrm{CFL}/r$, dt maximum, stop
+time, output time, driver knot and maximum regrid clock. The predicted stage
+must satisfy $\Delta t r^{(1)}\le\mathrm{CFL}(1+10^{-12})$.
+
+Half-step chemistry can change the actual initial-stage rate. If its
+post-chemistry CFL dt is smaller, the implementation restores the entire
+pre-attempt state and repeats chemistry/RHS at the smaller dt. This path
+is counted as an \emph{initial CFL adjustment}, separately from
+predictor/corrector failure retries that halve dt. At most24 attempts are
+allowed; failure or dt below $10^{-12}$ s is fatal. The new counters make
+this extra work visible. A remesh resets the rate until an actual transport
+evaluation, so proposal quality after regridding remains an optimization
+opportunity; this release does not weaken the stability criterion to hide it.
+
+Initial/final frames are always written. Reported physical time is the
+actual accepted clock. A final saved field is never artificially held
+while its movie label advances. Output and regrid intervals are independent
+of physical forcing timescales.

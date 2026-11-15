@@ -1,0 +1,83 @@
+\section{Complete command-line reference}
+Actual executable defaults are listed here; explicit teaching and qualification cases differ. Every option except help takes one value.
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt,labelwidth=0pt,labelsep=0pt]
+\item[\texttt{--help}] \textit{Type/units: flag; default: n/a.} Print the short help and exit; this full reference includes extension options absent from short help.
+\item[\texttt{--field}] \textit{Type/units: enum; default: igrf.} igrf: degree13; dipole: actual degree1 Gauss coefficients; aligned-dipole: axis-aligned fixture with specified equatorial strength.
+\item[\texttt{--year}] \textit{Type/units: decimal year; default: 2025.} Coefficient interpolation epoch, 1900-2030; independent of the chemistry UTC clock.
+\item[\texttt{--coeff}] \textit{Type/units: path; default: build-source data/igrf14coeffs.txt.} Official IGRF-14 coefficient file; pass a repository-relative or absolute path explicitly for relocatable runs.
+\item[\texttt{--lon-deg}] \textit{Type/units: degrees east; default: trace HK350km apex.} Geographic APEX longitude at domain centre, not geographic longitude at HK350km. Automatic target is geodetic22.3N114.2E350km.
+\item[\texttt{--span-deg}] \textit{Type/units: degrees; default: 2.5.} Total apex-longitude width, positive and <=20.
+\item[\texttt{--nx}] \textit{Type/units: integer; default: 24.} User physical L0 longitude cells; >=4 and <=512, subject to canonical size limits.
+\item[\texttt{--ny}] \textit{Type/units: integer; default: 40.} User physical L0 apex-height cells; >=4 and <=512. Three-level MPI rank count cannot exceed this value.
+\item[\texttt{--ns}] \textit{Type/units: integer; default: 64.} Whole-conjugate along-field segments, 16-1024; never refined by transverse AMR.
+\item[\texttt{--apex-min-km}] \textit{Type/units: km; default: 250.} Lowest tube apex spherical altitude; must exceed base altitude.
+\item[\texttt{--apex-max-km}] \textit{Type/units: km; default: 1600.} Highest tube apex spherical altitude, above minimum and <=3000.
+\item[\texttt{--base-km}] \textit{Type/units: km; default: 90.} Both conjugate endpoints at spherical altitude above6371.2km radius; 80-150.
+\item[\texttt{--trace-step-km}] \textit{Type/units: km; default: 10.} Maximum RK4 tracing step, 0.1-20; tracing also reduces steps near the base.
+\item[\texttt{--geometry-only}] \textit{Type/units: 0/1; default: 0.} Construct/load geometry and return before plasma evolution on AMR path.
+\item[\texttt{--geometry-cache}] \textit{Type/units: path; default: none.} Native-ABI canonical geometry cache; exact parameter/input/code/ABI matching required.
+\item[\texttt{--background-profile}] \textit{Type/units: enum; default: single.} single: Chapman peak438km scale70km; telf: sum of O+ Chapman populations with peaks438/600km, scales80/200km, relative amplitudes1/.01.
+\item[\texttt{--E-peak}] \textit{Type/units: m\textasciicircum{}-3; default: 1e10.} Initial physical molecular E population, peak110km scale12km. Fixed without night module; initially NO+ with night module.
+\item[\texttt{--amplitude}] \textit{Type/units: fraction; default: 0.1.} Seed fractional amplitude; absolute value <1. Positive values make a depletion in the configured envelope.
+\item[\texttt{--seed-height-km}] \textit{Type/units: km; default: 350.} Spherical-altitude seed envelope centre.
+\item[\texttt{--seed-width-km}] \textit{Type/units: km; default: 70.} Positive vertical seed envelope width; see exact initialization equation in methods.
+\item[\texttt{--seed-east-km}] \textit{Type/units: km; default: 0.} Nonnegative horizontal seed width; zero selects the alternate wavelength pattern, not an eastward displacement.
+\item[\texttt{--seed-lon-deg}] \textit{Type/units: apex degrees; default: domain centre.} Seed apex longitude, strictly inside the regional domain; explicit setting is incompatible with periodic-x.
+\item[\texttt{--temperature-sum}] \textit{Type/units: K; default: 2500.} Fixed Ti+Te used by O+ parallel pressure/sound speed. Night module requires exact consistency with chem-Ti+chem-Te.
+\item[\texttt{--dipole-equator-nT}] \textit{Type/units: nT; default: 31200.} Aligned-dipole equatorial amplitude; positive; does not replace all coefficients in ordinary degree-one dipole mode.
+\item[\texttt{--parallel}] \textit{Type/units: 0/1; default: 1.} Include field-aligned transport/momentum. Zero is a deliberately reduced physical case.
+\item[\texttt{--parallel-order}] \textit{Type/units: 1 or2; default: 1.} Order of the bounded along-field face reconstruction; distinct from transverse PDM4.
+\item[\texttt{--parallel-flux}] \textit{Type/units: enum; default: rusanov.} rusanov or relaxation. Night module requires relaxation; includes collision/pressure/gravity fitted mass flux.
+\item[\texttt{--exb-scheme}] \textit{Type/units: enum; default: muscl static; pdm4 AMR.} muscl or pdm4; explicit selection is recommended. PDM4 is a four-cell volume-moment cubic stencil with limiter.
+\item[\texttt{--pdm-beta}] \textit{Type/units: dimensionless; default: 1.} PDM limiter correction bound2*beta*upstream difference; supported0-10. beta=0 reduces to donor-cell at the limiter.
+\item[\texttt{--hall}] \textit{Type/units: 0/1; default: 1.} Retain integrated Hall conductivity cross terms; disabling changes physics.
+\item[\texttt{--periodic-x}] \textit{Type/units: 0/1; default: 0.} Longitude periodicity; physical branch requires aligned dipole, zero imposed E and no localized horizontal seed.
+\item[\texttt{--regional-x}] \textit{Type/units: 0/1; default: 1.} Regional open longitude particle boundary and polarization d\_xi(phi)=0 side condition; this is NOT zero total normal current.
+\item[\texttt{--open-apex}] \textit{Type/units: 0/1; default: 0.} Open particle boundaries at transverse apex-height extremes; required for external driver cases.
+\item[\texttt{--open-ends}] \textit{Type/units: 0/1; default: 0.} Open particle boundaries at both along-field endpoints; otherwise reflective/closed.
+\item[\texttt{--background-east-mVm}] \textit{Type/units: mV/m; default: 0.} Prescribed constant eastward electric field, added through mapped potential; excludes CSV driver. AMR driver requires regional nonperiodic and open-apex geometry.
+\item[\texttt{--electric-driver}] \textit{Type/units: CSV path; default: none.} time\_s,east\_V\_m strictly increasing from0 with coverage through absolute end; stage interpolation and step landing on knots.
+\item[\texttt{--petsc-potential}] \textit{Type/units: 0/1; default: 0.} PETSc backend for uniform reference path. AMR inherently requires PETSc even though this static-path selector defaults0.
+\item[\texttt{--rtol}] \textit{Type/units: dimensionless; default: 1e-9.} Requested true potential infinity-residual scale; positive and <.01; AMR accepts <=1.05*rtol after explicit residual computation.
+\item[\texttt{--cfl}] \textit{Type/units: dimensionless; default: 0.35.} Positive and <=.45; initial proposal uses0.9*cfl/rate and stage acceptance uses cfl. Teaching/qualification cases explicitly use.25.
+\item[\texttt{--dt-max}] \textit{Type/units: s; default: 2.} Positive maximum attempted step; all active levels/species share the accepted dt, with no subcycling.
+\item[\texttt{--end}] \textit{Type/units: s; default: 3600.} Absolute elapsed-model stop time. On restart this is not additional duration.
+\item[\texttt{--output-every}] \textit{Type/units: s; default: 600.} Positive frame/checkpoint interval; initial and final frames also written. Not a physics timescale or an AMR interval.
+\item[\texttt{--max-steps}] \textit{Type/units: integer; default: 200000.} Absolute step counter limit, including history restored by restart.
+\item[\texttt{--progress-steps}] \textit{Type/units: integer; default: 0.} Progress-print step interval; zero disables periodic progress lines but not essential diagnostics.
+\item[\texttt{--out}] \textit{Type/units: directory; default: igrf\_run.} New run directory; an existing metadata.json is rejected to preserve prior outputs.
+\item[\texttt{--restart}] \textit{Type/units: path; default: none.} Native AMR checkpoint or explicitly supported uniform-state import; physical/numerical signatures must match.
+\item[\texttt{--night-restart}] \textit{Type/units: path; default: none.} Molecular ESFNIT02 paired with exact native checkpoint; required for night continuation.
+\item[\texttt{--amr-mode}] \textit{Type/units: enum; default: unset = static reference.} none,fixed,fine,dynamic select the AMR backend. There is no literal static enum; omitting the option selects the uniform reference path.
+\item[\texttt{--amr-levels}] \textit{Type/units: 2 or3; default: 2.} Number of PHYSICAL levels. Three requires structure criterion and nonzero along-field slab size.
+\item[\texttt{--amr-case}] \textit{Type/units: enum; default: esf.} esf,translation,potential,remap. Latter three are verification fixtures, not physical ESF forecasts.
+\item[\texttt{--amr-criteria}] \textit{Type/units: enum; default: legacy.} legacy percentile/depletion or structure local solution-based detector. Released examples explicitly select structure.
+\item[\texttt{--amr-density-indicator}] \textit{Type/units: enum; default: total.} total or represented; represented removes a fitted local background-shaped component for detection only, never from evolved density.
+\item[\texttt{--amr-slab-cells}] \textit{Type/units: integer; default: 0.} Along-field segment grouping for density tags. Zero means column-wide legacy layout; nonzero must divide ns and requires structure. Qualification uses4.
+\item[\texttt{--amr-interval}] \textit{Type/units: s; default: 100.} Maximum tag-check interval. Accumulated transverse travel can trigger earlier checks; not a fixed actual regrid period.
+\item[\texttt{--amr-buffer}] \textit{Type/units: integer; default: 2.} Transverse root-cell buffer around requested structure; 0-16. Qualification uses1.
+\item[\texttt{--amr-work-weight}] \textit{Type/units: dimensionless; default: 0.5.} Additive canonical-field work estimate in root-row MPI partition planner; does not change physical equations.
+\item[\texttt{--amr-coo}] \textit{Type/units: 0/1; default: 1.} Use cached constrained COO assembly; zero selects the reference element assembly algebra.
+\item[\texttt{--amr-gradient-on}] \textit{Type/units: dimensionless; default: 0.08.} Refine threshold for normalized detector gradient; must be >=positive off threshold.
+\item[\texttt{--amr-gradient-off}] \textit{Type/units: dimensionless; default: 0.04.} Lower keep-refined gradient threshold, providing spatial hysteresis.
+\item[\texttt{--amr-curve-on}] \textit{Type/units: dimensionless; default: 0.02.} Refine threshold for normalized density Hessian norm.
+\item[\texttt{--amr-curve-off}] \textit{Type/units: dimensionless; default: 0.01.} Lower keep-refined curvature threshold.
+\item[\texttt{--amr-velocity-on}] \textit{Type/units: dimensionless; default: 0.1.} Threshold for interval-scaled drift curvature divided by local spacing; keep-refined threshold is half.
+\item[\texttt{--amr-sigma-on}] \textit{Type/units: dimensionless; default: 0.05.} Integrated conductivity-tensor curvature threshold for FIELD requests, half when already refined.
+\item[\texttt{--amr-quiet-seconds}] \textit{Type/units: s; default: 60.} Physical quiet and minimum residence time before coarsening; qualified production uses60. Zero-hold simultaneous coarsening is not qualified; see known limitations.
+\item[\texttt{--amr-seed-guard}] \textit{Type/units: 0/1; default: 1.} Advect a material seed-protection marker and prevent under-resolved protected wavelengths. Fresh perturbed structure runs need explicit positive seed wavelength when enabled.
+\item[\texttt{--amr-seed-wavelength-km}] \textit{Type/units: km; default: 0 = unspecified.} Shortest declared protected seed wavelength, not inferred from grid. Sampling target32 cells/wavelength; unresolved locations are reported.
+\item[\texttt{--amr-branch-wavelength-km}] \textit{Type/units: km; default: 0 = disabled.} Additional protected wavelength when resolved walls/branches are tagged; zero disables this requirement.
+\item[\texttt{--amr-seed-amplitude}] \textit{Type/units: fraction; default: 0.001.} Declared weak-seed amplitude used in protection/information-loss tolerance; distinct from density seeding amplitude.
+\item[\texttt{--amr-deplete-on}] \textit{Type/units: ratio; default: 0.95.} Legacy detector depletion refinement threshold; below off threshold and positive.
+\item[\texttt{--amr-deplete-off}] \textit{Type/units: ratio; default: 0.98.} Legacy keep-refined depletion threshold, <1. Not used as a density floor.
+\item[\texttt{--amr-hold}] \textit{Type/units: check count; default: 2.} Legacy quiet-check count before coarsening; structure detector instead uses quiet-seconds.
+\item[\texttt{--amr-fixture}] \textit{Type/units: enum; default: none.} none,flat,wall,tip,fork,weak synthetic detector fixtures; explicitly separate these from scientific seeding.
+\item[\texttt{--night-chemistry}] \textit{Type/units: 0/1; default: 0.} Enable the full transported molecular module, not just local chemistry. Requires physical segmented structure AMR, neutral input, UTC, positive E peak and consistent temperatures.
+\item[\texttt{--night-reactions}] \textit{Type/units: 0/1; default: 1.} With night module on, zero disables only reactions; NO+/O2+ still transport. It is not a fixed-reservoir switch.
+\item[\texttt{--neutral-profile}] \textit{Type/units: path; default: none.} Five-column height table or strict spatial ESFNEU01 grid; physical values must cover the entire canonical conjugate geometry.
+\item[\texttt{--collision-profile}] \textit{Type/units: CSV path; default: none.} height\_m,nu\_O\_s1,nu\_e\_s1; strictly increasing, positive and fully covering geometry. Without it use documented idealized analytic rates.
+\item[\texttt{--utc-start-unix}] \textit{Type/units: Unix UTC s; default: 0 = unspecified.} Absolute UTC at model time0, required for night module; 2000-2100 range checked. Not HKT, LST or MLT.
+\item[\texttt{--chem-Ti}] \textit{Type/units: K; default: 0 = unspecified.} Fixed ion temperature for all night species, 200-5000 and applicable reaction-fit range.
+\item[\texttt{--chem-Te}] \textit{Type/units: K; default: 0 = unspecified.} Fixed electron temperature for night closure, 200-5000. Ti+Te must equal temperature-sum.
+\end{description}

@@ -1,0 +1,476 @@
+[
+  {
+    "option": "--help",
+    "type_units": "flag",
+    "default": "n/a",
+    "description": "Print the short help and exit; this full reference includes extension options absent from short help."
+  },
+  {
+    "option": "--field",
+    "type_units": "enum",
+    "default": "igrf",
+    "description": "igrf: degree13; dipole: actual degree1 Gauss coefficients; aligned-dipole: axis-aligned fixture with specified equatorial strength."
+  },
+  {
+    "option": "--year",
+    "type_units": "decimal year",
+    "default": "2025",
+    "description": "Coefficient interpolation epoch, 1900-2030; independent of the chemistry UTC clock."
+  },
+  {
+    "option": "--coeff",
+    "type_units": "path",
+    "default": "build-source data/igrf14coeffs.txt",
+    "description": "Official IGRF-14 coefficient file; pass a repository-relative or absolute path explicitly for relocatable runs."
+  },
+  {
+    "option": "--lon-deg",
+    "type_units": "degrees east",
+    "default": "trace HK350km apex",
+    "description": "Geographic APEX longitude at domain centre, not geographic longitude at HK350km. Automatic target is geodetic22.3N114.2E350km."
+  },
+  {
+    "option": "--span-deg",
+    "type_units": "degrees",
+    "default": "2.5",
+    "description": "Total apex-longitude width, positive and <=20."
+  },
+  {
+    "option": "--nx",
+    "type_units": "integer",
+    "default": "24",
+    "description": "User physical L0 longitude cells; >=4 and <=512, subject to canonical size limits."
+  },
+  {
+    "option": "--ny",
+    "type_units": "integer",
+    "default": "40",
+    "description": "User physical L0 apex-height cells; >=4 and <=512. Three-level MPI rank count cannot exceed this value."
+  },
+  {
+    "option": "--ns",
+    "type_units": "integer",
+    "default": "64",
+    "description": "Whole-conjugate along-field segments, 16-1024; never refined by transverse AMR."
+  },
+  {
+    "option": "--apex-min-km",
+    "type_units": "km",
+    "default": "250",
+    "description": "Lowest tube apex spherical altitude; must exceed base altitude."
+  },
+  {
+    "option": "--apex-max-km",
+    "type_units": "km",
+    "default": "1600",
+    "description": "Highest tube apex spherical altitude, above minimum and <=3000."
+  },
+  {
+    "option": "--base-km",
+    "type_units": "km",
+    "default": "90",
+    "description": "Both conjugate endpoints at spherical altitude above6371.2km radius; 80-150."
+  },
+  {
+    "option": "--trace-step-km",
+    "type_units": "km",
+    "default": "10",
+    "description": "Maximum RK4 tracing step, 0.1-20; tracing also reduces steps near the base."
+  },
+  {
+    "option": "--geometry-only",
+    "type_units": "0/1",
+    "default": "0",
+    "description": "Construct/load geometry and return before plasma evolution on AMR path."
+  },
+  {
+    "option": "--geometry-cache",
+    "type_units": "path",
+    "default": "none",
+    "description": "Native-ABI canonical geometry cache; exact parameter/input/code/ABI matching required."
+  },
+  {
+    "option": "--background-profile",
+    "type_units": "enum",
+    "default": "single",
+    "description": "single: Chapman peak438km scale70km; telf: sum of O+ Chapman populations with peaks438/600km, scales80/200km, relative amplitudes1/.01."
+  },
+  {
+    "option": "--E-peak",
+    "type_units": "m^-3",
+    "default": "1e10",
+    "description": "Initial physical molecular E population, peak110km scale12km. Fixed without night module; initially NO+ with night module."
+  },
+  {
+    "option": "--amplitude",
+    "type_units": "fraction",
+    "default": "0.1",
+    "description": "Seed fractional amplitude; absolute value <1. Positive values make a depletion in the configured envelope."
+  },
+  {
+    "option": "--seed-height-km",
+    "type_units": "km",
+    "default": "350",
+    "description": "Spherical-altitude seed envelope centre."
+  },
+  {
+    "option": "--seed-width-km",
+    "type_units": "km",
+    "default": "70",
+    "description": "Positive vertical seed envelope width; see exact initialization equation in methods."
+  },
+  {
+    "option": "--seed-east-km",
+    "type_units": "km",
+    "default": "0",
+    "description": "Nonnegative horizontal seed width; zero selects the alternate wavelength pattern, not an eastward displacement."
+  },
+  {
+    "option": "--seed-lon-deg",
+    "type_units": "apex degrees",
+    "default": "domain centre",
+    "description": "Seed apex longitude, strictly inside the regional domain; explicit setting is incompatible with periodic-x."
+  },
+  {
+    "option": "--temperature-sum",
+    "type_units": "K",
+    "default": "2500",
+    "description": "Fixed Ti+Te used by O+ parallel pressure/sound speed. Night module requires exact consistency with chem-Ti+chem-Te."
+  },
+  {
+    "option": "--dipole-equator-nT",
+    "type_units": "nT",
+    "default": "31200",
+    "description": "Aligned-dipole equatorial amplitude; positive; does not replace all coefficients in ordinary degree-one dipole mode."
+  },
+  {
+    "option": "--parallel",
+    "type_units": "0/1",
+    "default": "1",
+    "description": "Include field-aligned transport/momentum. Zero is a deliberately reduced physical case."
+  },
+  {
+    "option": "--parallel-order",
+    "type_units": "1 or2",
+    "default": "1",
+    "description": "Order of the bounded along-field face reconstruction; distinct from transverse PDM4."
+  },
+  {
+    "option": "--parallel-flux",
+    "type_units": "enum",
+    "default": "rusanov",
+    "description": "rusanov or relaxation. Night module requires relaxation; includes collision/pressure/gravity fitted mass flux."
+  },
+  {
+    "option": "--exb-scheme",
+    "type_units": "enum",
+    "default": "muscl static; pdm4 AMR",
+    "description": "muscl or pdm4; explicit selection is recommended. PDM4 is a four-cell volume-moment cubic stencil with limiter."
+  },
+  {
+    "option": "--pdm-beta",
+    "type_units": "dimensionless",
+    "default": "1",
+    "description": "PDM limiter correction bound2*beta*upstream difference; supported0-10. beta=0 reduces to donor-cell at the limiter."
+  },
+  {
+    "option": "--hall",
+    "type_units": "0/1",
+    "default": "1",
+    "description": "Retain integrated Hall conductivity cross terms; disabling changes physics."
+  },
+  {
+    "option": "--periodic-x",
+    "type_units": "0/1",
+    "default": "0",
+    "description": "Longitude periodicity; physical branch requires aligned dipole, zero imposed E and no localized horizontal seed."
+  },
+  {
+    "option": "--regional-x",
+    "type_units": "0/1",
+    "default": "1",
+    "description": "Regional open longitude particle boundary and polarization d_xi(phi)=0 side condition; this is NOT zero total normal current."
+  },
+  {
+    "option": "--open-apex",
+    "type_units": "0/1",
+    "default": "0",
+    "description": "Open particle boundaries at transverse apex-height extremes; required for external driver cases."
+  },
+  {
+    "option": "--open-ends",
+    "type_units": "0/1",
+    "default": "0",
+    "description": "Open particle boundaries at both along-field endpoints; otherwise reflective/closed."
+  },
+  {
+    "option": "--background-east-mVm",
+    "type_units": "mV/m",
+    "default": "0",
+    "description": "Prescribed constant eastward electric field, added through mapped potential; excludes CSV driver. AMR driver requires regional nonperiodic and open-apex geometry."
+  },
+  {
+    "option": "--electric-driver",
+    "type_units": "CSV path",
+    "default": "none",
+    "description": "time_s,east_V_m strictly increasing from0 with coverage through absolute end; stage interpolation and step landing on knots."
+  },
+  {
+    "option": "--petsc-potential",
+    "type_units": "0/1",
+    "default": "0",
+    "description": "PETSc backend for uniform reference path. AMR inherently requires PETSc even though this static-path selector defaults0."
+  },
+  {
+    "option": "--rtol",
+    "type_units": "dimensionless",
+    "default": "1e-9",
+    "description": "Requested true potential infinity-residual scale; positive and <.01; AMR accepts <=1.05*rtol after explicit residual computation."
+  },
+  {
+    "option": "--cfl",
+    "type_units": "dimensionless",
+    "default": "0.35",
+    "description": "Positive and <=.45; initial proposal uses0.9*cfl/rate and stage acceptance uses cfl. Teaching/qualification cases explicitly use.25."
+  },
+  {
+    "option": "--dt-max",
+    "type_units": "s",
+    "default": "2",
+    "description": "Positive maximum attempted step; all active levels/species share the accepted dt, with no subcycling."
+  },
+  {
+    "option": "--end",
+    "type_units": "s",
+    "default": "3600",
+    "description": "Absolute elapsed-model stop time. On restart this is not additional duration."
+  },
+  {
+    "option": "--output-every",
+    "type_units": "s",
+    "default": "600",
+    "description": "Positive frame/checkpoint interval; initial and final frames also written. Not a physics timescale or an AMR interval."
+  },
+  {
+    "option": "--max-steps",
+    "type_units": "integer",
+    "default": "200000",
+    "description": "Absolute step counter limit, including history restored by restart."
+  },
+  {
+    "option": "--progress-steps",
+    "type_units": "integer",
+    "default": "0",
+    "description": "Progress-print step interval; zero disables periodic progress lines but not essential diagnostics."
+  },
+  {
+    "option": "--out",
+    "type_units": "directory",
+    "default": "igrf_run",
+    "description": "New run directory; an existing metadata.json is rejected to preserve prior outputs."
+  },
+  {
+    "option": "--restart",
+    "type_units": "path",
+    "default": "none",
+    "description": "Native AMR checkpoint or explicitly supported uniform-state import; physical/numerical signatures must match."
+  },
+  {
+    "option": "--night-restart",
+    "type_units": "path",
+    "default": "none",
+    "description": "Molecular ESFNIT02 paired with exact native checkpoint; required for night continuation."
+  },
+  {
+    "option": "--amr-mode",
+    "type_units": "enum",
+    "default": "unset = static reference",
+    "description": "none,fixed,fine,dynamic select the AMR backend. There is no literal static enum; omitting the option selects the uniform reference path."
+  },
+  {
+    "option": "--amr-levels",
+    "type_units": "2 or3",
+    "default": "2",
+    "description": "Number of PHYSICAL levels. Three requires structure criterion and nonzero along-field slab size."
+  },
+  {
+    "option": "--amr-case",
+    "type_units": "enum",
+    "default": "esf",
+    "description": "esf,translation,potential,remap. Latter three are verification fixtures, not physical ESF forecasts."
+  },
+  {
+    "option": "--amr-criteria",
+    "type_units": "enum",
+    "default": "legacy",
+    "description": "legacy percentile/depletion or structure local solution-based detector. Released examples explicitly select structure."
+  },
+  {
+    "option": "--amr-density-indicator",
+    "type_units": "enum",
+    "default": "total",
+    "description": "total or represented; represented removes a fitted local background-shaped component for detection only, never from evolved density."
+  },
+  {
+    "option": "--amr-slab-cells",
+    "type_units": "integer",
+    "default": "0",
+    "description": "Along-field segment grouping for density tags. Zero means column-wide legacy layout; nonzero must divide ns and requires structure. Qualification uses4."
+  },
+  {
+    "option": "--amr-interval",
+    "type_units": "s",
+    "default": "100",
+    "description": "Maximum tag-check interval. Accumulated transverse travel can trigger earlier checks; not a fixed actual regrid period."
+  },
+  {
+    "option": "--amr-buffer",
+    "type_units": "integer",
+    "default": "2",
+    "description": "Transverse root-cell buffer around requested structure; 0-16. Qualification uses1."
+  },
+  {
+    "option": "--amr-work-weight",
+    "type_units": "dimensionless",
+    "default": "0.5",
+    "description": "Additive canonical-field work estimate in root-row MPI partition planner; does not change physical equations."
+  },
+  {
+    "option": "--amr-coo",
+    "type_units": "0/1",
+    "default": "1",
+    "description": "Use cached constrained COO assembly; zero selects the reference element assembly algebra."
+  },
+  {
+    "option": "--amr-gradient-on",
+    "type_units": "dimensionless",
+    "default": "0.08",
+    "description": "Refine threshold for normalized detector gradient; must be >=positive off threshold."
+  },
+  {
+    "option": "--amr-gradient-off",
+    "type_units": "dimensionless",
+    "default": "0.04",
+    "description": "Lower keep-refined gradient threshold, providing spatial hysteresis."
+  },
+  {
+    "option": "--amr-curve-on",
+    "type_units": "dimensionless",
+    "default": "0.02",
+    "description": "Refine threshold for normalized density Hessian norm."
+  },
+  {
+    "option": "--amr-curve-off",
+    "type_units": "dimensionless",
+    "default": "0.01",
+    "description": "Lower keep-refined curvature threshold."
+  },
+  {
+    "option": "--amr-velocity-on",
+    "type_units": "dimensionless",
+    "default": "0.1",
+    "description": "Threshold for interval-scaled drift curvature divided by local spacing; keep-refined threshold is half."
+  },
+  {
+    "option": "--amr-sigma-on",
+    "type_units": "dimensionless",
+    "default": "0.05",
+    "description": "Integrated conductivity-tensor curvature threshold for FIELD requests, half when already refined."
+  },
+  {
+    "option": "--amr-quiet-seconds",
+    "type_units": "s",
+    "default": "60",
+    "description": "Physical quiet and minimum residence time before coarsening; qualified production uses60. Zero-hold simultaneous coarsening is not qualified; see known limitations."
+  },
+  {
+    "option": "--amr-seed-guard",
+    "type_units": "0/1",
+    "default": "1",
+    "description": "Advect a material seed-protection marker and prevent under-resolved protected wavelengths. Fresh perturbed structure runs need explicit positive seed wavelength when enabled."
+  },
+  {
+    "option": "--amr-seed-wavelength-km",
+    "type_units": "km",
+    "default": "0 = unspecified",
+    "description": "Shortest declared protected seed wavelength, not inferred from grid. Sampling target32 cells/wavelength; unresolved locations are reported."
+  },
+  {
+    "option": "--amr-branch-wavelength-km",
+    "type_units": "km",
+    "default": "0 = disabled",
+    "description": "Additional protected wavelength when resolved walls/branches are tagged; zero disables this requirement."
+  },
+  {
+    "option": "--amr-seed-amplitude",
+    "type_units": "fraction",
+    "default": "0.001",
+    "description": "Declared weak-seed amplitude used in protection/information-loss tolerance; distinct from density seeding amplitude."
+  },
+  {
+    "option": "--amr-deplete-on",
+    "type_units": "ratio",
+    "default": "0.95",
+    "description": "Legacy detector depletion refinement threshold; below off threshold and positive."
+  },
+  {
+    "option": "--amr-deplete-off",
+    "type_units": "ratio",
+    "default": "0.98",
+    "description": "Legacy keep-refined depletion threshold, <1. Not used as a density floor."
+  },
+  {
+    "option": "--amr-hold",
+    "type_units": "check count",
+    "default": "2",
+    "description": "Legacy quiet-check count before coarsening; structure detector instead uses quiet-seconds."
+  },
+  {
+    "option": "--amr-fixture",
+    "type_units": "enum",
+    "default": "none",
+    "description": "none,flat,wall,tip,fork,weak synthetic detector fixtures; explicitly separate these from scientific seeding."
+  },
+  {
+    "option": "--night-chemistry",
+    "type_units": "0/1",
+    "default": "0",
+    "description": "Enable the full transported molecular module, not just local chemistry. Requires physical segmented structure AMR, neutral input, UTC, positive E peak and consistent temperatures."
+  },
+  {
+    "option": "--night-reactions",
+    "type_units": "0/1",
+    "default": "1",
+    "description": "With night module on, zero disables only reactions; NO+/O2+ still transport. It is not a fixed-reservoir switch."
+  },
+  {
+    "option": "--neutral-profile",
+    "type_units": "path",
+    "default": "none",
+    "description": "Five-column height table or strict spatial ESFNEU01 grid; physical values must cover the entire canonical conjugate geometry."
+  },
+  {
+    "option": "--collision-profile",
+    "type_units": "CSV path",
+    "default": "none",
+    "description": "height_m,nu_O_s1,nu_e_s1; strictly increasing, positive and fully covering geometry. Without it use documented idealized analytic rates."
+  },
+  {
+    "option": "--utc-start-unix",
+    "type_units": "Unix UTC s",
+    "default": "0 = unspecified",
+    "description": "Absolute UTC at model time0, required for night module; 2000-2100 range checked. Not HKT, LST or MLT."
+  },
+  {
+    "option": "--chem-Ti",
+    "type_units": "K",
+    "default": "0 = unspecified",
+    "description": "Fixed ion temperature for all night species, 200-5000 and applicable reaction-fit range."
+  },
+  {
+    "option": "--chem-Te",
+    "type_units": "K",
+    "default": "0 = unspecified",
+    "description": "Fixed electron temperature for night closure, 200-5000. Ti+Te must equal temperature-sum."
+  }
+]
