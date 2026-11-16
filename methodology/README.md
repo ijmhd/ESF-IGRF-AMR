@@ -1,3 +1,8 @@
+> On the performance branch, these PDFs/TeX and the recorded document build
+> belong to frozen v0.1.0. For exact source-line matching or rebuilding those
+> historical documents, check out tag `v0.1.0`. Current execution changes and
+> code links are in `../docs/PERFORMANCE_UPDATE.md` and `../docs/FUNCTIONS.md`.
+
 # Building the methods documents
 
 `main.tex` is the primary methods manuscript. `source-atlas.tex` reproduces the

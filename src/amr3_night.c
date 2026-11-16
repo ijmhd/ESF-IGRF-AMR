@@ -464,7 +464,8 @@ static void macro_chemistry(A3 *a, double *n, double *m, double dt, double budge
 }
 /**
  * Execute one chemistry split operator, check its charge budget, reduce global
- * conversion/recombination totals, and refresh conductivity responses.
+ * conversion/recombination totals. The driver defers molecular halo/response
+ * refresh to a3_prepare, immediately before the next current-state consumer.
  */
 void a3_night_step(A3 *a, double *n, double *m, double dt) {
     if (!a->night || !a->c.night_reactions)
@@ -537,7 +538,13 @@ void a3_night_step(A3 *a, double *n, double *m, double dt) {
     q->loss += budget[0];
     q->recomb += budget[1];
     q->wall += wall3() - begin;
-    a3_night_refresh(a);
+    /* Only owned species changed. Both callers return to the driver, whose
+     * next current-state consumer runs a3_prepare before potential/transport
+     * or tagging; output also starts with a full RHS. Prepare exchanges the
+     * new molecular halo and refreshes every conductivity response. Doing
+     * that exchange/refresh here as well repeats identical work before any
+     * response is read. No old response may be consumed between this return
+     * and prepare. Chemistry/rollback need only owned molecular state. */
 }
 /**
  * Write a molecular checkpoint bound to the just-written native checkpoint, molecular frames,

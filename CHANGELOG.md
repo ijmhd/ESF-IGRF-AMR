@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased performance branch
+
+Exact stability-only probes for discarded initial CFL attempts, local immutable
+parallel-face geometry, and removal of duplicate post-chemistry halo/response
+work. Qualified against v0.1.0 with unchanged physical/step policies; a separate
+80MPIx3 layout pair also passes. See docs/PERFORMANCE_UPDATE.md. The v0.1.0
+tag and bundled baseline methodology artifacts are preserved.
+
 ## v0.1.0 - 2026-11-16
 
 First frozen research/teaching release of the independent C11 ESF solver.

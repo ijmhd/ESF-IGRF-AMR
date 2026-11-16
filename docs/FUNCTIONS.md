@@ -6,41 +6,41 @@ Every runtime C definition is listed below; see the [complete annotated-source a
 
 AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.
 
-* [`wrap`](../src/amr3.c#L18): Return the nonnegative periodic index i modulo n.
-* [`cover`](../src/amr3.c#L26): Map a canonical transverse cell to its backing leaf column; apply the configured periodic/clamped indexing.
-* [`owned`](../src/amr3.c#L39): Test whether a backing column belongs to this rank, so shared faces update only local conserved states.
-* [`ph`](../src/amr3.c#L45): Read a transverse potential node using this solver's boundary/periodic indexing convention.
-* [`derivative`](../src/amr3.c#L52): Compute the two transverse potential derivatives at a geometric face and retain both metric cross contributions.
-* [`minmod`](../src/amr3.c#L78): Return the sign-consistent slope with smallest magnitude; return zero at an extremum.
-* [`length_at`](../src/amr3.c#L84): Read the physical along-field segment length at the requested private refinement level.
-* [`cell_value`](../src/amr3.c#L103): Sample density or velocity with the caller's parallel boundary convention; used by the along-field reconstruction.
-* [`parallel_state_at`](../src/amr3.c#L112): Construct a bounded left/right parallel face state at an explicitly requested refinement level.
-* [`parallel_state`](../src/amr3.c#L122): Resolve the actual local density level, then reconstruct its parallel face state.
-* [`length`](../src/amr3.c#L129): Resolve a backing cell's active density level before reading its physical parallel length.
-* [`log_pressure`](../src/amr3.c#L137): Compute the nonuniform parallel logarithmic pressure gradient, using common Ne in the multi-ion closure and exact-vacuum secants.
-* [`bernoulli`](../src/amr3.c#L167): Evaluate the Bernoulli fitting function z/(exp(z)-1) with small-argument series and large-argument limits.
-* [`parallel_cache`](../src/amr3.c#L182): Prepare shared parallel flux/rate tables for a column-uniform density layout; segmented layouts use a different path.
-* [`density_cover`](../src/amr3.c#L246): Locate the actual density owner at a canonical cell and along-field index; owner can differ from electric-field backing.
-* [`append_face`](../src/amr3.c#L260): Append or merge a canonical face interval whose two active density owners and levels are unchanged.
-* [`a3_face_topology`](../src/amr3.c#L299): Build conservative face blocks for the current segmented density mesh; identical interface fluxes are shared by both adjacent volumes.
-* [`metric_at`](../src/amr3.c#L332): Read or conservatively aggregate geometry for a requested physical density level, including the macro level.
-* [`a3_parallel_geometry`](../src/amr3.c#L348): Cache static segment lengths and parallel relaxation factors for every supported level.
-* [`segmented_parallel`](../src/amr3.c#L389): Evaluate parallel particle/momentum flux for one actual segmented interface; retain collisional relaxation and electron-pressure fitting.
-* [`marker_fraction`](../src/amr3.c#L453): Return a bounded material seed fraction from the advected marker and density; zero density gives zero fraction.
-* [`a3_transport`](../src/amr3.c#L464): Compute O+ finite-volume density/momentum RHS, shared face fluxes, gravity/pressure sources and global stability/travel rates. Collective; sampling may populate lazy caches, so AMR face loops remain on the main thread.
-* [`rhs`](../src/amr3.c#L640): Execute the complete current-stage chain: prepare/halo, integrated potential solve, O+ transport, then molecular transport. The potential always belongs to this stage's density and chemistry state.
-* [`node_id`](../src/amr3.c#L652): Flatten node coordinates with the along-field coordinate contiguous.
-* [`make_box`](../src/amr3.c#L659): Build Cartesian synthetic geometry for transport/potential verification rather than tracing a physical magnetic field.
-* [`gather_geometry`](../src/amr3.c#L700): Collect disjoint computed geometry row ranges into replicated canonical geometry, in MPI-count-safe chunks.
-* [`parallel_geometry`](../src/amr3.c#L717): Distribute tube tracing and cell/face metric construction among ranks, then assemble the replicated geometry and diagnostics.
-* [`geometry`](../src/amr3.c#L772): Load and validate a geometry cache, or construct geometry and optionally write a new cache; initialize conductivity responses afterward.
-* [`output`](../src/amr3.c#L833): Open a named output in the current run directory; failures are collective-fatal through a3_fail.
-* [`metadata`](../src/amr3.c#L845): Write effective geometry, numerical controls, units and binary layout metadata for this AMR run.
-* [`snapshot`](../src/amr3.c#L920): Collect owned states, reconstruct canonical display density, and write time/mesh-bound outputs plus the native checkpoint. Display reconstruction is not an evolved finest-grid solution.
-* [`remap_tests`](../src/amr3.c#L1105): Exercise constant/background/smooth conservative transfers and validate particle/momentum invariants in the dedicated remap case.
-* [`import_static`](../src/amr3.c#L1198): Import a uniform-grid restart by preserving original coarse-cell particle and signed momentum integrals on the canonical AMR geometry.
-* [`workspace`](../src/amr3.c#L1285): Replace scratch arrays after a mesh rebuild so their sizes match the new owned-plus-halo backing layout.
-* [`amr3_run`](../src/amr3.c#L1296): Drive initialization/restart, regridding, half chemistry, two-stage O+/molecular transport, acceptance checks, diagnostics and checkpointing. All ranks follow the same clocks; no level subcycling is used.
+* [`wrap`](../src/amr3.c#L19): Return the nonnegative periodic index i modulo n.
+* [`cover`](../src/amr3.c#L27): Map a canonical transverse cell to its backing leaf column; apply the configured periodic/clamped indexing.
+* [`owned`](../src/amr3.c#L40): Test whether a backing column belongs to this rank, so shared faces update only local conserved states.
+* [`ph`](../src/amr3.c#L46): Read a transverse potential node using this solver's boundary/periodic indexing convention.
+* [`derivative`](../src/amr3.c#L53): Compute the two transverse potential derivatives at a geometric face and retain both metric cross contributions.
+* [`minmod`](../src/amr3.c#L79): Return the sign-consistent slope with smallest magnitude; return zero at an extremum.
+* [`length_at`](../src/amr3.c#L85): Read the physical along-field segment length at the requested private refinement level.
+* [`cell_value`](../src/amr3.c#L104): Sample density or velocity with the caller's parallel boundary convention; used by the along-field reconstruction.
+* [`parallel_state_at`](../src/amr3.c#L113): Construct a bounded left/right parallel face state at an explicitly requested refinement level.
+* [`parallel_state`](../src/amr3.c#L123): Resolve the actual local density level, then reconstruct its parallel face state.
+* [`length`](../src/amr3.c#L130): Resolve a backing cell's active density level before reading its physical parallel length.
+* [`log_pressure`](../src/amr3.c#L138): Compute the nonuniform parallel logarithmic pressure gradient, using common Ne in the multi-ion closure and exact-vacuum secants.
+* [`bernoulli`](../src/amr3.c#L168): Evaluate the Bernoulli fitting function z/(exp(z)-1) with small-argument series and large-argument limits.
+* [`parallel_cache`](../src/amr3.c#L183): Prepare shared parallel flux/rate tables for a column-uniform density layout; segmented layouts use a different path.
+* [`density_cover`](../src/amr3.c#L247): Locate the actual density owner at a canonical cell and along-field index; owner can differ from electric-field backing.
+* [`append_face`](../src/amr3.c#L261): Append or merge a canonical face interval whose two active density owners and levels are unchanged.
+* [`a3_face_topology`](../src/amr3.c#L300): Build conservative face blocks and local immutable parallel-face nu/gravity/length samples for the current segmented mesh; rebuild/free the cache with its mesh.
+* [`metric_at`](../src/amr3.c#L364): Read or conservatively aggregate geometry for a requested physical density level, including the macro level.
+* [`a3_parallel_geometry`](../src/amr3.c#L380): Cache static segment lengths and parallel relaxation factors for every supported level.
+* [`segmented_parallel`](../src/amr3.c#L421): Evaluate parallel particle/momentum flux for one actual segmented interface; retain collisional relaxation and electron-pressure fitting.
+* [`marker_fraction`](../src/amr3.c#L493): Return a bounded material seed fraction from the advected marker and density; zero density gives zero fraction.
+* [`a3_transport`](../src/amr3.c#L504): Compute O+ finite-volume density/momentum RHS, shared face fluxes, gravity/pressure sources and global stability/travel rates. Collective; sampling may populate lazy caches, so AMR face loops remain on the main thread.
+* [`rhs`](../src/amr3.c#L693): Prepare the actual current stage and solve its potential, then evaluate either full transport or the internal exact stability-only probe.
+* [`node_id`](../src/amr3.c#L705): Flatten node coordinates with the along-field coordinate contiguous.
+* [`make_box`](../src/amr3.c#L712): Build Cartesian synthetic geometry for transport/potential verification rather than tracing a physical magnetic field.
+* [`gather_geometry`](../src/amr3.c#L753): Collect disjoint computed geometry row ranges into replicated canonical geometry, in MPI-count-safe chunks.
+* [`parallel_geometry`](../src/amr3.c#L770): Distribute tube tracing and cell/face metric construction among ranks, then assemble the replicated geometry and diagnostics.
+* [`geometry`](../src/amr3.c#L825): Load and validate a geometry cache, or construct geometry and optionally write a new cache; initialize conductivity responses afterward.
+* [`output`](../src/amr3.c#L886): Open a named output in the current run directory; failures are collective-fatal through a3_fail.
+* [`metadata`](../src/amr3.c#L898): Write effective geometry, numerical controls, units and binary layout metadata for this AMR run.
+* [`snapshot`](../src/amr3.c#L973): Collect owned states, reconstruct canonical display density, and write time/mesh-bound outputs plus the native checkpoint. Display reconstruction is not an evolved finest-grid solution.
+* [`remap_tests`](../src/amr3.c#L1158): Exercise constant/background/smooth conservative transfers and validate particle/momentum invariants in the dedicated remap case.
+* [`import_static`](../src/amr3.c#L1251): Import a uniform-grid restart by preserving original coarse-cell particle and signed momentum integrals on the canonical AMR geometry.
+* [`workspace`](../src/amr3.c#L1338): Replace scratch arrays after a mesh rebuild so their sizes match the new owned-plus-halo backing layout.
+* [`amr3_run`](../src/amr3.c#L1349): Drive initialization/restart, regridding, half chemistry, two-stage O+/molecular transport, acceptance checks, diagnostics and checkpointing. All ranks follow the same clocks; no level subcycling is used.
 
 ## `src/amr3_adapt.c`
 
@@ -156,11 +156,11 @@ NO+ and O2+ transport on canonical finest cells, with separate parallel momenta 
 * [`minmod`](../src/amr3_molecular.c#L256): Return the sign-consistent slope with smallest magnitude; return zero at an extremum.
 * [`state`](../src/amr3_molecular.c#L263): Reconstruct a bounded parallel molecular density or velocity face state using the three-point slope limiter.
 * [`a3_night_transport`](../src/amr3_molecular.c#L278): Evaluate both species' conservative canonical fluxes, parallel pressure/gravity sources and stability rates. Threaded sweeps assign disjoint full grid lines; MPI reductions remain on the main thread.
-* [`valid`](../src/amr3_molecular.c#L441): Collectively verify finite/nonnegative molecular densities and consistent exact-vacuum momenta.
-* [`a3_night_transport_begin`](../src/amr3_molecular.c#L457): Save the accepted pre-transport molecular state and first-stage boundary rate for the two-stage update.
-* [`a3_night_predict`](../src/amr3_molecular.c#L472): Apply the molecular first-stage density/ETD momentum predictor and cache its fixed-nu coefficients for this exact attempted dt.
-* [`a3_night_correct`](../src/amr3_molecular.c#L497): Complete the two-stage density and ETD2 momentum update using same-attempt coefficients, then check positivity and stage boundary balance.
-* [`a3_night_accept`](../src/amr3_molecular.c#L520): Commit the accepted molecular boundary-particle increment after the coupled step passes all checks.
+* [`valid`](../src/amr3_molecular.c#L459): Collectively verify finite/nonnegative molecular densities and consistent exact-vacuum momenta.
+* [`a3_night_transport_begin`](../src/amr3_molecular.c#L475): Save the accepted pre-transport molecular state and first-stage boundary rate for the two-stage update.
+* [`a3_night_predict`](../src/amr3_molecular.c#L490): Apply the molecular first-stage density/ETD momentum predictor and cache its fixed-nu coefficients for this exact attempted dt.
+* [`a3_night_correct`](../src/amr3_molecular.c#L515): Complete the two-stage density and ETD2 momentum update using same-attempt coefficients, then check positivity and stage boundary balance.
+* [`a3_night_accept`](../src/amr3_molecular.c#L538): Commit the accepted molecular boundary-particle increment after the coupled step passes all checks.
 
 ## `src/amr3_night.c`
 
@@ -180,9 +180,9 @@ Experimental isothermal, night-only multi-ion closure. Quasineutral Ne equals O+
 * [`a3_night_begin`](../src/amr3_night.c#L378): Back up molecular state and reaction budgets before an attempted coupled step.
 * [`a3_night_restore`](../src/amr3_night.c#L395): Restore the pre-attempt molecular state and reaction budgets when a CFL or positivity check requires another attempt.
 * [`macro_chemistry`](../src/amr3_night.c#L410): Apply local reactions to disjoint canonical children of actual O+ volumes, then volume-average O+ back to its owner. Thread-local budgets are reduced; fatal handling stays outside workers.
-* [`a3_night_step`](../src/amr3_night.c#L469): Execute one chemistry split operator, check its charge budget, reduce global conversion/recombination totals, and refresh conductivity responses.
-* [`a3_night_snapshot`](../src/amr3_night.c#L546): Write a molecular checkpoint bound to the just-written native checkpoint, molecular frames, metadata and total-ion reaction/boundary budgets.
-* [`a3_night_free`](../src/amr3_night.c#L644): Release all molecular full-grid and owned-work arrays, including stage-local ETD/log caches.
+* [`a3_night_step`](../src/amr3_night.c#L470): Apply owned-cell chemistry and reduce charge/conversion budgets; defer molecular halo/conductivity refresh to the next mandatory prepare.
+* [`a3_night_snapshot`](../src/amr3_night.c#L553): Write a molecular checkpoint bound to the just-written native checkpoint, molecular frames, metadata and total-ion reaction/boundary budgets.
+* [`a3_night_free`](../src/amr3_night.c#L651): Release all molecular full-grid and owned-work arrays, including stage-local ETD/log caches.
 
 ## `src/amr3_potential.c`
 

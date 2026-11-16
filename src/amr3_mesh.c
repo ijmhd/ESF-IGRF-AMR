@@ -1194,6 +1194,7 @@ void a3_free(A3 *a) {
     a3_potential_free(a);
     for (int d = 0; d < 3; d++)
         free(a->potential_gradient[d]);
+    free(a->parallel_face_geometry);
     free(a->face_blocks);
     free(a->field_requested);
     free(a->density_refined);

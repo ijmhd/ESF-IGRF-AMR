@@ -95,3 +95,10 @@ height_m,O_m3,N2_m3,O2_m3,Tn_K and positive log-interpolated values.
 Reader implementation and every field/order are available in the annotated
 checkpoint/neutral modules and the source atlas. Avoid treating visualization
 binaries, geometry cache, neutral input and portable checkpoint as one format.
+
+On `perf/exact-cfl-work`, `rate_probe_calls` counts prepared RHS entries that
+initially evaluate only the exact stability expressions. `rhs_calls` includes
+these entries and therefore is not a count of complete flux/source evaluations.
+A probe that can be accepted is completed with full transport before prediction.
+The same post-chemistry dt formula, rollback, potential state and CFL acceptance
+checks remain in place. The hint selects work only, never a dt.

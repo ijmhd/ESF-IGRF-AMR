@@ -287,7 +287,7 @@ void a3_night_transport(A3 *a) {
     double maximum_rate = 0;
     /* These are the current-stage states produced by a3_prepare. Refill after
      * every predictor/corrector state change, including after repartition. */
-    if (a->c.parallel) {
+    if (a->c.parallel && !a->rate_only) {
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static)
 #endif
@@ -301,8 +301,10 @@ void a3_night_transport(A3 *a) {
         }
     }
     for (int s = 0; s < 2; s++) {
-        memset(q->dn[s], 0, count * sizeof(double));
-        memset(q->dm[s], 0, count * sizeof(double));
+        if (!a->rate_only) {
+            memset(q->dn[s], 0, count * sizeof(double));
+            memset(q->dm[s], 0, count * sizeof(double));
+        }
         memset(q->rates[s], 0, count * sizeof(double));
     }
     for (int axis = 0; axis < 3; axis++) {
@@ -352,17 +354,23 @@ void a3_night_transport(A3 *a) {
                         double v = c[3 * s] * d[0] + c[3 * s + 1] * d[1] + c[3 * s + 2];
                         if (wall && !open)
                             v = 0;
-                        int donor = v >= 0 ? L : R;
-                        double n = q->ion[s][donor], u = n > 0 ? q->momentum[s][donor] / n : 0;
-                        double F = v * n, H = F * u, rate = fabs(v);
+                        double F = 0, H = 0, rate = fabs(v);
+                        if (!a->rate_only) {
+                            int donor = v >= 0 ? L : R;
+                            double n = q->ion[s][donor], u = n > 0 ? q->momentum[s][donor] / n : 0;
+                            F = v * n;
+                            H = F * u;
+                        }
                         if (axis == 2 && a->c.parallel && (!wall || open)) {
                             double nl = q->ion[s][L], nr = q->ion[s][R],
                                    ul = nl > 0 ? q->momentum[s][L] / nl : 0,
                                    ur = nr > 0 ? q->momentum[s][R] / nr : 0;
                             double rawl = nl, rawr = nr;
                             if (a->c.parallel_order == 2 && !wall) {
-                                nl = state(a, s, i, j, k - 1, 0, 1);
-                                nr = state(a, s, i, j, k, 0, -1);
+                                if (!a->rate_only) {
+                                    nl = state(a, s, i, j, k - 1, 0, 1);
+                                    nr = state(a, s, i, j, k, 0, -1);
+                                }
                                 ul = state(a, s, i, j, k - 1, 1, 1);
                                 ur = state(a, s, i, j, k, 1, -1);
                             }
@@ -379,25 +387,31 @@ void a3_night_transport(A3 *a) {
                                            q->electron[L], q->electron[R], &theta, &cl, &cr);
                             N = theta * N + cl * rawl - cr * rawr;
                             double area = f->parallel_area;
-                            F += area * N;
-                            H += area * N * (N >= 0 ? ul : ur);
+                            if (!a->rate_only) {
+                                F += area * N;
+                                H += area * N * (N >= 0 ? ul : ur);
+                            }
                             rate += area * fmax(speed, theta * speed + fmax(cl, cr));
                         }
                         if (ownL) {
                             size_t t = L - off;
-                            q->dn[s][t] -= F;
-                            q->dm[s][t] -= H;
+                            if (!a->rate_only) {
+                                q->dn[s][t] -= F;
+                                q->dm[s][t] -= H;
+                            }
                             q->rates[s][t] += rate;
                         }
                         if (ownR) {
                             size_t t = R - off;
-                            q->dn[s][t] += F;
-                            q->dm[s][t] += H;
+                            if (!a->rate_only) {
+                                q->dn[s][t] += F;
+                                q->dm[s][t] += H;
+                            }
                             q->rates[s][t] += rate;
                         }
-                        if (!left_exists && ownR)
+                        if (!a->rate_only && !left_exists && ownR)
                             boundary += F;
-                        if (!right_exists && ownL)
+                        if (!a->rate_only && !right_exists && ownL)
                             boundary -= F;
                     }
                 }
@@ -414,18 +428,22 @@ void a3_night_transport(A3 *a) {
                 int g = id(a, i, j, k);
                 size_t t = g - off;
                 TubeCell *cell = a->g->cell + g;
-                double pe = a->c.parallel ? slope(a, q->electron, q->transport_log[2], i, j, k) : 0;
+                double pe = a->c.parallel && !a->rate_only
+                                ? slope(a, q->electron, q->transport_log[2], i, j, k)
+                                : 0;
                 for (int s = 0; s < 2; s++) {
-                    q->dn[s][t] /= cell->volume;
-                    q->dm[s][t] /= cell->volume;
-                    if (a->c.parallel) {
-                        double pi = slope(a, q->ion[s], q->transport_log[s], i, j, k);
-                        q->dm[s][t] +=
-                            q->ion[s][g] * (cell->gravity_parallel -
-                                            night_pressure_force(a->c.chem_Ti, a->c.chem_Te,
-                                                                 (s ? 32 : 30) * amu, pi, pe));
-                    } else
-                        q->dm[s][t] = 0;
+                    if (!a->rate_only) {
+                        q->dn[s][t] /= cell->volume;
+                        q->dm[s][t] /= cell->volume;
+                        if (a->c.parallel) {
+                            double pi = slope(a, q->ion[s], q->transport_log[s], i, j, k);
+                            q->dm[s][t] +=
+                                q->ion[s][g] * (cell->gravity_parallel -
+                                                night_pressure_force(a->c.chem_Ti, a->c.chem_Te,
+                                                                     (s ? 32 : 30) * amu, pi, pe));
+                        } else
+                            q->dm[s][t] = 0;
+                    }
                     maximum_rate = fmax(maximum_rate, q->rates[s][t] / cell->volume);
                 }
             }

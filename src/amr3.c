@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #define PI 3.14159265358979323846
+static void metric_at(A3 *a, int level, int i, int j, int k, A3Metric *m);
 
 /**
  * Return the nonnegative periodic index i modulo n.
@@ -290,13 +291,15 @@ static void append_face(A3 *a, int axis, int i, int j, int first, int last) {
         a->face_blocks = next;
     }
     a->face_blocks[a->face_block_count++] =
-        (A3FaceBlock){axis, i, j, first, last, left, right, level, ll, rl};
+        (A3FaceBlock){axis, i, j, first, last, left, right, level, ll, rl, -1};
 }
 /**
  * Build conservative face blocks for the current segmented density mesh; identical interface
  * fluxes are shared by both adjacent volumes.
  */
 void a3_face_topology(A3 *a) {
+    free(a->parallel_face_geometry);
+    a->parallel_face_geometry = NULL;
     free(a->face_blocks);
     a->face_blocks = NULL;
     a->face_block_count = a->face_block_capacity = 0;
@@ -323,6 +326,35 @@ void a3_face_topology(A3 *a) {
                 if (axis == 2 && !all)
                     append_face(a, axis, i, j, a->ns, a->ns + 1);
             }
+    }
+    /* These three values depend only on immutable traced geometry and the
+     * face's requested density level. Build exactly the original sums once
+     * per mesh, in owned/halo face blocks only. Ne and SG coefficients remain
+     * current-stage quantities and are deliberately NOT cached here. */
+    if (a->c.night_chemistry && a->c.amr_slab && a->c.parallel && a->c.parallel_relaxation) {
+        size_t count = 0;
+        for (int f = 0; f < a->face_block_count; f++)
+            if (a->face_blocks[f].axis == 2) {
+                a->face_blocks[f].parallel_offset = (int)count;
+                count += a->face_blocks[f].last - a->face_blocks[f].first;
+            }
+        a->parallel_face_geometry = a3_alloc(a, 3 * count, sizeof(double));
+        for (int f = 0; f < a->face_block_count; f++) {
+            A3FaceBlock *b = a->face_blocks + f;
+            if (b->axis != 2)
+                continue;
+            int scale = a3_scale(b->level), i = b->i / scale, j = b->j / scale;
+            for (int k = b->first; k < b->last; k++) {
+                int lo = k ? k - 1 : 0, hi = k < a->ns ? k : a->ns - 1;
+                A3Metric L, R;
+                metric_at(a, b->level, i, j, lo, &L);
+                metric_at(a, b->level, i, j, hi, &R);
+                double *g = a->parallel_face_geometry + 3 * (b->parallel_offset + k - b->first);
+                g[0] = .5 * (L.nu + R.nu);
+                g[1] = .5 * (L.gravity + R.gravity);
+                g[2] = .5 * (length_at(a, b->level, i, j, lo) + length_at(a, b->level, i, j, hi));
+            }
+        }
     }
 }
 /**
@@ -386,8 +418,8 @@ void a3_parallel_geometry(A3 *a) {
  * Evaluate parallel particle/momentum flux for one actual segmented interface; retain
  * collisional relaxation and electron-pressure fitting.
  */
-static void segmented_parallel(A3 *a, int level, int i, int j, int k, double cs, double *N,
-                               double *M, double *rate) {
+static void segmented_parallel(A3 *a, int level, int i, int j, int k, double cs,
+                               const double *geometry, double *N, double *M, double *rate) {
     int lo = k ? k - 1 : 0, hi = k < a->ns ? k : a->ns - 1, wall = k == 0 || k == a->ns,
         open = a->c.open_ends;
     double raw_l = a3_sample(a, 0, level, i, j, lo), raw_r = a3_sample(a, 0, level, i, j, hi);
@@ -395,8 +427,10 @@ static void segmented_parallel(A3 *a, int level, int i, int j, int k, double cs,
            mr = a3_sample(a, 1, level, i, j, hi);
     double ul = nl > 0 ? ml / nl : 0, ur = nr > 0 ? mr / nr : 0;
     if (a->c.parallel_order == 2 && !wall) {
-        nl = parallel_state_at(a, level, i, j, lo, 0, 1);
-        nr = parallel_state_at(a, level, i, j, hi, 0, -1);
+        if (!a->rate_only || !a->c.parallel_relaxation) {
+            nl = parallel_state_at(a, level, i, j, lo, 0, 1);
+            nr = parallel_state_at(a, level, i, j, hi, 0, -1);
+        }
         if (a->c.parallel_relaxation) {
             ul = parallel_state_at(a, level, i, j, lo, 2, 1);
             ur = parallel_state_at(a, level, i, j, hi, 2, -1);
@@ -429,12 +463,18 @@ static void segmented_parallel(A3 *a, int level, int i, int j, int k, double cs,
         double mixed[3];
         const double *r;
         if (a->night) {
-            A3Metric L, R;
-            metric_at(a, level, i, j, lo, &L);
-            metric_at(a, level, i, j, hi, &R);
-            double ds = .5 * (length_at(a, level, i, j, lo) + length_at(a, level, i, j, hi));
-            night_sg_coeff(a->c.chem_Ti, a->c.chem_Te, 16 * 1.66053906660e-27, .5 * (L.nu + R.nu),
-                           .5 * (L.gravity + R.gravity), ds, a3_night_electron(a, level, i, j, lo),
+            double values[3];
+            if (!geometry) {
+                A3Metric L, R;
+                metric_at(a, level, i, j, lo, &L);
+                metric_at(a, level, i, j, hi, &R);
+                values[0] = .5 * (L.nu + R.nu);
+                values[1] = .5 * (L.gravity + R.gravity);
+                values[2] = .5 * (length_at(a, level, i, j, lo) + length_at(a, level, i, j, hi));
+                geometry = values;
+            }
+            night_sg_coeff(a->c.chem_Ti, a->c.chem_Te, 16 * 1.66053906660e-27, geometry[0],
+                           geometry[1], geometry[2], a3_night_electron(a, level, i, j, lo),
                            a3_night_electron(a, level, i, j, hi), mixed, mixed + 1, mixed + 2);
             r = mixed;
         } else
@@ -464,8 +504,10 @@ static double marker_fraction(A3 *a, int level, int axis, int i, int j, int k, i
 void a3_transport(A3 *a, double *dn, double *dm) {
     double begin = wall3(), cs = sqrt(1.380649e-23 * a->c.temperature / (16 * 1.66053906660e-27));
     int n = a->owned_count * a->ns, periodic_all = a->c.amr_case == 1;
-    memset(dn, 0, n * sizeof(double));
-    memset(dm, 0, n * sizeof(double));
+    if (!a->rate_only) {
+        memset(dn, 0, n * sizeof(double));
+        memset(dm, 0, n * sizeof(double));
+    }
     if (a->marker_rhs)
         memset(a->marker_rhs, 0, n * sizeof(double));
     double *rate = a->rates;
@@ -531,7 +573,7 @@ void a3_transport(A3 *a, double *dn, double *dm) {
             }
             double qabs = positive - negative, flux_n = 0, flux_m = 0, flux_p = 0,
                    parallel_rate = 0;
-            for (int sign = -1; sign <= 1; sign += 2) {
+            for (int sign = -1; !a->rate_only && sign <= 1; sign += 2) {
                 double q = sign > 0 ? positive : negative;
                 if (q == 0)
                     continue;
@@ -546,7 +588,12 @@ void a3_transport(A3 *a, double *dn, double *dm) {
             if (axis == 2 && a->c.parallel) {
                 double N, M, R;
                 if (a->c.amr_slab)
-                    segmented_parallel(a, level, i / scale, j / scale, k, cs, &N, &M, &R);
+                    segmented_parallel(a, level, i / scale, j / scale, k, cs,
+                                       f->parallel_offset < 0
+                                           ? NULL
+                                           : a->parallel_face_geometry +
+                                                 3 * (f->parallel_offset + k - f->first),
+                                       &N, &M, &R);
                 else {
                     int t = a->slot[left] * (a->ns + 1) + k;
                     N = a->parallel_n[t];
@@ -565,8 +612,10 @@ void a3_transport(A3 *a, double *dn, double *dm) {
             }
             if (owned(a, left) && kl >= 0 && kl < a->ns) {
                 int t = a->slot[left] * a->ns + kl;
-                dn[t] -= flux_n;
-                dm[t] -= flux_m;
+                if (!a->rate_only) {
+                    dn[t] -= flux_n;
+                    dm[t] -= flux_m;
+                }
                 rate[t] += qabs + parallel_rate;
                 if (a->marker_rhs)
                     a->marker_rhs[t] -= flux_p;
@@ -575,15 +624,17 @@ void a3_transport(A3 *a, double *dn, double *dm) {
             }
             if (owned(a, right) && kr >= 0 && kr < a->ns) {
                 int t = a->slot[right] * a->ns + kr;
-                dn[t] += flux_n;
-                dm[t] += flux_m;
+                if (!a->rate_only) {
+                    dn[t] += flux_n;
+                    dm[t] += flux_m;
+                }
                 rate[t] += qabs + parallel_rate;
                 if (a->marker_rhs)
                     a->marker_rhs[t] += flux_p;
                 if (axis < 2)
                     a->transverse_rates[t] += qabs;
             }
-            if (!periodic_all) {
+            if (!periodic_all && !a->rate_only) {
                 if (axis < 2) {
                     if (left < 0 && owned(a, right))
                         a->boundary_rate += flux_n;
@@ -609,18 +660,20 @@ void a3_transport(A3 *a, double *dn, double *dm) {
             A3Metric *m = a->metric + id * a->ns + k;
             if (!a3_active(a, id, k))
                 continue;
-            dn[t] /= m->volume;
-            dm[t] /= m->volume;
-            if (a->marker_rhs)
-                a->marker_rhs[t] /= m->volume;
-            if (a->c.parallel) {
-                if (a->c.parallel_relaxation)
-                    dm[t] += a->current_n[t] * (m->gravity - cs * cs * log_pressure(a, id, k));
-                else
-                    dm[t] += cs * cs * a->current_n[t] * (m->area[1] - m->area[0]) / m->volume +
-                             a->current_n[t] * m->gravity;
-            } else
-                dm[t] = 0;
+            if (!a->rate_only) {
+                dn[t] /= m->volume;
+                dm[t] /= m->volume;
+                if (a->marker_rhs)
+                    a->marker_rhs[t] /= m->volume;
+                if (a->c.parallel) {
+                    if (a->c.parallel_relaxation)
+                        dm[t] += a->current_n[t] * (m->gravity - cs * cs * log_pressure(a, id, k));
+                    else
+                        dm[t] += cs * cs * a->current_n[t] * (m->area[1] - m->area[0]) / m->volume +
+                                 a->current_n[t] * m->gravity;
+                } else
+                    dm[t] = 0;
+            }
             a->rate = fmax(a->rate, rate[t] / m->volume);
             int level = a3_density_leaf(a, id, k).level;
             a->transverse_rate =
@@ -1437,6 +1490,9 @@ int amr3_run(Config3 c, int rank, int size) {
             a3_fail(&a, "constant changed on the actual local segmented mesh");
         rhs(&a, n, m, dn, dm, time);
     }
+    int prefer_rate_probe = 0;
+    const char *probe_environment = getenv("ESF_AUDIT_RATE_PROBE");
+    int audit_rate_probe = probe_environment && !strcmp(probe_environment, "1");
     for (;;) {
         a.time = time;
         if (c.amr_mode == 3 && frame > 0 && time < c.end - 1e-9 &&
@@ -1526,14 +1582,34 @@ int amr3_run(Config3 c, int rank, int size) {
                 if (marker)
                     memcpy(old_p, marker, own * sizeof(double));
             }
+            /* A recent initial CFL rejection predicts another discarded full
+             * RHS. Probe the EXACT same stability expression first. The hint
+             * is transient performance state only; it never changes a dt.
+             * Audit mode compares every probe with a full current-state RHS. */
+            int probed = a.night && attempt == 0 && (prefer_rate_probe || audit_rate_probe);
+            a.rate_only = probed;
+            if (probed)
+                a.rate_probe_calls++;
             rhs(&a, n, m, dn, dm, time);
+            a.rate_only = 0;
+            double probed_rate = a.rate, probed_transverse = a.transverse_rate;
+            double proposed_dt = fmin(dt, .9 * c.cfl / fmax(a.rate, 1e-30));
+            if (probed && (audit_rate_probe || proposed_dt >= dt * (1 - 1e-12))) {
+                a3_transport(&a, dn, dm);
+                a3_night_transport(&a);
+                if (a.rate != probed_rate || a.transverse_rate != probed_transverse)
+                    a3_fail(&a, "stability probe differs from complete current-state RHS");
+            }
             double boundary0 = a.boundary_rate, transverse0 = a.transverse_rate;
             double next_dt = fmin(dt, .9 * c.cfl / fmax(a.rate, 1e-30));
             if (a.night && next_dt < dt * (1 - 1e-12)) {
                 a.cfl_adjustments++;
+                prefer_rate_probe = 1;
                 dt = next_dt;
                 continue;
             }
+            if (probed)
+                prefer_rate_probe = 0;
             dt = next_dt;
             a3_night_transport_begin(&a);
 #ifdef _OPENMP
@@ -1646,9 +1722,9 @@ int amr3_run(Config3 c, int rank, int size) {
         f = output(&a, "performance_counters.json", "w");
         fprintf(
             f,
-            "{\"scope\":\"After initial snapshot through terminal diagnostic RHS; rank0 call counts, no checkpoint history\",\"rhs_calls\":%llu,\"tag_checks\":%llu,\"chemistry_calls\":%llu,\"timestep_attempts\":%llu,\"initial_CFL_adjustments\":%llu,\"reported_failure_retries\":%d}\n",
-            a.rhs_calls, a.tag_checks, a.chemistry_calls, a.timestep_attempts, a.cfl_adjustments,
-            retries);
+            "{\"scope\":\"After initial snapshot through terminal diagnostic RHS; rank0 call counts, no checkpoint history\",\"rhs_calls\":%llu,\"rate_probe_calls\":%llu,\"tag_checks\":%llu,\"chemistry_calls\":%llu,\"timestep_attempts\":%llu,\"initial_CFL_adjustments\":%llu,\"reported_failure_retries\":%d}\n",
+            a.rhs_calls, a.rate_probe_calls, a.tag_checks, a.chemistry_calls, a.timestep_attempts,
+            a.cfl_adjustments, retries);
         fclose(f);
     }
     free(marker);

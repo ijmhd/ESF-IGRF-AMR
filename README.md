@@ -1,5 +1,11 @@
 # ESF-IGRF-AMR
 
+> **Performance development branch `perf/exact-cfl-work`.** The qualified code
+> changes and measured timings are in [PERFORMANCE_UPDATE.md](docs/PERFORMANCE_UPDATE.md).
+> The stable release/tag `v0.1.0` is preserved. Bundled methodology PDFs and
+> their TeX remain the v0.1.0 artifacts; use the current Markdown function index
+> and update note for this branch's execution changes.
+
 An independent **C11 / MPI / optional OpenMP / PETSc** model for equatorial
 spread F on traced dipole or IGRF-14 magnetic flux tubes. The model includes
 conservative O+ transport, parallel momentum, a field-line-integrated
@@ -33,7 +39,7 @@ PETSc**. Qualification uses PETSc 3.26.1; MPI must match PETSc's MPI build.
 Python 3 runs the launcher/checks; model evolution itself is C.
 
 ```sh
-git clone --branch v0.1.0 --depth 1 https://github.com/ijmhd/ESF-IGRF-AMR.git
+git clone --branch perf/exact-cfl-work --depth 1 https://github.com/ijmhd/ESF-IGRF-AMR.git
 cd ESF-IGRF-AMR
 pkg-config --modversion PETSc
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \

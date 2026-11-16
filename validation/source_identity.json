@@ -1,5 +1,5 @@
 {
-  "source_ID": "b876245d6051ff517b9121fd6644ecafd762d5ff55ef5c3965895b8edd264c5d",
+  "source_ID": "03a3c037cb75d2fbc640507d5b92a584158e31160124bd6753119b0834ceee76",
   "geometry_ID": "25e64639733b742ac7a593e99584c3a48d375ba24dc21298144c759d877b92c61c34d17f4c7082a1f91a86fdaa83e21058522fcc973de1ce4827adc01a3455d7",
   "numerical_SHA256": {
     "include/electric_driver.h": "732a8ef1ce5aa480f91d31a2f744c60b5c53a941fe6ffaf158e7004116580639",
@@ -11,16 +11,16 @@
     "include/potential.h": "15829ff261aa3c1bac152d3a0fed635a9c8fa8956f190b30f95ea62789cf81cd",
     "include/solver.h": "7fe18b789cc5c7c567b4421725d3a6ecc6d40debdd348bb43faf91518407e5d9",
     "include/tube.h": "49f3627a50eb2d3469dfbf6fb708f711cb69cf2d9189a1bed9a09b5858330871",
-    "src/amr3.c": "5aa5d0ec3844b350dcdc77f2399eabe3485b7aefc51de3b6c2d3fc1360ec6946",
-    "src/amr3.h": "99cac19de8e90ea53f6010f3a8601b7b38b0d914e2e3a7debcafd6d1cf1bff1c",
-    "src/amr3_adapt.c": "0e483d6da4dd704efcc2eac4cf770b95258ce63a43c6647e5f142b12dcfbff06",
+    "src/amr3.c": "36e38baad594a87053bf2d81f233a838bbc9330a1b58530819ff1cb4f51c00d3",
+    "src/amr3.h": "90ef82729995aa6a7bcc5129194163e99a2884120318e5bc14bb3a3f0aa6cedb",
+    "src/amr3_adapt.c": "955f84acdf04061da665f2c69d0c444bc15e647ce901d2a8116df8ca34fd36b6",
     "src/amr3_cache.c": "7668ce2f2f2c406430992ea445a725c293cbe23f52def4d6367f067f5881d1e0",
     "src/amr3_checkpoint2.c": "4b080432f2509b4a822216f2c2e365078dad55c397335b9aadd608650c06845e",
     "src/amr3_macro.c": "c4f1fb8dfb383dc999c86cad33917785256a1fbaad4665731a4c5fb46618e620",
-    "src/amr3_mesh.c": "a9735f208fa2897d0e41fa8bdd5d323f7440b09a270ecc60eb303cca04eee04e",
+    "src/amr3_mesh.c": "0d0c144a9aefcb41551081e73efd9d1bc1efd27d89717e8fd4daba6951f958c6",
     "src/amr3_migration.c": "7db38f775e000ab6190fc9b61e2e7e3dcdd545900b0069295d1173bfb1dd3575",
-    "src/amr3_molecular.c": "e1b6030e5aedbacc2ae0a5c59c24868945550faf05e7a8cacff24590c54b3d71",
-    "src/amr3_night.c": "12c968ca33d3607db3127994e689f7e4eff9d403dd9ec9529f828da0e8d33435",
+    "src/amr3_molecular.c": "955f1239d8062c069c335eaa8647ea3e784f6f1783802f58123e176baa43036e",
+    "src/amr3_night.c": "c75aab01bbebdda4e2a39a9d06d22ada3b2de96ec019ececa23709034cf82047",
     "src/amr3_night_internal.h": "e5c0934e8fdf3f9c26d14d6a0e2abd9b31073727c3965a820d6b3600d4cd58f7",
     "src/amr3_potential.c": "82b49a785a12618f7f9bfbe7380072d382ae6e4e8da182566e89eafc57caade1",
     "src/amr3_restart.c": "060963aba25a5051457c93b1cd4a23aeeca4dbb111311b797c7798ef3af70de1",
@@ -44,19 +44,14 @@
     "src/restart.c": "a71d024ba5b2e770d06037efcb807bd79df9902a5c36f645b858b3fad5c7a6aa",
     "src/transport.c": "bb1afb01adbb1b758baa715bde5c27cf070a5e89e5e5fdf1a24b6113be3d36b8"
   },
-  "baseline_source_ID": "54b5c51cc0dc71918e9ffb226aac1fbeefe039f45df19dc870f74bd4480ee124",
+  "baseline": "v0.1.0",
   "changes": [
-    "single three-level raw-metric build",
-    "reuse macro geometry",
-    "reuse conversion and ETD coefficients",
-    "thread independent molecular lines and cell kernels",
-    "add call-reason counters",
-    "teaching comments and source formatting",
-    "contiguous k inner loop while retaining disjoint worker ownership",
-    "real MPI status buffers; explicit C11 const-array conversion",
-    "document inline offset/count helpers",
-    "owned-only memoization of original Ne volume average; reset on every rebuilt electron state"
+    "Current-stage stability-only probe for likely discarded CFL attempt; exact same dt formula and rollback",
+    "Local immutable O+ parallel-face nu/gravity/length cache, original sum/division",
+    "Remove redundant post-chemistry halo/response refresh; next consumer unconditionally prepares current state"
   ],
-  "physical_policy": "PDM4 beta1 CFL0.25 dtmax2 potential rtol1e-10 AMR criteria/output unchanged in paired qualification",
-  "revision": "r2"
+  "physics_policy": "Unchanged",
+  "baseline_source_ID": "b876245d6051ff517b9121fd6644ecafd762d5ff55ef5c3965895b8edd264c5d",
+  "revision": "performance-r4",
+  "physical_policy": "Unchanged PDM4 beta1 CFL.25 dtmax2 potential rtol1e-10 AMR criteria and clocks; only duplicate/unused work removed"
 }

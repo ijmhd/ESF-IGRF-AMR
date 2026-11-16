@@ -5,7 +5,7 @@
     "signature": "static int wrap(int i, int n)",
     "purpose": "Return the nonnegative periodic index i modulo n.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 18
+    "line": 19
   },
   {
     "file": "src/amr3.c",
@@ -13,7 +13,7 @@
     "signature": "static int cover(A3 *a, int i, int j)",
     "purpose": "Map a canonical transverse cell to its backing leaf column; apply the configured periodic/clamped indexing.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 26
+    "line": 27
   },
   {
     "file": "src/amr3.c",
@@ -21,7 +21,7 @@
     "signature": "static int owned(A3 *a, int p)",
     "purpose": "Test whether a backing column belongs to this rank, so shared faces update only local conserved states.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 39
+    "line": 40
   },
   {
     "file": "src/amr3.c",
@@ -29,7 +29,7 @@
     "signature": "static double ph(A3 *a, int i, int j)",
     "purpose": "Read a transverse potential node using this solver's boundary/periodic indexing convention.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 45
+    "line": 46
   },
   {
     "file": "src/amr3.c",
@@ -37,7 +37,7 @@
     "signature": "static void derivative(A3 *a, int axis, int i, int j, double d[2])",
     "purpose": "Compute the two transverse potential derivatives at a geometric face and retain both metric cross contributions.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 52
+    "line": 53
   },
   {
     "file": "src/amr3.c",
@@ -45,7 +45,7 @@
     "signature": "static double minmod(double a, double b, double c)",
     "purpose": "Return the sign-consistent slope with smallest magnitude; return zero at an extremum.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 78
+    "line": 79
   },
   {
     "file": "src/amr3.c",
@@ -53,7 +53,7 @@
     "signature": "static double length_at(A3 *a, int level, int i, int j, int k)",
     "purpose": "Read the physical along-field segment length at the requested private refinement level.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 84
+    "line": 85
   },
   {
     "file": "src/amr3.c",
@@ -61,7 +61,7 @@
     "signature": "static double cell_value(A3 *a, int p, int k, int field)",
     "purpose": "Sample density or velocity with the caller's parallel boundary convention; used by the along-field reconstruction.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 103
+    "line": 104
   },
   {
     "file": "src/amr3.c",
@@ -69,7 +69,7 @@
     "signature": "static double parallel_state_at(A3 *a, int level, int i, int j, int k, int field, int side)",
     "purpose": "Construct a bounded left/right parallel face state at an explicitly requested refinement level.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 112
+    "line": 113
   },
   {
     "file": "src/amr3.c",
@@ -77,7 +77,7 @@
     "signature": "static double parallel_state(A3 *a, int p, int k, int field, int side)",
     "purpose": "Resolve the actual local density level, then reconstruct its parallel face state.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 122
+    "line": 123
   },
   {
     "file": "src/amr3.c",
@@ -85,7 +85,7 @@
     "signature": "static double length(A3 *a, int p, int k)",
     "purpose": "Resolve a backing cell's active density level before reading its physical parallel length.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 129
+    "line": 130
   },
   {
     "file": "src/amr3.c",
@@ -93,7 +93,7 @@
     "signature": "static double log_pressure(A3 *a, int p, int k)",
     "purpose": "Compute the nonuniform parallel logarithmic pressure gradient, using common Ne in the multi-ion closure and exact-vacuum secants.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 137
+    "line": 138
   },
   {
     "file": "src/amr3.c",
@@ -101,7 +101,7 @@
     "signature": "static double bernoulli(double z)",
     "purpose": "Evaluate the Bernoulli fitting function z/(exp(z)-1) with small-argument series and large-argument limits.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 167
+    "line": 168
   },
   {
     "file": "src/amr3.c",
@@ -109,7 +109,7 @@
     "signature": "static void parallel_cache(A3 *a, double cs)",
     "purpose": "Prepare shared parallel flux/rate tables for a column-uniform density layout; segmented layouts use a different path.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 182
+    "line": 183
   },
   {
     "file": "src/amr3.c",
@@ -117,7 +117,7 @@
     "signature": "static int density_cover(A3 *a, int i, int j, int k)",
     "purpose": "Locate the actual density owner at a canonical cell and along-field index; owner can differ from electric-field backing.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 246
+    "line": 247
   },
   {
     "file": "src/amr3.c",
@@ -125,15 +125,15 @@
     "signature": "static void append_face(A3 *a, int axis, int i, int j, int first, int last)",
     "purpose": "Append or merge a canonical face interval whose two active density owners and levels are unchanged.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 260
+    "line": 261
   },
   {
     "file": "src/amr3.c",
     "name": "a3_face_topology",
     "signature": "void a3_face_topology(A3 *a)",
-    "purpose": "Build conservative face blocks for the current segmented density mesh; identical interface fluxes are shared by both adjacent volumes.",
+    "purpose": "Build conservative face blocks and local immutable parallel-face nu/gravity/length samples for the current segmented mesh; rebuild/free the cache with its mesh.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 299
+    "line": 300
   },
   {
     "file": "src/amr3.c",
@@ -141,7 +141,7 @@
     "signature": "static void metric_at(A3 *a, int level, int i, int j, int k, A3Metric *m)",
     "purpose": "Read or conservatively aggregate geometry for a requested physical density level, including the macro level.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 332
+    "line": 364
   },
   {
     "file": "src/amr3.c",
@@ -149,15 +149,15 @@
     "signature": "void a3_parallel_geometry(A3 *a)",
     "purpose": "Cache static segment lengths and parallel relaxation factors for every supported level.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 348
+    "line": 380
   },
   {
     "file": "src/amr3.c",
     "name": "segmented_parallel",
-    "signature": "static void segmented_parallel(A3 *a, int level, int i, int j, int k, double cs, double *N, double *M, double *rate)",
+    "signature": "static void segmented_parallel(A3 *a, int level, int i, int j, int k, double cs, const double *geometry, double *N, double *M, double *rate)",
     "purpose": "Evaluate parallel particle/momentum flux for one actual segmented interface; retain collisional relaxation and electron-pressure fitting.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 389
+    "line": 421
   },
   {
     "file": "src/amr3.c",
@@ -165,7 +165,7 @@
     "signature": "static double marker_fraction(A3 *a, int level, int axis, int i, int j, int k, int sign)",
     "purpose": "Return a bounded material seed fraction from the advected marker and density; zero density gives zero fraction.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 453
+    "line": 493
   },
   {
     "file": "src/amr3.c",
@@ -173,15 +173,15 @@
     "signature": "void a3_transport(A3 *a, double *dn, double *dm)",
     "purpose": "Compute O+ finite-volume density/momentum RHS, shared face fluxes, gravity/pressure sources and global stability/travel rates. Collective; sampling may populate lazy caches, so AMR face loops remain on the main thread.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 464
+    "line": 504
   },
   {
     "file": "src/amr3.c",
     "name": "rhs",
     "signature": "static void rhs(A3 *a, double *n, double *m, double *dn, double *dm, double time)",
-    "purpose": "Execute the complete current-stage chain: prepare/halo, integrated potential solve, O+ transport, then molecular transport. The potential always belongs to this stage's density and chemistry state.",
+    "purpose": "Prepare the actual current stage and solve its potential, then evaluate either full transport or the internal exact stability-only probe.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 640
+    "line": 693
   },
   {
     "file": "src/amr3.c",
@@ -189,7 +189,7 @@
     "signature": "static int node_id(TubeGrid *g, int i, int j, int k)",
     "purpose": "Flatten node coordinates with the along-field coordinate contiguous.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 652
+    "line": 705
   },
   {
     "file": "src/amr3.c",
@@ -197,7 +197,7 @@
     "signature": "static void make_box(TubeGrid *g, GridConfig c)",
     "purpose": "Build Cartesian synthetic geometry for transport/potential verification rather than tracing a physical magnetic field.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 659
+    "line": 712
   },
   {
     "file": "src/amr3.c",
@@ -205,7 +205,7 @@
     "signature": "static void gather_geometry(A3 *a, void *data, int rows, size_t rowbytes, const int *cuts)",
     "purpose": "Collect disjoint computed geometry row ranges into replicated canonical geometry, in MPI-count-safe chunks.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 700
+    "line": 753
   },
   {
     "file": "src/amr3.c",
@@ -213,7 +213,7 @@
     "signature": "static void parallel_geometry(A3 *a, TubeGrid *g, Igrf *field, GridConfig fine)",
     "purpose": "Distribute tube tracing and cell/face metric construction among ranks, then assemble the replicated geometry and diagnostics.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 717
+    "line": 770
   },
   {
     "file": "src/amr3.c",
@@ -221,7 +221,7 @@
     "signature": "static void geometry(A3 *status, TubeGrid *g, Config3 c)",
     "purpose": "Load and validate a geometry cache, or construct geometry and optionally write a new cache; initialize conductivity responses afterward.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 772
+    "line": 825
   },
   {
     "file": "src/amr3.c",
@@ -229,7 +229,7 @@
     "signature": "static FILE *output(A3 *a, const char *name, const char *mode)",
     "purpose": "Open a named output in the current run directory; failures are collective-fatal through a3_fail.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 833
+    "line": 886
   },
   {
     "file": "src/amr3.c",
@@ -237,7 +237,7 @@
     "signature": "static void metadata(A3 *a)",
     "purpose": "Write effective geometry, numerical controls, units and binary layout metadata for this AMR run.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 845
+    "line": 898
   },
   {
     "file": "src/amr3.c",
@@ -245,7 +245,7 @@
     "signature": "static void snapshot(A3 *a, double *n, double *m, int frame, double time, int step, double mass0, const int *quiet, double next_regrid, double travel, int retries)",
     "purpose": "Collect owned states, reconstruct canonical display density, and write time/mesh-bound outputs plus the native checkpoint. Display reconstruction is not an evolved finest-grid solution.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 920
+    "line": 973
   },
   {
     "file": "src/amr3.c",
@@ -253,7 +253,7 @@
     "signature": "static void remap_tests(A3 *base, TubeGrid *g)",
     "purpose": "Exercise constant/background/smooth conservative transfers and validate particle/momentum invariants in the dedicated remap case.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 1105
+    "line": 1158
   },
   {
     "file": "src/amr3.c",
@@ -261,7 +261,7 @@
     "signature": "static void import_static(A3 *a, TubeGrid *g, double *n, double *m, double *time, int *step, double *mass0)",
     "purpose": "Import a uniform-grid restart by preserving original coarse-cell particle and signed momentum integrals on the canonical AMR geometry.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 1198
+    "line": 1251
   },
   {
     "file": "src/amr3.c",
@@ -269,7 +269,7 @@
     "signature": "static void workspace(A3 *a, double ***arrays, int count)",
     "purpose": "Replace scratch arrays after a mesh rebuild so their sizes match the new owned-plus-halo backing layout.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 1285
+    "line": 1338
   },
   {
     "file": "src/amr3.c",
@@ -277,7 +277,7 @@
     "signature": "int amr3_run(Config3 c, int rank, int size)",
     "purpose": "Drive initialization/restart, regridding, half chemistry, two-stage O+/molecular transport, acceptance checks, diagnostics and checkpointing. All ranks follow the same clocks; no level subcycling is used.",
     "module_contract": "AMR driver and conservative O+ fluxes. n is normalized by 1e12 m^-3; m=n*u_parallel. Private levels -1/0/1 represent physical L0/L1/L2 in a three-level run.",
-    "line": 1296
+    "line": 1349
   },
   {
     "file": "src/amr3_adapt.c",
@@ -925,7 +925,7 @@
     "signature": "static int valid(A3 *a)",
     "purpose": "Collectively verify finite/nonnegative molecular densities and consistent exact-vacuum momenta.",
     "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
-    "line": 441
+    "line": 459
   },
   {
     "file": "src/amr3_molecular.c",
@@ -933,7 +933,7 @@
     "signature": "void a3_night_transport_begin(A3 *a)",
     "purpose": "Save the accepted pre-transport molecular state and first-stage boundary rate for the two-stage update.",
     "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
-    "line": 457
+    "line": 475
   },
   {
     "file": "src/amr3_molecular.c",
@@ -941,7 +941,7 @@
     "signature": "int a3_night_predict(A3 *a, double dt)",
     "purpose": "Apply the molecular first-stage density/ETD momentum predictor and cache its fixed-nu coefficients for this exact attempted dt.",
     "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
-    "line": 472
+    "line": 490
   },
   {
     "file": "src/amr3_molecular.c",
@@ -949,7 +949,7 @@
     "signature": "int a3_night_correct(A3 *a, double dt)",
     "purpose": "Complete the two-stage density and ETD2 momentum update using same-attempt coefficients, then check positivity and stage boundary balance.",
     "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
-    "line": 497
+    "line": 515
   },
   {
     "file": "src/amr3_molecular.c",
@@ -957,7 +957,7 @@
     "signature": "void a3_night_accept(A3 *a)",
     "purpose": "Commit the accepted molecular boundary-particle increment after the coupled step passes all checks.",
     "module_contract": "NO+ and O2+ transport on canonical finest cells, with separate parallel momenta and common electron pressure. Canonical geometry is fixed even when O+ adapts.",
-    "line": 520
+    "line": 538
   },
   {
     "file": "src/amr3_night.c",
@@ -1075,9 +1075,9 @@
     "file": "src/amr3_night.c",
     "name": "a3_night_step",
     "signature": "void a3_night_step(A3 *a, double *n, double *m, double dt)",
-    "purpose": "Execute one chemistry split operator, check its charge budget, reduce global conversion/recombination totals, and refresh conductivity responses.",
+    "purpose": "Apply owned-cell chemistry and reduce charge/conversion budgets; defer molecular halo/conductivity refresh to the next mandatory prepare.",
     "module_contract": "Experimental isothermal, night-only multi-ion closure. Quasineutral Ne equals O+ + NO+ + O2+. Chemistry uses SI densities internally; stored ion densities are normalized by 1e12 m^-3.",
-    "line": 469
+    "line": 470
   },
   {
     "file": "src/amr3_night.c",
@@ -1085,7 +1085,7 @@
     "signature": "void a3_night_snapshot(A3 *a, const double *n, double time, int frame, double mass0)",
     "purpose": "Write a molecular checkpoint bound to the just-written native checkpoint, molecular frames, metadata and total-ion reaction/boundary budgets.",
     "module_contract": "Experimental isothermal, night-only multi-ion closure. Quasineutral Ne equals O+ + NO+ + O2+. Chemistry uses SI densities internally; stored ion densities are normalized by 1e12 m^-3.",
-    "line": 546
+    "line": 553
   },
   {
     "file": "src/amr3_night.c",
@@ -1093,7 +1093,7 @@
     "signature": "void a3_night_free(A3 *a)",
     "purpose": "Release all molecular full-grid and owned-work arrays, including stage-local ETD/log caches.",
     "module_contract": "Experimental isothermal, night-only multi-ion closure. Quasineutral Ne equals O+ + NO+ + O2+. Chemistry uses SI densities internally; stored ion densities are normalized by 1e12 m^-3.",
-    "line": 644
+    "line": 651
   },
   {
     "file": "src/amr3_potential.c",

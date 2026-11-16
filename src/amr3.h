@@ -13,6 +13,7 @@ typedef struct {
 } A3Leaf;
 typedef struct {
     int axis, i, j, first, last, left, right, level, ll, rl;
+    int parallel_offset; /* Local immutable nu/gravity/length cache, or -1. */
 } A3FaceBlock;
 typedef struct {
     double volume, nu, gravity, bg, area[2];
@@ -95,6 +96,9 @@ typedef struct {
     double *etd_weight[3]; /* Owned-cell decay, phi1, phi2; valid for one attempted dt. */
     A3FaceBlock *face_blocks;
     int face_block_count, face_block_capacity;
+    double *parallel_face_geometry; /* Local axis-2 faces only; no plasma-state values. */
+    int rate_only; /* Internal stability probe; never advances or commits a state. */
+    unsigned long long rate_probe_calls;
 
     double time; /* actual SSPRK stage time, seconds from model UTC start */
     double t_regrid, max_potential_remap_change;

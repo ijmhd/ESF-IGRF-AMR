@@ -159,6 +159,7 @@ int a3_adapt(A3 *a, double **n, double **m, const unsigned char *mask, double ti
     next.chemistry_calls = a->chemistry_calls;
     next.timestep_attempts = a->timestep_attempts;
     next.cfl_adjustments = a->cfl_adjustments;
+    next.rate_probe_calls = a->rate_probe_calls;
     next.t_exchange += a->t_exchange;
     next.t_prepare += a->t_prepare;
     next.t_coeff = a->t_coeff;
