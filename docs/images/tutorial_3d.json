@@ -1,0 +1,52 @@
+{
+  "time_s": 13500.0,
+  "frame": 1,
+  "quantity": "electron",
+  "slice_indices": {
+    "i": 128,
+    "j": 160,
+    "k": 32
+  },
+  "surface_display_stride": 2,
+  "AMR_outline": "all digital edges between actual density levels; no per-cell mesh",
+  "projection": "fixed ECEF east/north/radial-up Cartesian displacement, km",
+  "reference_ECEF_m": [
+    -2743768.681006812,
+    6705636.809835134,
+    859658.9119612211
+  ],
+  "projection_basis_rows": [
+    [
+      -0.9255201760049889,
+      -0.3786983018283741,
+      0.0
+    ],
+    [
+      0.044620012597107295,
+      -0.10904913413352252,
+      0.9930344106930852
+    ],
+    [
+      -0.37606044498661156,
+      0.9190733825636747,
+      0.1178246968145346
+    ]
+  ],
+  "display_limits_normalized": [
+    0,
+    1
+  ],
+  "density_floor_in_model_added": false,
+  "input_SHA256": {
+    "metadata.json": "b80a5c0dc7ca8f81d7a4bee827dd4f17afd12204d23424f37b08d89836ab4b6b",
+    "frames.csv": "be4269322af8643ed5ad5a2426ce1296d4a60ac05e709b0c5e252ae7434f7eec",
+    "display_density_0001.bin": "58258def3a97edfc1c4d7f3254e40e78be5202b87f2e64d82a9db5fc3745fdd2",
+    "molecular_0001.bin": "df72a60bfc5a0d387e50a28b6281e0ea7cae056a34bd373a1778f609b62fca39",
+    "amr_level_0001.bin": "a35a658204d63a2dee70d921fd084213cb49cc91d265a20a0670b95a7a7cb152",
+    "nodes.bin": "ac99334d39ebd5a4d3e20f17b7bf44a190a72ff63cce5fce2e0af0519a69941a"
+  },
+  "plotter_SHA256": "105b2bc94ba92549aab6c17fc0c2116c06f8c4410831d51843f099b482690bd8",
+  "reader_SHA256": "672738abd65c088eefad2c45fa0aaa67eaa62d46820982ea3f268eb0fe39c1dc",
+  "numpy_version": "1.24.3",
+  "matplotlib_version": "3.7.2"
+}

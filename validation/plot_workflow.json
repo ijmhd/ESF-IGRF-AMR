@@ -1,0 +1,189 @@
+{
+  "date_HKT": "2026-11-16",
+  "scope": "Read-only rendering/encoding of previously completed outputs; no scientific model execution, compile or production change",
+  "slurm_job_id": 29436170,
+  "allocated_cpus": 2,
+  "status": "passed",
+  "model_output_source_ID": "03a3c037cb75d2fbc640507d5b92a584158e31160124bd6753119b0834ceee76",
+  "file_format_scope": "two- and three-physical-level AMR visualization formats shared by main and perf/exact-cfl-work",
+  "saved_inputs": {
+    "three": {
+      "time_s": 13500.0,
+      "shape": [
+        320,
+        256,
+        64
+      ],
+      "density_min": 2.3628829741010913e-07,
+      "density_max": 0.762328648750725,
+      "physical_levels_present": [
+        0,
+        1,
+        2
+      ],
+      "nodes_shape": [
+        321,
+        257,
+        65,
+        3
+      ],
+      "input_SHA256": {
+        "metadata.json": "b80a5c0dc7ca8f81d7a4bee827dd4f17afd12204d23424f37b08d89836ab4b6b",
+        "frames.csv": "be4269322af8643ed5ad5a2426ce1296d4a60ac05e709b0c5e252ae7434f7eec",
+        "display_density_0001.bin": "58258def3a97edfc1c4d7f3254e40e78be5202b87f2e64d82a9db5fc3745fdd2",
+        "molecular_0001.bin": "df72a60bfc5a0d387e50a28b6281e0ea7cae056a34bd373a1778f609b62fca39",
+        "amr_level_0001.bin": "a35a658204d63a2dee70d921fd084213cb49cc91d265a20a0670b95a7a7cb152"
+      }
+    },
+    "two": {
+      "time_s": 2.0,
+      "shape": [
+        40,
+        32,
+        32
+      ],
+      "density_min": 0.00011441485594203542,
+      "density_max": 1.007224784200045,
+      "physical_levels_present": [
+        0,
+        1
+      ],
+      "nodes_shape": [
+        41,
+        33,
+        33,
+        3
+      ],
+      "input_SHA256": {
+        "metadata.json": "d4496db9b41601f6a62f8151d0fe3ca2e4390639b0557e1ec890892be9104a86",
+        "frames.csv": "e8542ca6fa24e8dc687ae976ded0ff43ca579adf224c6d122e670fa3204ffacd",
+        "display_density_0001.bin": "a36bfdc3ffb364c3b6bae0d12e184528551fb245505d93ffbe83048442c0a370",
+        "molecular_0001.bin": "9ec0e10eef63a07526f03db182be571259a3f3635338d8519dfc59752bdad3a4",
+        "density_mask_0001.bin": "c60a99775e92d67df2544769745cf987e38f86919b519ae56fa97dbce7497abd",
+        "structure_frames.csv": "764233b5775c6b7596b71f9eade70912831f3eb5a34d5034eafae9f2aa8b9467"
+      }
+    },
+    "smoke": {
+      "time_s": 0.2,
+      "shape": [
+        16,
+        16,
+        16
+      ],
+      "density_min": 0.00012389314929817205,
+      "density_max": 1.004056942231998,
+      "physical_levels_present": [
+        1
+      ],
+      "nodes_shape": [
+        17,
+        17,
+        17,
+        3
+      ],
+      "input_SHA256": {
+        "metadata.json": "d7e7be2291ff518ef1f554b98da3511fc1a18595eab020e62bedf105f3433935",
+        "frames.csv": "74e57aa349c96c8853f3d93a1430ae79dfe593e87e208371e371e0db52e4b65c",
+        "display_density_0002.bin": "276e6aa9f44e9fe780d774dfe8074bc5f44d91509ee10e32e06ee152aa182e06",
+        "geometry_cells.bin": "2cde697d8d472c798fe3fcf985ffd60c2762f0afab00cb22e9a1b88aaf36a8f4",
+        "amr_level_0002.bin": "3431383721510cf1c211de027cf958c183e16db5fabb6b230eb284c85e196aa9"
+      }
+    }
+  },
+  "checks": [
+    {
+      "script": "plot_slice.py",
+      "returncode": 0
+    },
+    {
+      "script": "plot_3d.py",
+      "returncode": 0
+    },
+    {
+      "script": "plot_3d.py",
+      "returncode": 0
+    },
+    {
+      "script": "plot_3d.py",
+      "returncode": 0
+    },
+    {
+      "script": "make_movie.py",
+      "returncode": 0
+    },
+    {
+      "script": "make_movie.py",
+      "returncode": 0
+    }
+  ],
+  "source_SHA256": {
+    "frame_reader.py": "672738abd65c088eefad2c45fa0aaa67eaa62d46820982ea3f268eb0fe39c1dc",
+    "plot_3d.py": "105b2bc94ba92549aab6c17fc0c2116c06f8c4410831d51843f099b482690bd8",
+    "make_movie.py": "87f63784dde41d2722b69cd5aa4474025a7158bedae6241a667e757486468047",
+    "plot_slice.py": "7bc8863ea90c2cbfef245ca7f8002027b233ce4370d4f01138db871c69d1d62f"
+  },
+  "movie_checks": {
+    "3d": {
+      "status": "complete",
+      "selected_frames": [
+        {
+          "frame": 0,
+          "time_s": 13350.0
+        },
+        {
+          "frame": 1,
+          "time_s": 13500.0
+        }
+      ],
+      "fps": 2,
+      "rendered": 2,
+      "movie_SHA256": "895bc06ba8839b49c1dcd6626c938e4883cde8d84e2fb03d958ea8ff59f83d77"
+    },
+    "slice": {
+      "status": "complete",
+      "selected_frames": [
+        {
+          "frame": 0,
+          "time_s": 13350.0
+        },
+        {
+          "frame": 1,
+          "time_s": 13500.0
+        }
+      ],
+      "fps": 2,
+      "rendered": 2,
+      "movie_SHA256": "d7d64c40ad3cd1bcf1a84a86946c885c330d6678c0c9ae3cd82ce09704a6e7bf"
+    }
+  },
+  "visual_QA": "PNG figures inspected after hash-verified transfer; actual density level boundaries and traced geometry visible",
+  "limits": [
+    "No new event-calibrated physics validation",
+    "Two-frame encoder checks cover saved times 13350 and 13500 s, not a full evolutionary movie",
+    "Ubuntu dependency-install recipe documented from official sources, not executed on a fresh Ubuntu host"
+  ],
+  "artifact_SHA256": {
+    "movie-slice/frame_00000.pdf": "9c799b49a1a9892578c07804a19db6ee016e5ac4ad895ee93d48d2275df67d75",
+    "movie-slice/frame_00000.png": "7d2ecfaa036dc8dcc99629b5e46bf3b923a2ebcc43ef292080b7d91c1feeeaee",
+    "movie-slice/frame_00001.pdf": "00f16f59269e63d56ef8e57f056e2ab9b7f5080cfba816d912413a9207806676",
+    "movie-slice/frame_00001.png": "2bb73889a0264fac30a868db7ce9b0b2b3ba76c6e83fbc9955c9741da388555a",
+    "movie-slice/movie.mp4": "d7d64c40ad3cd1bcf1a84a86946c885c330d6678c0c9ae3cd82ce09704a6e7bf",
+    "movie-3d/movie.mp4": "895bc06ba8839b49c1dcd6626c938e4883cde8d84e2fb03d958ea8ff59f83d77",
+    "movie-3d/frame_00000.png": "9ff6ae0153cd576ad92575f11b3e7d6a012d779d9f8962aa159de424cce03cff",
+    "movie-3d/frame_00000.pdf": "1ab94b70fab64df7b479d28ab333f846f08f1601943677dcba4ff1a230a2d5f8",
+    "movie-3d/frame_00001.png": "15806c18c663a8baab9b17c7a4a2cf802ce8030ed564fd43ef709c5e29698756",
+    "movie-3d/frame_00001.pdf": "c82e7838fa5f61abb85dd130a923c987c5f95f0dd0a5788fcd77471e6963d2ce",
+    "figures/smoke.png": "bbff911009d159888ecf0f618284f60dea7e80b1fb1c0e7ca8095936f4b0d1bb",
+    "figures/smoke.pdf": "bb97bf753bf1140c24faf2f3cc477d910b64fe558c22c67c59996ee2f6308211",
+    "figures/slice-three.pdf": "c4ba85f7e179aa743af88c9b34bcb9610d299f4d94ebebb7e49333785bc9f4cb",
+    "figures/slice-three.png": "2bb73889a0264fac30a868db7ce9b0b2b3ba76c6e83fbc9955c9741da388555a",
+    "figures/three.png": "84f4ddbf3c764b8dd45e7a7a4db869eba4bb28ae7f53a684064ea89a3df0ced1",
+    "figures/three.pdf": "918f72abbd06d120b96f4bb16feb36d3f19199216c145def3934f80b6f756510",
+    "figures/two.png": "f2929afa2273ac8510751b83612b4a46d906a2c4b4eeda099a6275c6cf3aeda6",
+    "figures/two.pdf": "6147414164b20f763cbda6cc977149093e0295c020218875d1067e42abb45549"
+  },
+  "reader_versions": {
+    "numpy_version": "1.24.3",
+    "matplotlib_version": "3.7.2"
+  }
+}

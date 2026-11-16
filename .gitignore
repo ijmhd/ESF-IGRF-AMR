@@ -14,3 +14,8 @@ methodology/*.out
 methodology/*.toc
 methodology/*.synctex.gz
 methodology/*.xdv
+
+.venv*/
+/figures/
+/provenance/
+/run-hk3.slurm

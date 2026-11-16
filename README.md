@@ -20,6 +20,8 @@ There is no physical density floor or velocity cap.
 
 ## Documentation
 
+**完整中文教程：[从下载、安装、编译、运行到二维/三维绘图和 movie（含源码）](docs/FROM_SOURCE_TO_MOVIE_ZH.md)**
+
 * [Build, run, MPI/OpenMP, Slurm and continuation](docs/RUNNING.md)
 * [Every executable parameter and actual default](docs/PARAMETERS.md)
 * [Geometry, physical/internal levels and AMR criteria](docs/GRID_AND_AMR.md)
