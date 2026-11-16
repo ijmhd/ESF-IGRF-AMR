@@ -1,7 +1,10 @@
 # ESF-IGRF-AMR
 
-> `main` retains the v0.1.0 numerical core with added teaching documentation and
-> postprocessing tools. The original `v0.1.0` tag and release assets stay frozen.
+> `main` includes the 2026-11-16 audit fixes for AMR checkpoint source binding,
+> saved-frame selection and retry accounting. Physics, evolution algorithms and
+> default parameters are unchanged. The original `v0.1.0` tag, release assets and
+> historical validation records stay frozen. Old unbound checkpoints require
+> their original executable; see the [Chinese compatibility guide](docs/FROM_SOURCE_TO_MOVIE_ZH.md#checkpoint-compatibility).
 
 An independent **C11 / MPI / optional OpenMP / PETSc** model for equatorial
 spread F on traced dipole or IGRF-14 magnetic flux tubes. The model includes
@@ -29,6 +32,8 @@ There is no physical density floor or velocity cap.
 * [LaTeX methodology](methodology/main.tex), [methods PDF](methodology/main.pdf),
   [complete annotated-source atlas](methodology/source-atlas.pdf)
 * [Validation and measured performance](docs/VALIDATION.md)
+* [Audit-fix regression results and current source identity](validation/audit_fixes/qualification.json),
+  [current file manifest](validation/audit_fixes/release_files_SHA256.json)
 * [Performance audit and remaining bottlenecks](docs/PERFORMANCE_AUDIT.md)
 
 ## Build and first run
@@ -41,6 +46,7 @@ Python 3 runs the launcher/checks; model evolution itself is C.
 git clone --branch main --depth 1 https://github.com/ijmhd/ESF-IGRF-AMR.git
 cd ESF-IGRF-AMR
 pkg-config --modversion PETSc
+python3 tools/check_release.py --manifest-dir validation/audit_fixes
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
   -DESF_MPI=ON -DESF_PETSC=ON
 cmake --build build -j 4
@@ -106,7 +112,8 @@ because its lazy caches and coarse/fine writes require different ownership.
 ## Continuing a night run
 
 Preserve the physical/AMR parameters and use a new output directory. Select a
-complete native/molecular checkpoint pair from the same time:
+complete native/molecular checkpoint pair from the same time, written by this
+source-bound version with the same complete numerical-source ID:
 
 ```sh
 python3 tools/run_case.py hk-night-demo --ranks 4 --end 1200 \
@@ -121,12 +128,30 @@ performance file, distinct from a portable state checkpoint. The qualification
 harness's audited rebinding of historical test copies is not a normal restart
 workflow.
 
+Current native AMR checkpoints start with `ESFSRC01` and the complete source ID.
+Earlier unbound `ESFAMR01`–`ESFAMR05` files and historical static imports are
+rejected by the current AMR reader. Continue them with the exact executable/source
+that generated them; the format alone does not identify a `v0.1.0` checkpoint.
+There is no automatic conversion or identity-bypass flag. Saved visualization
+frames keep their existing schema and remain available for postprocessing.
+
+For current `main`, use `validation/audit_fixes/source_identity.json` and the
+explicit manifest check above. Root-level `validation/source_identity.json`,
+`validation/qualification.json` and the methods PDFs describe the frozen release.
+
 ## Scope and evidence
 
-The release compares full saved states and actual AMR labels over the same
+The preserved v0.1.0 release compares full saved states and actual AMR labels over the same
 13350-13500 s physical interval, output/checkpoints every 150 s. Reported timings
 include initialization, output and actual MPI exit. Resource counts and limits
 are in the validation guide; short tests are not extrapolated to 20000 s.
+
+The audit fixes separately pass ten CTests, eight-rank migration, short two/three-
+level and night comparisons, source/legacy/checksum rejection and slice/movie
+regressions. Fresh saved fields match the original executable numerically;
+rank-changing own continuation differs by at most 1.70e-13 under the recorded
+global-amplitude normalization. This is a small-case engineering regression,
+not a new long-time or event-calibration result.
 
 Temperatures/neutrals are prescribed. There is no energy equation, photoionization,
 neutral-wind evolution, ion-ion momentum exchange or molecular perpendicular

@@ -1,5 +1,22 @@
 # Changelog
 
+## main audit fixes - 2026-11-16
+
+* Bind every newly written native AMR checkpoint to the complete numerical
+  source ID with an `ESFSRC01` envelope covered by its checksum, including
+  non-night and legacy-mask AMR paths. Unbound older native/static imports must
+  use their original executable; no automatic conversion or bypass is supplied.
+* Use the shared saved-frame reader for 2D slices and movies, including missing
+  two-level masks, incomplete CSV tails and O+/electron-specific file needs;
+  refuse an existing figure/provenance prefix before writing.
+* Separate segment failure retries from restored cumulative history while
+  retaining the original checkpoint/completion totals.
+* Record the targeted short-case gates in `validation/audit_fixes/`, update the
+  Chinese tutorial and publish an explicit old-checkpoint compatibility table.
+  Physics, evolution algorithms, CLI defaults, example inputs and build defaults
+  remain unchanged. The `v0.1.0` tag, release attachments and original validation
+  records remain frozen; no new tag or replacement historical result is created.
+
 ## v0.1.0 - 2026-11-16
 
 First frozen research/teaching release of the independent C11 ESF solver.

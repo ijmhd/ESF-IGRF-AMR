@@ -4,6 +4,13 @@ Defaults below are from `src/main.c`, not the launcher or production case. All
 options except `--help` require one value. Units shown here are CLI units;
 lengths become metres internally. Read the interaction constraints in each row.
 
+For current **AMR** restart, `--restart` requires the `ESFSRC01` envelope and the
+matching complete numerical-source ID, as well as the unchanged parameter/input
+checks. Historical unbound native files and static-to-AMR imports use their
+original executable. The static reference backend's legacy reader does not make
+those files compatible with current AMR. See the [compatibility table](FROM_SOURCE_TO_MOVIE_ZH.md#checkpoint-compatibility).
+This documentation clarification changes no option default or numeric value.
+
 | Option | Type / units | Executable default | Meaning / interactions |
 |---|---|---|---|
 | `--help` | flag | n/a | Print the short help and exit; this full reference includes extension options absent from short help. |

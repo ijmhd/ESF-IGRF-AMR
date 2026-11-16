@@ -4,6 +4,15 @@ For the complete Chinese end-to-end workflow, including source download, PETSc
 installation, case editing, restart, 3D field-line cuts and movies, see
 [从下载源码到模拟和绘图](FROM_SOURCE_TO_MOVIE_ZH.md).
 
+Current `main` includes source-bound native AMR checkpoints and the frame/retry
+audit fixes. See the [old-checkpoint compatibility table](FROM_SOURCE_TO_MOVIE_ZH.md#checkpoint-compatibility)
+before continuing a historical run. The original `v0.1.0` tag/assets and results
+are preserved. Check current source/text explicitly with:
+
+```sh
+python3 tools/check_release.py --manifest-dir validation/audit_fixes
+```
+
 ## Dependencies and variants
 
 Use C11, CMake >=3.18, MPI C, pkg-config and real-double PETSc. PETSc must use
@@ -165,6 +174,12 @@ and module paths. Record active threads and reserved CPUs separately.
 `--end` is the absolute elapsed model stop time, not additional duration.
 Night runs require BOTH native and molecular files from a verified same-time
 pair. The molecular file binds to the native file hash; mixed epochs fail.
+The example below requires a native checkpoint written by the source-bound
+version, with the same full numerical-source ID. Old unbound files beginning
+directly with `ESFAMR01`–`ESFAMR05`, and historical static-state imports into AMR,
+must use the executable/source that generated them. A format name alone cannot
+identify a v0.1.0-produced checkpoint. Current AMR does not convert or rebind
+those files; saved visualization arrays retain their schema for postprocessing.
 
 ```sh
 python3 tools/run_case.py hk-night-demo --ranks 2 --end 1200 \
@@ -176,8 +191,9 @@ python3 tools/run_case.py hk-night-demo --ranks 2 --end 1200 \
 Keep physics, grid, seed, AMR thresholds, neutral/driver inputs and source
 version consistent. Changing ranks is supported within decomposition limits.
 Keep original files. Source edits, including comments in geometry, change strict
-fingerprints: use a fresh run or a separately audited conversion, never disable
-checks. Geometry caches are native-ABI files, not portable restart states.
+fingerprints: use the original matching executable or a fresh run, never disable
+checks. No checkpoint conversion tool or bypass is supplied by this update.
+Geometry caches are native-ABI files, not portable restart states.
 
 ## Troubleshooting
 

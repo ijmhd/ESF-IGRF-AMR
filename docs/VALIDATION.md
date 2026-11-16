@@ -1,5 +1,35 @@
 # Validation and measured performance
 
+## Current main: targeted audit-fix validation
+
+The current source ID is
+`443273cce485c46d3f09029fd107feb9614547d6f7e324ccc8c35918ad50998b`.
+[Audit-fix evidence](../validation/audit_fixes/qualification.json) separately
+records ten passing CTests, eight-rank migration, 28 restart commands (12 expected
+rejections), 15 plotting commands and zero compiler warnings. Fresh small two-
+and three-level/night fields match the preserved original executable numerically.
+Own restart from one to two ranks matches direct advancement with maximum
+recorded global-amplitude-normalized field error 1.70e-13; complete-frame PNGs
+are byte-identical in three paired fixtures. The explicit roots are 4x4x16,
+fresh 0–0.2s, continuation to 0.4s and output/checkpoints every 0.1s. These are
+validation inputs, not new defaults or a long-time/event qualification.
+
+Job 29437085 built and passed CTest before a Hydra startup fault; its successful
+work was reused. Hydra startup faults in 29437085 and 29437090 remain failed,
+with their logs retained. Job 29437099 used direct Slurm PMI2, passed the remaining
+gates and completed with exit0. Expected identity/format/checksum rejections are
+negative tests, distinct from those launcher failures. No new sanitizer claim
+is made. [Source identity](../validation/audit_fixes/source_identity.json) and
+[file manifest](../validation/audit_fixes/release_files_SHA256.json) bind this main
+version; documentation publication does not change that numerical-source ID.
+
+Physics, evolution algorithms and defaults remain unchanged. Native AMR files
+now require the `ESFSRC01` source envelope; [old-checkpoint compatibility](FROM_SOURCE_TO_MOVIE_ZH.md#checkpoint-compatibility)
+is explicit. The root-level qualification/source manifests and all original
+results below are retained as the frozen v0.1.0 evidence.
+
+## Frozen v0.1.0 evidence
+
 Version **v0.1.0** is bound to numerical source ID
 `b876245d6051ff517b9121fd6644ecafd762d5ff55ef5c3965895b8edd264c5d`. [Machine-readable evidence](../validation/qualification.json)
 records build/executable/input hashes, effective controls, complete saved-field
@@ -111,10 +141,10 @@ pressure diffusion limit the science interpretation. Numerical parity does
 not calibrate collision multipliers, seed location, event growth time or
 Hong Kong/Sanya observations. The methods manuscript states these details.
 
-Rebuild and verify source/text with:
+For current main, rebuild and verify source/text with:
 
 ```sh
-python3 tools/check_release.py
+python3 tools/check_release.py --manifest-dir validation/audit_fixes
 ctest --test-dir build --output-on-failure
 mpiexec -n 8 build/test_amr3_migration
 ```
@@ -124,3 +154,5 @@ rank migration test is small and independent of the science grid. The full
 qualification's source, build hashes, exact input identities and scalar
 evidence are preserved; no successful scientific run was replayed to repair
 a reader or a figure. Production/controller jobs were kept independent.
+At the original `v0.1.0` tag, the default `python3 tools/check_release.py` selects
+its frozen root-level manifests; those original manifests have not been rewritten.

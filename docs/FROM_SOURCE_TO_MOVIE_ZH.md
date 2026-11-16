@@ -4,6 +4,8 @@
 
 本文的命令以 **Linux、Bash、MPI、实数双精度 PETSc** 为主。模型推进由 C11 完成，Python 负责算例展开和后处理。工作站可在本机运行；集群的编译、测试、模拟和数组绘图应在申请到的计算节点上进行。下文所有相对路径均以仓库根目录为起点，另有说明除外。
 
+**当前 `main` 已包含 2026-11-16 的三项审计修复**：原生 AMR 检查点完整源码身份、二维/movie 完整帧统一读取、累计与本段重试计数。物理模型、推进算法和默认参数未改；原 `v0.1.0` 标签、发布附件与历史结果保留。使用旧检查点前请先读[兼容性表](#checkpoint-compatibility)，当前源码身份与验证记录见 [validation/audit_fixes](../validation/audit_fixes)。
+
 目录：
 
 1. [下载与版本选择](#step-1)
@@ -39,8 +41,8 @@ git rev-parse HEAD
 
 | 版本 | 用途 | 本教程与新绘图工具 |
 |---|---|---|
-| `main` | v0.1.0 数值核心，加上后续教程和绘图工具；适合教学入口 | 包含 |
-| `perf/exact-cfl-work` | 已做独立配对验证的性能开发版本 | 同样包含 |
+| `main` | 保持原物理/推进算法与默认参数，加入三项审计修复及教程/绘图工具 | 包含；使用 `validation/audit_fixes/` 的当前身份清单 |
+| `perf/exact-cfl-work` | 独立配对验证的性能开发版本；本次不更新该分支 | 包含；源码身份与 `main` 不同 |
 | `v0.1.0` tag | 原始冻结发布，用于精确对应随附的 LaTeX、PDF 与源码行号 | 不含冻结以后的新教程和三维/movie 工具 |
 
 需要性能分支时，另建目录，避免混淆二进制和检查点：
@@ -53,7 +55,7 @@ cd ESF-IGRF-AMR-perf
 export ESF_REPO="$PWD"
 ```
 
-性能修改的实现和测量范围见[性能分支说明](https://github.com/ijmhd/ESF-IGRF-AMR/blob/perf/exact-cfl-work/docs/PERFORMANCE_UPDATE.md)。**不要用切换分支后的新二进制直接读取原分支的夜间检查点**；源身份是严格校验的一部分。需要重复一项结果时，保存确切 commit，而不仅是会继续移动的分支名。
+性能修改的实现和测量范围见[性能分支说明](https://github.com/ijmhd/ESF-IGRF-AMR/blob/perf/exact-cfl-work/docs/PERFORMANCE_UPDATE.md)。**不要用切换分支后的新二进制直接读取原分支检查点**；当前 `main` 对非夜间原生 AMR 也核对完整源码身份。需要重复一项结果时，保存确切 commit，而不仅是会继续移动的分支名。
 
 ### 1.2 不使用 Git：下载 ZIP
 
@@ -64,7 +66,7 @@ cd ESF-IGRF-AMR-main
 export ESF_REPO="$PWD"
 ```
 
-ZIP 包包含 C、头文件、测试、算例、IGRF 系数、绘图脚本和文档，但没有 Git 历史。记录下载日期、所选版本和 `validation/source_identity.json`。精确固定版本时，优先下载 GitHub 上指定 commit 的源码。
+ZIP 包包含 C、头文件、测试、算例、IGRF 系数、绘图脚本和文档，但没有 Git 历史。记录下载日期、所选 commit，以及当前 `main` 的 `validation/audit_fixes/source_identity.json` 和文件清单；根目录 `validation/source_identity.json` 保留给原冻结版本，不能冒充当前身份。精确固定版本时，优先下载 GitHub 上指定 commit 的源码。
 
 <a id="step-2"></a>
 ## 2. 安装系统依赖、MPI 与 PETSc
@@ -178,6 +180,7 @@ ffmpeg -version
 
 ```bash
 cd "$ESF_REPO"
+python3 tools/check_release.py --manifest-dir validation/audit_fixes
 cmake -S . -B build \
   -DCMAKE_C_COMPILER=mpicc \
   -DCMAKE_BUILD_TYPE=Release \
@@ -513,6 +516,24 @@ exec mpiexec --map-by "slot:PE=${OMP_NUM_THREADS:-1}" --bind-to core "$@"
 <a id="step-9"></a>
 ## 9. 输出与续算
 
+<a id="checkpoint-compatibility"></a>
+### 9.0 先核对旧检查点兼容性
+
+当前 `main` 原生 AMR 检查点的前 72 字节是 `ESFSRC01`（8 字节）和完整数值源码身份（64 个 ASCII 十六进制字符），其后才是原有 `ESFAMR01`–`ESFAMR05` 内层格式；整个原生文件的校验和包含这个新头部。该要求同时适用于非夜间和夜间。
+
+| 手头文件/版本 | 当前 `main` 的处理 | 正确做法 |
+|---|---|---|
+| 带 `ESFSRC01`，完整源码身份相同，物理/网格/AMR/输入签名一致 | 允许常规续算；ranks 可在支持范围内变化 | 使用新输出目录；夜间仍需匹配的分子检查点 |
+| 带 `ESFSRC01`，完整源码身份不同 | 明确拒绝，包括只改 C/头文件注释的不同源码 | 使用生成该检查点的确切版本；需要新模型版本时从新算例开始 |
+| 修复前直接以 `ESFAMR01`–`ESFAMR05` 开头的原生文件 | 缺少完整源码身份，当前 AMR reader 拒绝 | 保留原文件，用原可执行文件与原完整输入续算 |
+| 历史 `ESFRST01/02` 静态状态导入 AMR | 当前 AMR 入口不接受无身份导入 | 使用原来已支持该导入的确切旧版本；静态参考后端的旧 reader 不代表可导入当前 AMR |
+| `perf/exact-cfl-work` 或其他历史 commit 的文件 | 不能假定与当前 `main` 兼容 | 继续使用对应分支的确切 commit/原二进制；本次未更新性能分支 |
+| 已保存的 `frames.csv`、密度、级别、几何等可视化输出 | 本次未改数组 schema；满足 metadata/完整帧检查时可继续绘图 | 直接后处理已有结果，无须为画图重跑模型或转换检查点 |
+
+**旧格式不能证明它由 `v0.1.0` 生成。** 只有原记录确认使用该 tag 时，才可在独立目录重建 `v0.1.0`；生产或性能分支的历史检查点可能来自另一确切 commit，不能统一改用 `v0.1.0`。保留原可执行文件、构建环境、完整 CLI、外部输入及哈希；原有已完成结果继续有效，不需要覆盖。
+
+本次不提供自动迁移，也不提供跳过身份校验的选项。不要给旧文件手工添加当前身份头、修改源码 ID 或重算校验和来冒充新格式。夜间的 `ESFNIT02` 分子文件还必须绑定同时间原生检查点的哈希；只有两个文件都验证通过才可续算。
+
 ### 9.1 最先读取什么
 
 | 文件 | 用途 |
@@ -742,18 +763,18 @@ ffmpeg -hide_banner -n -framerate 8 \
 | 三维 reader/绘图 | [frame_reader.py](../tools/frame_reader.py)、[plot_3d.py](../tools/plot_3d.py) | 同帧输入检查、ECEF 曲面与磁力线 |
 | 视频 | [make_movie.py](../tools/make_movie.py) | 已存帧快照、真实时间、逐帧图和 FFmpeg |
 
-进一步阅读：[学生路线](LEARNING_GUIDE_ZH.md)、[所有运行时函数及源码行入口](FUNCTIONS.md)、[方程与完整调用流程](METHODS.md)、[LaTeX 源码](../methodology/main.tex)、[方法 PDF](../methodology/main.pdf)、[完整注释源码 atlas](../methodology/source-atlas.pdf)。性能分支的函数索引反映该分支；随附 PDF/TeX 仍对应原 v0.1.0，差异见性能说明。
+进一步阅读：[学生路线](LEARNING_GUIDE_ZH.md)、[所有运行时函数及源码行入口](FUNCTIONS.md)、[方程与完整调用流程](METHODS.md)、[LaTeX 源码](../methodology/main.tex)、[方法 PDF](../methodology/main.pdf)、[完整注释源码 atlas](../methodology/source-atlas.pdf)。当前函数索引对应所选分支；随附 PDF 保留为原 `v0.1.0` 资产。精确重建冻结文档应使用该 tag 的 TeX/源码，不能把当前更新后的函数索引当成旧 PDF 行号。
 
 修改 C/头文件会改变数值源身份，连注释变化也可能影响严格绑定的 restart/cache。把修改作为新版本编译、记录 commit 并验证，不要覆盖原始冻结版本的身份清单。教学绘图工具与文档更新不改变 C 数值源身份。
 
-本修复版的候选身份与文件清单位于 `validation/audit_fixes/`，使用 `python3 tools/check_release.py --manifest-dir validation/audit_fixes` 检查。原始 `validation/source_identity.json`、发布清单、资格记录和 v0.1.0 资产保留，描述原版本。
+当前修复版的身份与文件清单位于 `validation/audit_fixes/`，使用 `python3 tools/check_release.py --manifest-dir validation/audit_fixes` 检查。原始 `validation/source_identity.json`、发布清单、资格记录和 `v0.1.0` 资产保留，描述原版本；默认不带 `--manifest-dir` 的检查仍选择原冻结清单，不能用它代替当前版本检查。
 
 <a id="step-14"></a>
 ## 14. 保存结果和排查问题
 
 ### 14.1 每次结果应保留的材料
 
-保存确切 Git commit、`validation/source_identity.json`、编译器/MPI/PETSc 版本、CMake 配置、实际完整 CLI、所有外部输入及 SHA256、ranks×threads、调度资源、原始 stdout/stderr、帧清单、诊断、最终 completion 和成对检查点。绘图保存 PNG/PDF/MP4、JSON 和脚本版本。
+保存确切 Git commit、与该版本对应的源码身份和文件清单（当前 `main` 是 `validation/audit_fixes/`；旧冻结版本是其原清单）、编译器/MPI/PETSc 版本、CMake 配置、实际完整 CLI、所有外部输入及 SHA256、ranks×threads、调度资源、原始 stdout/stderr、帧清单、诊断、最终 completion 和成对检查点。绘图保存 PNG/PDF/MP4、JSON 和脚本版本。
 
 例如把源码和依赖版本另存到文本：
 
@@ -784,6 +805,7 @@ ZIP 用户省略 `git rev-parse HEAD`，改记下载对应 commit/包信息。�
 | 夜间报 illuminated E cells | 检查 UTC、两端共轭 E 层与整段时间；模型不含光致电离，不绕过夜间保护 |
 | 中性表位置/维度不匹配 | 为新的完整 canonical 几何重建空间输入，不改 shape 或哈希冒充匹配 |
 | restart 不匹配 | 检查同时间配对、原生哈希、数值源身份、网格和全部物理/AMR 设置 |
+| `lacks numerical source identity` | 修复前无身份检查点；按[兼容性表](#checkpoint-compatibility)使用原版本，不修改文件绕过 |
 | 没有指定时刻的完整帧 | 查 frames.csv、文件长度和实际完成时间；不要强行补图或伪造时钟 |
 | 只有 O+ 耗空，电子密度不相同 | 正确加入 NO+/O2+ 或物理 E 层贡献；确认绘图 quantity |
 | 三维图不是平直经纬高盒子 | 图来自真实弯曲磁通管，轴是固定参考 east/north/radial-up 位移 |
@@ -797,7 +819,11 @@ ZIP 用户省略 `git rev-parse HEAD`，改记下载对应 commit/包信息。�
 
 本文的模型基础验证和性能证据见 [VALIDATION.md](VALIDATION.md)。安装命令是基于官方文档的 Linux 配方；完整模型实际验证环境包括 GCC 12.3、Intel MPI 2021.3 和 PETSc 3.26.1，不能据此宣称已经在每种 Linux/macOS/WSL 安装组合上验证。
 
-新增绘图工具以**已完成的输出**做只读验证：三级实际 IGRF 夜间保存帧、两级夜间保存帧，以及非夜间 smoke，检查密度组成、尺寸与真实级别；检查二维和三维两帧 MP4 的生成。两帧 movie 是工具检查，不是长时间 ESF 演化验证。具体结果见 [绘图流程验证记录](../validation/plot_workflow.json)。本次文档/绘图更新不改变模型 C、物理参数、v0.1.0 tag 或原始发布资产。
+原教程新增绘图工具时，以**已完成的输出**做只读验证：三级实际 IGRF 夜间保存帧、两级夜间保存帧，以及非夜间 smoke，检查密度组成、尺寸与真实级别；检查二维和三维两帧 MP4 的生成。两帧 movie 是工具检查，不是长时间 ESF 演化验证。该阶段结果见保留的[绘图流程验证记录](../validation/plot_workflow.json)。
+
+当前 `main` 的三项审计修复另有[针对性验证记录](../validation/audit_fixes/qualification.json)：10 项 CTest、八 rank 迁移、28 次检查点/续算命令（包含 12 次预期拒绝）、15 次绘图命令均通过相应验收。两级、三级和夜间小算例的 fresh 场与原可执行文件数值一致；单 rank 检查点改双 rank 续算，相对直接推进的最大字段全局幅值归一化差异约 `1.70e-13`。三组完整帧新旧二维 PNG 逐字节一致。原两次 Hydra 启动故障记录保留，最终使用 Slurm PMI2 完成验证；不把启动失败称为通过。
+
+这些短算例采用显式 roots `4×4×16`、fresh `0–0.2 s`、自身续算到 `0.4 s`、每 `0.1 s` 输出，未修改教学或可执行默认参数，也不构成长时间增长、分叉或香港事件的新物理验证。当前修改涉及检查点 I/O、整数计数和绘图读取，不改变物理/推进算法；原 `v0.1.0` 标签、发布附件、历史资格记录与已有结果保留。
 
 官方参考：
 
