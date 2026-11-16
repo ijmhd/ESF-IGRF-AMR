@@ -1,5 +1,8 @@
 # ESF-IGRF-AMR
 
+> `main` retains the v0.1.0 numerical core with added teaching documentation and
+> postprocessing tools. The original `v0.1.0` tag and release assets stay frozen.
+
 An independent **C11 / MPI / optional OpenMP / PETSc** model for equatorial
 spread F on traced dipole or IGRF-14 magnetic flux tubes. The model includes
 conservative O+ transport, parallel momentum, a field-line-integrated
@@ -13,6 +16,8 @@ E-region closure is a physical population, not a numerical conductivity floor.
 There is no physical density floor or velocity cap.
 
 ## Documentation
+
+**完整中文教程：[从下载、安装、编译、运行到二维/三维绘图和 movie（含源码）](docs/FROM_SOURCE_TO_MOVIE_ZH.md)**
 
 * [Build, run, MPI/OpenMP, Slurm and continuation](docs/RUNNING.md)
 * [Every executable parameter and actual default](docs/PARAMETERS.md)
@@ -33,7 +38,7 @@ PETSc**. Qualification uses PETSc 3.26.1; MPI must match PETSc's MPI build.
 Python 3 runs the launcher/checks; model evolution itself is C.
 
 ```sh
-git clone --branch v0.1.0 --depth 1 https://github.com/ijmhd/ESF-IGRF-AMR.git
+git clone --branch main --depth 1 https://github.com/ijmhd/ESF-IGRF-AMR.git
 cd ESF-IGRF-AMR
 pkg-config --modversion PETSc
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \

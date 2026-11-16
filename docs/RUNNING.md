@@ -1,5 +1,9 @@
 # Building and running
 
+For the complete Chinese end-to-end workflow, including source download, PETSc
+installation, case editing, restart, 3D field-line cuts and movies, see
+[从下载源码到模拟和绘图](FROM_SOURCE_TO_MOVIE_ZH.md).
+
 ## Dependencies and variants
 
 Use C11, CMake >=3.18, MPI C, pkg-config and real-double PETSc. PETSc must use
