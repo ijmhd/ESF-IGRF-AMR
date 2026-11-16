@@ -389,7 +389,7 @@
     "signature": "int a3_checkpoint2_read(A3 *a, TubeGrid *g, Config3 c, int rank, int size, double **n, double **m, double *time, int *step, double *mass0, int **quiet, double *next_regrid, double *travel, int *retries)",
     "purpose": "Validate and reconstruct a structure-aware checkpoint, distribute states under the current MPI decomposition, and restore mesh/clocks/history.",
     "module_contract": "Structure-aware ESFAMR02/03/04/05 checkpoint formats. Preserve density/field masks, hysteresis clocks, optional seed tracer and conservation history.",
-    "line": 206
+    "line": 209
   },
   {
     "file": "src/amr3_macro.c",
@@ -1261,7 +1261,7 @@
     "signature": "int a3_checkpoint_read(A3 *a, TubeGrid *g, Config3 c, int rank, int size, double **n, double **m, double *time, int *step, double *mass0, int **quiet, double *next_regrid, double *travel, int *retries)",
     "purpose": "Recognize the checkpoint magic, validate legacy signatures or dispatch to the structure reader, then scatter conserved states to current rank ownership.",
     "module_contract": "Legacy ESFAMR01 portable checkpoint and dispatch to structure-aware versions. Integer and floating data are encoded little-endian and bound to input signatures.",
-    "line": 167
+    "line": 170
   },
   {
     "file": "src/amr3_structure.c",

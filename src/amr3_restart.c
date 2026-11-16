@@ -137,6 +137,9 @@ void a3_checkpoint_write(A3 *a, const double *n, const double *m, const double *
     if (!s.f)
         a3_fail(a, "AMR checkpoint open");
     char magic[] = "ESFAMR01";
+    char envelope[] = "ESFSRC01", source[] = ESF_NIGHT_ID;
+    bytes(&s, envelope, 8);
+    bytes(&s, source, 64);
     bytes(&s, magic, 8);
     for (int k = 0; k < 14; k++)
         integer(&s, header[k]);
@@ -173,7 +176,12 @@ int a3_checkpoint_read(A3 *a, TubeGrid *g, Config3 c, int rank, int size, double
         FILE *f = fopen(c.restart, "rb");
         if (!f)
             a3_fail(&status, "restart open");
-        char magic[8];
+        char magic[8], source[64];
+        if (fread(magic, 1, 8, f) != 8 || memcmp(magic, "ESFSRC01", 8))
+            a3_fail(&status,
+                    "AMR restart lacks numerical source identity; continue legacy checkpoints with their original executable");
+        if (fread(source, 1, 64, f) != 64 || memcmp(source, ESF_NIGHT_ID, 64))
+            a3_fail(&status, "AMR restart numerical source identity mismatch");
         if (fread(magic, 1, 8, f) == 8) {
             if (!memcmp(magic, "ESFAMR01", 8))
                 native = 1;
@@ -181,6 +189,8 @@ int a3_checkpoint_read(A3 *a, TubeGrid *g, Config3 c, int rank, int size, double
                      (!memcmp(magic, "ESFAMR04", 8) || !memcmp(magic, "ESFAMR05", 8)))
                 native = 2;
         }
+        if (!native)
+            a3_fail(&status, "invalid source-bound AMR restart version");
         fclose(f);
     }
     MPI_Bcast(&native, 1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -206,7 +216,11 @@ int a3_checkpoint_read(A3 *a, TubeGrid *g, Config3 c, int rank, int size, double
         Stream s = {&status, fopen(c.restart, "rb"), UINT64_C(14695981039346656037), 0};
         if (!s.f)
             a3_fail(&status, "AMR restart open");
-        char magic[8];
+        char envelope[8], source[64], magic[8];
+        bytes(&s, envelope, 8);
+        bytes(&s, source, 64);
+        if (memcmp(envelope, "ESFSRC01", 8) || memcmp(source, ESF_NIGHT_ID, 64))
+            a3_fail(&status, "AMR restart numerical source identity mismatch");
         bytes(&s, magic, 8);
         for (int k = 0; k < 14; k++)
             header[k] = integer(&s, 0);

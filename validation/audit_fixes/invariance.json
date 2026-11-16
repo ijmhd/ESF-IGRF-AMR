@@ -1,0 +1,16 @@
+{
+  "base_commit": "60f781230308e9965da16d6d45f9e64c656a1da2",
+  "driver_physics_and_timestep_text": "byte-identical after removing only new retry bookkeeping/output",
+  "CMake_main_parameters_and_examples": "unchanged",
+  "original_validation_hashes": {
+    "validation/annotation_token_parity.json": "1c534c7cf4e286af574c5c18bb9423a7aeeff147d5031828300f0e8b5d1e4856",
+    "validation/documentation_build.json": "301248b55fbfc038792f6ae55a761fdb5e3db44caf94aba57eb68f2cdf80b24c",
+    "validation/figure_provenance.json": "70402db12eb4c15e4951b96e363810ca966bbaa45b0f72e68964412b23155e67",
+    "validation/optimization_history.json": "bb37528dcefebf0e6005f69adb1f2dfc5a6959ce0c17eb7ddfa2369bd9993868",
+    "validation/plot_workflow.json": "ab9f86d69620922dcd5fe4bda871bf644e3084e70c176e7975840518fed4a953",
+    "validation/qualification.json": "95ef74b13a5a45b9eec0b89998e9883872cc7f3a2096773e8fa28435ce1fba1b",
+    "validation/release_files_SHA256.json": "1ac8ce287a3370db70d2edc901c01b6c6ba86a9c461099c501cd5bdda1f98cd5",
+    "validation/source_identity.json": "a03cb9f0bd5163d9c7a42b748d2aa108f31812f6fe0e6aa49feb750eeb6bf236",
+    "validation/test_annotation_parity.json": "5e06fc2c6adffee074551307f1c2883fb2cb32f2ba201734e8467deb8c4ff808"
+  }
+}

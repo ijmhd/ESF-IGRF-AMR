@@ -543,6 +543,8 @@ exec mpiexec --map-by "slot:PE=${OMP_NUM_THREADS:-1}" --bind-to core "$@"
 
 ### 9.2 非夜间续算
 
+本修复版的原生 AMR 检查点在原格式前增加 `ESFSRC01` 与完整数值源码身份，非夜间也严格核对。修复前无此身份头的检查点，以及历史静态检查点导入，应保留并使用原可执行版本续算；本修复版不自动转换旧结果，也不提供跳过身份校验的选项。下列例子要求前后均为同一修复版。
+
 例如已完成 `runs/hk3` 到 600 s，保持同一源码、相同物理/网格/AMR 参数，继续到 1200 s：
 
 ```bash
@@ -743,6 +745,8 @@ ffmpeg -hide_banner -n -framerate 8 \
 进一步阅读：[学生路线](LEARNING_GUIDE_ZH.md)、[所有运行时函数及源码行入口](FUNCTIONS.md)、[方程与完整调用流程](METHODS.md)、[LaTeX 源码](../methodology/main.tex)、[方法 PDF](../methodology/main.pdf)、[完整注释源码 atlas](../methodology/source-atlas.pdf)。性能分支的函数索引反映该分支；随附 PDF/TeX 仍对应原 v0.1.0，差异见性能说明。
 
 修改 C/头文件会改变数值源身份，连注释变化也可能影响严格绑定的 restart/cache。把修改作为新版本编译、记录 commit 并验证，不要覆盖原始冻结版本的身份清单。教学绘图工具与文档更新不改变 C 数值源身份。
+
+本修复版的候选身份与文件清单位于 `validation/audit_fixes/`，使用 `python3 tools/check_release.py --manifest-dir validation/audit_fixes` 检查。原始 `validation/source_identity.json`、发布清单、资格记录和 v0.1.0 资产保留，描述原版本。
 
 <a id="step-14"></a>
 ## 14. 保存结果和排查问题

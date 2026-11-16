@@ -164,6 +164,9 @@ void a3_checkpoint2_write(A3 *a, const double *n, const double *m, const double 
     strcpy(magic, a->c.amr_levels == 3     ? "ESFAMR05"
                   : parameters(a->c) == 72 ? "ESFAMR04"
                                            : (parameters(a->c) == 68 ? "ESFAMR03" : "ESFAMR02"));
+    char envelope[] = "ESFSRC01", source[] = ESF_NIGHT_ID;
+    bytes(&s, envelope, 8);
+    bytes(&s, source, 64);
     bytes(&s, magic, 8);
     for (int k = 0; k < 14; k++)
         integer(&s, h[k]);
@@ -227,7 +230,11 @@ int a3_checkpoint2_read(A3 *a, TubeGrid *g, Config3 c, int rank, int size, doubl
         Stream s = {&status, fopen(c.restart, "rb"), UINT64_C(14695981039346656037), 0};
         if (!s.f)
             a3_fail(&status, "structure restart open");
-        char magic[8];
+        char envelope[8], source[64], magic[8];
+        bytes(&s, envelope, 8);
+        bytes(&s, source, 64);
+        if (memcmp(envelope, "ESFSRC01", 8) || memcmp(source, ESF_NIGHT_ID, 64))
+            a3_fail(&status, "AMR restart numerical source identity mismatch");
         bytes(&s, magic, 8);
         for (int k = 0; k < 14; k++)
             h[k] = integer(&s, 0);

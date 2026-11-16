@@ -1,0 +1,122 @@
+{
+  "status": "passed",
+  "date_HKT": "2026-11-16",
+  "base_commit": "60f781230308e9965da16d6d45f9e64c656a1da2",
+  "source_ID": "443273cce485c46d3f09029fd107feb9614547d6f7e324ccc8c35918ad50998b",
+  "binary_SHA256": "e188fe1c598279bbac8ea69ceffd9780a9061d503d69a42ca87b0453c0a432a6",
+  "baseline_binary_SHA256": "3758dca2b4ad8cac095d51ad4b79b34b8bc0a9628fd865d29b0fedb58cbe936c",
+  "compiler_warnings": [],
+  "build_and_CTest": {
+    "job_ID": "29437085",
+    "status": "passed",
+    "CTest_passed": 10,
+    "build": "GCC12.3/IntelMPI2021.3/PETSc3.26.1 real-double; Release O3 LTO OpenMP; original build controls retained"
+  },
+  "completed_validation_job": {
+    "job_ID": "29437099",
+    "state": "COMPLETED",
+    "exit_code": "0:0",
+    "elapsed": "00:04:50",
+    "node": "node184",
+    "reserved_CPUs": 8,
+    "MPI_launch": "Slurm PMI2 direct launch; site libpmi2.so; science1or2ranks x2workers; migration8x1"
+  },
+  "preserved_startup_failures": [
+    {
+      "job_ID": "29437085",
+      "state": "FAILED",
+      "scope": "Hydra/Slurm launcher proxy signal11 after successful build/CTest; not counted as migration pass"
+    },
+    {
+      "job_ID": "29437090",
+      "state": "FAILED",
+      "scope": "Hydra fork launcher proxy signal11; logs retained"
+    }
+  ],
+  "migration8": "passed using the already built executable",
+  "restart_regression": {
+    "status": "passed",
+    "commands": 28,
+    "successful_commands": 16,
+    "expected_rejection_commands": 12,
+    "grid": "4x4x16 physical roots; two/three levels",
+    "physical_scope_s": "fresh0..0.2; own continuation0.2..0.4; direct0..0.4; legacy continuation0.2..0.3",
+    "output_checkpoint_every_s": 0.1,
+    "checks": [
+      {
+        "case": "two",
+        "baseline_field_errors": {
+          "state": 0.0,
+          "display_density": 0.0,
+          "phi": 0.0
+        },
+        "continuation_errors": {
+          "state": 2.180853650138448e-19,
+          "display_density": 1.3470611058200374e-19,
+          "phi": 8.359285218995822e-16
+        }
+      },
+      {
+        "case": "three",
+        "baseline_field_errors": {
+          "state": 0.0,
+          "display_density": 0.0,
+          "phi": 0.0
+        },
+        "continuation_errors": {
+          "state": 6.074010208217412e-17,
+          "display_density": 1.3465949992662077e-19,
+          "phi": 1.2915383142243685e-15
+        }
+      },
+      {
+        "case": "night",
+        "baseline_field_errors": {
+          "state": 0.0,
+          "display_density": 0.0,
+          "phi": 0.0,
+          "molecular": 0.0,
+          "molecular_momentum": 0.0
+        },
+        "continuation_errors": {
+          "state": 4.654167408068747e-18,
+          "display_density": 2.1553590985896165e-19,
+          "phi": 1.6988643683071166e-13,
+          "molecular": 4.0675983357998835e-18,
+          "molecular_momentum": 3.0754591873972167e-16
+        }
+      }
+    ],
+    "max_continuation_global_amplitude_normalized_error": 1.6988643683071166e-13,
+    "source_ID_guard": "matching source accepted; independently compiled comment-only source change rejected; wrong-ID fixture rejected",
+    "unbound_original_checkpoint": "rejected with original-executable guidance",
+    "checksum_damage": "rejected",
+    "retry_history": "both non-night levels: total7/start7, segment0/reported0, zero attempted steps; test copies only"
+  },
+  "frame_regression": {
+    "status": "passed",
+    "complete_frame_PNG_parity": "byte-identical for all three paired fixtures",
+    "checks": [
+      "two-level missing mask fallback",
+      "unfinished CSV row ignored",
+      "night Oplus without molecular file",
+      "night Ne requires molecular file",
+      "slice/movie selection agreement",
+      "exact incomplete time refused",
+      "provenance overwrite refused",
+      "input hashes unchanged"
+    ],
+    "commands": 15
+  },
+  "preservation": {
+    "physics_and_timestep_driver": "unchanged except integer retry bookkeeping and JSON output",
+    "defaults_CMake_parameters_examples": "byte-identical to base",
+    "original_validation_and_assets": "unchanged",
+    "scientific_arrays": "retained on allocated compute; only source/text/scalars/logs exported"
+  },
+  "limits": [
+    "Targeted small-case regression, not a new long-time physical/event qualification",
+    "No new ASAN/UBSAN/ThreadSanitizer claim",
+    "Old unbound checkpoints must use original executable; no automatic conversion or identity bypass"
+  ]
+}

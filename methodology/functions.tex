@@ -111,7 +111,7 @@ Structure-aware ESFAMR02/03/04/05 checkpoint formats. Preserve density/field mas
 {\small\nolinkurl{static void signature(Config3 c, double value[72])}}
 \item[\texttt{a3\_checkpoint2\_write}] Atomically write structure-aware masks/history, optional tracer, actual conserved states, potential and checksummed physical/numerical signatures. Source line 127.\par
 {\small\nolinkurl{void a3_checkpoint2_write(A3 *a, const double *n, const double *m, const double *marker, double time, int step, double mass0, double next_regrid, double travel, int retries)}}
-\item[\texttt{a3\_checkpoint2\_read}] Validate and reconstruct a structure-aware checkpoint, distribute states under the current MPI decomposition, and restore mesh/clocks/history. Source line 206.\par
+\item[\texttt{a3\_checkpoint2\_read}] Validate and reconstruct a structure-aware checkpoint, distribute states under the current MPI decomposition, and restore mesh/clocks/history. Source line 209.\par
 {\small\nolinkurl{int a3_checkpoint2_read(A3 *a, TubeGrid *g, Config3 c, int rank, int size, double **n, double **m, double *time, int *step, double *mass0, int **quiet, double *next_regrid, double *travel, int *retries)}}
 \end{description}
 \subsection{\texttt{src/amr3\_macro.c}}
@@ -357,7 +357,7 @@ Legacy ESFAMR01 portable checkpoint and dispatch to structure-aware versions. In
 {\small\nolinkurl{static void finish(Stream *s)}}
 \item[\texttt{a3\_checkpoint\_write}] Write ESFAMR01 for legacy masks or dispatch to the structure-aware writer; retain little-endian encoding and atomic replacement. Source line 99.\par
 {\small\nolinkurl{void a3_checkpoint_write(A3 *a, const double *n, const double *m, const double *marker, double time, int step, double mass0, const int *quiet, double next_regrid, double travel, int retries)}}
-\item[\texttt{a3\_checkpoint\_read}] Recognize the checkpoint magic, validate legacy signatures or dispatch to the structure reader, then scatter conserved states to current rank ownership. Source line 167.\par
+\item[\texttt{a3\_checkpoint\_read}] Recognize the checkpoint magic, validate legacy signatures or dispatch to the structure reader, then scatter conserved states to current rank ownership. Source line 170.\par
 {\small\nolinkurl{int a3_checkpoint_read(A3 *a, TubeGrid *g, Config3 c, int rank, int size, double **n, double **m, double *time, int *step, double *mass0, int **quiet, double *next_regrid, double *travel, int *retries)}}
 \end{description}
 \subsection{\texttt{src/amr3\_structure.c}}

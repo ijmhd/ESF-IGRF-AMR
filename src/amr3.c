@@ -1387,6 +1387,7 @@ int amr3_run(Config3 c, int rank, int size) {
     int frame = 0, own = a.owned_count * a.ns;
     double start_time = time;
     int start_step = step;
+    int start_retries = retries;
     next = time;
     unsigned char *mask = a3_alloc(&a, a.mask_count, 1);
     if (c.amr_structure && c.amr_seed_guard && c.amplitude != 0 && !native) {
@@ -1646,9 +1647,9 @@ int amr3_run(Config3 c, int rank, int size) {
         f = output(&a, "performance_counters.json", "w");
         fprintf(
             f,
-            "{\"scope\":\"After initial snapshot through terminal diagnostic RHS; rank0 call counts, no checkpoint history\",\"rhs_calls\":%llu,\"tag_checks\":%llu,\"chemistry_calls\":%llu,\"timestep_attempts\":%llu,\"initial_CFL_adjustments\":%llu,\"reported_failure_retries\":%d}\n",
+            "{\"scope\":\"After initial snapshot through terminal diagnostic RHS; rank0 call counts; reported_failure_retries and segment_failure_retries exclude checkpoint history; retries_total and start_retries include history\",\"rhs_calls\":%llu,\"tag_checks\":%llu,\"chemistry_calls\":%llu,\"timestep_attempts\":%llu,\"initial_CFL_adjustments\":%llu,\"reported_failure_retries\":%d,\"segment_failure_retries\":%d,\"retries_total\":%d,\"start_retries\":%d}\n",
             a.rhs_calls, a.tag_checks, a.chemistry_calls, a.timestep_attempts, a.cfl_adjustments,
-            retries);
+            retries - start_retries, retries - start_retries, retries, start_retries);
         fclose(f);
     }
     free(marker);

@@ -49,3 +49,20 @@ Use each driver's `--help` and a new work/report path. These optional drivers
 compile/execute scientific checks, so use allocated compute. Preserve successful
 results and failures. A failed reader after a successful run calls for reading
 the saved outputs correctly, not replaying the model to get another reading.
+
+Targeted audit-fix regressions (run on allocated compute, using NEW work paths):
+
+* `check_audit_restart.py --binary FIXED --baseline ORIGINAL --mutant SOURCE_CHANGED --work NEW_DIR`
+  checks unchanged fresh two/three-level and night fields, rank-changing own
+  continuation, source/legacy rejection, checksums and nonzero retry history.
+  SOURCE_CHANGED is an isolated build with only a comment appended to
+  transport.c: geometry and physics are identical but the complete source ID
+  differs. Original checkpoint files are never edited; history fixtures are
+  explicitly labeled, rechecksummed copies used only for negative/accounting tests.
+* `check_saved_frames.py --baseline-tools ORIGINAL_TOOLS --work NEW_DIR`
+  checks missing masks, partial CSV rows, O+/Ne-specific requirements, slice/movie
+  agreement, preserved inputs and byte-identical complete-frame PNGs.
+
+Neither driver changes executable or example defaults. The original release
+manifests remain frozen; check this candidate explicitly with
+`python3 tools/check_release.py --manifest-dir validation/audit_fixes`.

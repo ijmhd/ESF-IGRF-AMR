@@ -69,7 +69,7 @@ Structure-aware ESFAMR02/03/04/05 checkpoint formats. Preserve density/field mas
 * [`parameters`](../src/amr3_checkpoint2.c#L80): Choose the exact restart signature length required by this case's driver/neutral extensions.
 * [`signature`](../src/amr3_checkpoint2.c#L87): Build the ordered physical/numerical restart signature; changing a signed parameter intentionally rejects incompatible restart.
 * [`a3_checkpoint2_write`](../src/amr3_checkpoint2.c#L127): Atomically write structure-aware masks/history, optional tracer, actual conserved states, potential and checksummed physical/numerical signatures.
-* [`a3_checkpoint2_read`](../src/amr3_checkpoint2.c#L206): Validate and reconstruct a structure-aware checkpoint, distribute states under the current MPI decomposition, and restore mesh/clocks/history.
+* [`a3_checkpoint2_read`](../src/amr3_checkpoint2.c#L209): Validate and reconstruct a structure-aware checkpoint, distribute states under the current MPI decomposition, and restore mesh/clocks/history.
 
 ## `src/amr3_macro.c`
 
@@ -213,7 +213,7 @@ Legacy ESFAMR01 portable checkpoint and dispatch to structure-aware versions. In
 * [`signature`](../src/amr3_restart.c#L71): Build the ordered physical/numerical restart signature; changing a signed parameter intentionally rejects incompatible restart.
 * [`finish`](../src/amr3_restart.c#L86): Write or verify the final checksum, reject trailing data on reads, and close the checkpoint stream.
 * [`a3_checkpoint_write`](../src/amr3_restart.c#L99): Write ESFAMR01 for legacy masks or dispatch to the structure-aware writer; retain little-endian encoding and atomic replacement.
-* [`a3_checkpoint_read`](../src/amr3_restart.c#L167): Recognize the checkpoint magic, validate legacy signatures or dispatch to the structure reader, then scatter conserved states to current rank ownership.
+* [`a3_checkpoint_read`](../src/amr3_restart.c#L170): Recognize the checkpoint magic, validate legacy signatures or dispatch to the structure reader, then scatter conserved states to current rank ownership.
 
 ## `src/amr3_structure.c`
 

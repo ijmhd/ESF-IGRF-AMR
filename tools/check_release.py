@@ -5,11 +5,16 @@ This reads text/metadata only and does not compile or execute a model. An edited
 source tree intentionally fails the frozen-identity check; it is a new version.
 """
 from pathlib import Path
-import ast,hashlib,json,re
+import argparse,ast,hashlib,json,re
 
 def main():
     """Verify the published frozen-source contract, reporting precise failures."""
-    r=Path(__file__).resolve().parents[1];m=json.loads((r/'validation/source_identity.json').read_text())
+    r=Path(__file__).resolve().parents[1]
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--manifest-dir',type=Path,default=Path('validation'),
+                        help='Explicit candidate manifest directory; original frozen manifests remain the default')
+    args=parser.parse_args();directory=r/args.manifest_dir
+    m=json.loads((directory/'source_identity.json').read_text())
     for name,h in m['numerical_SHA256'].items():
         assert hashlib.sha256((r/name).read_bytes()).hexdigest()==h,('source modified',name)
     expected=hashlib.sha256(''.join(m['numerical_SHA256'][k] for k in sorted(m['numerical_SHA256'])).encode()).hexdigest()
@@ -29,7 +34,7 @@ def main():
             path=link.split('#')[0]
             if path and not (p.parent/path).exists():missing.append((str(p.relative_to(r)),link))
     assert not missing,('missing documentation targets',missing)
-    frozen=r/'validation/release_files_SHA256.json'
+    frozen=directory/'release_files_SHA256.json'
     if frozen.exists():
         for name,h in json.loads(frozen.read_text())['files_SHA256'].items():
             assert hashlib.sha256((r/name).read_bytes()).hexdigest()==h,('release file modified',name)

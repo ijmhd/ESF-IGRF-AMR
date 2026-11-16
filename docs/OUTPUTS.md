@@ -58,11 +58,23 @@ Full synchronous launch-to-exit timing is the end-to-end performance measure.
 terminal diagnostic RHS. It records RHS/tag/chemistry calls, total attempted
 steps, initial post-chemistry CFL adjustments and reported failure retries. The
 last are distinct concepts. Historical step/solve counts may include restart
-history; the new call counters do not.
+history. `reported_failure_retries` and `segment_failure_retries` exclude it;
+`start_retries` records the restored count and `retries_total` retains the full
+history, also retained by `completion.json.retries` and the next checkpoint.
 
 ## Native and molecular checkpoints
 
-The native magic distinguishes ESFAMR01 legacy, ESFAMR02 structure,
+New native AMR checkpoints begin with `ESFSRC01` (8 bytes), then the 64 ASCII
+hex characters of the complete compiled numerical-source ID (`ESF_NIGHT_ID`,
+the hash of all src C/header and include header hashes). The existing native
+payload follows; its checksum now also covers this source envelope. This
+binding applies to non-night as well as night runs. A mismatching source ID is
+fatal before the state is accepted. The original unbound checkpoint formats,
+including historical static-state imports, must be continued with their
+original executable; this version does not silently migrate or rebind them.
+Keep the original version, inputs and results. No bypass flag is provided.
+
+The inner native magic distinguishes ESFAMR01 legacy, ESFAMR02 structure,
 ESFAMR03 driver extension, ESFAMR04 spatial neutrals, and ESFAMR05 three physical
 levels. All have checksummed little-endian words/doubles. Structure formats
 contain geometry source/input signatures, physical/numerical parameter arrays,
